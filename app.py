@@ -9,7 +9,6 @@ import io
 
 app = Flask(__name__)
 
-# აბსოლუტური გზა app.py-ის საკუთარი მდებარეობიდან
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 
@@ -37,7 +36,6 @@ def load_config():
 
 
 def generate_excel_from_records(records):
-    """იღებს ჩანაწერების სიას და აბრუნებს Excel-ფაილს (BytesIO)."""
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "შესრულებული სამუშაოები"
@@ -78,6 +76,12 @@ def generate_excel_from_records(records):
                 absent_members.append(entry)
             else:
                 active_members.append(entry)
+
+        # ------------------ იერარქიული სორტირება ------------------
+        # ბრიგადირი / სარემონტო ბრიგადის უფროსი ექცევა სიაში პირველ ადგილზე
+        active_members.sort(key=lambda x: 0 if x.get("position") in LEADER_POSITIONS else 1)
+        absent_members.sort(key=lambda x: 0 if x.get("position") in LEADER_POSITIONS else 1)
+        # ------------------------------------------------------------
 
         worker_count = sum(1 for m in active_members if m["position"] not in LEADER_POSITIONS)
 
@@ -251,7 +255,6 @@ def generate():
     )
 
 
-# Vercel-ის სერვერლეს გარემოსთვის
 app = app
 
 if __name__ == "__main__":
