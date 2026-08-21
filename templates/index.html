@@ -94,11 +94,6 @@
             background: var(--surface); border: 1px solid var(--line);
             padding: 24px 26px 26px; margin-bottom: 20px; position: relative;
         }
-        .panel::before, .panel::after {
-            content: ""; position: absolute; width: 12px; height: 12px; pointer-events: none;
-        }
-        .panel::before { top: -1px; left: -1px; border-top: 2px solid var(--ink); border-left: 2px solid var(--ink); }
-        .panel::after { bottom: -1px; right: -1px; border-bottom: 2px solid var(--ink); border-right: 2px solid var(--ink); }
         .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
         .panel-eyebrow {
             font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--steel);
@@ -397,13 +392,10 @@ body::before{
     box-shadow:var(--shadow-lg);
     border-color:#d3ddec;
 }
-.panel::before,.panel::after{
-    width:34px;height:34px;
-    border-color:rgba(55,103,255,.20);
-    border-width:1px;
+/* წაშლილია ძველი Blueprint-ის კუთხეები */
+.panel::before, .panel::after {
+    display: none !important;
 }
-.panel::before{border-top:1px solid rgba(55,103,255,.22);border-left:1px solid rgba(55,103,255,.22)}
-.panel::after{border-bottom:1px solid rgba(55,103,255,.22);border-right:1px solid rgba(55,103,255,.22)}
 
 .panel-head{
     margin-bottom:22px;
@@ -1486,7 +1478,6 @@ h2.section-title{
                     const preset = presetMap[m.personal_id] || {};
                     return { ...m, absent: !!preset.absent, note: preset.note || '', extra: false, homeBrigade: null };
                 });
-                // დავამატოთ ის "extra" წევრები, რომლებიც ბაზისურ როსტერში არ შედის
                 rec.members.forEach(m => {
                     if (m.extra && !currentMembers.some(cm => cm.personal_id === m.personal_id)) {
                         currentMembers.push({
@@ -1636,7 +1627,6 @@ h2.section-title{
         workCounter = 0;
         addWork();
 
-        // ყველა ჩასაწერი ველი ნულდება: ბრიგადა/რეგიონი/წევრები/თარიღი/მისამართიც.
         document.getElementById('brigadeSelect').value = '';
         document.getElementById('citySelect').innerHTML = '<option value="">-- აირჩიეთ ბრიგადა --</option>';
         currentMembers = [];
