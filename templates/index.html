@@ -193,6 +193,8 @@
         .status { margin-top: 16px; padding: 12px 16px; border-radius: var(--r); display: none; font-weight: 600; font-size: 13.5px; font-family: var(--font-mono); }
         .status.success { background: var(--success-soft); color: #106043; border: 1px solid #A9E0C6; display: block; }
         .status.error { background: var(--danger-soft); color: #93261B; border: 1px solid #F0BCB5; display: block; }
+        .status.warning { background: #FFF8E1; color: #8C6B00; border: 1px solid #FFE082; display: block; }
+        
         .badge {
             background: var(--ink); color: var(--signal); border-radius: var(--r); padding: 4px 11px;
             font-size: 12px; font-weight: 700; font-family: var(--font-mono);
@@ -224,7 +226,14 @@
             background: var(--surface); padding: 16px; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 16px;
         }
         .filter-box label { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--ink-soft); }
-        .filter-box input[type="date"] { padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 8px; font-size: 13px; }
+        .filter-box input[type="date"], .filter-box input[type="text"] {
+            padding: 7px 11px; border: 1px solid var(--line-strong); border-radius: 8px; font-size: 13px; background: #fff;
+        }
+        .filter-search-id {
+            border-color: var(--steel) !important;
+            box-shadow: 0 0 0 3px var(--steel-soft);
+            font-family: var(--font-mono); font-weight: 700;
+        }
 
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
         @media (max-width: 720px) {
@@ -593,9 +602,17 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
 
     <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები</h2>
     
-    <!-- თარიღით ფილტრაცია -->
+    <!-- 1 წლის ვადაგადაცილების გაფრთხილების ბლოკი -->
+    <div id="cleanupAlert" class="status warning" style="display:none; margin-bottom: 16px;">
+        ⚠️ <strong>ყურადღება!</strong> ბაზაში მოიძებნა 1 წელზე (365 დღეზე) ძველი ჩანაწერები. სისტემის ოპტიმიზაციისთვის გთხოვთ გადაამოწმოთ და წაშალოთ ვადაგასული მონაცემები.
+    </div>
+
+    <!-- ფილტრები და ID-ით ძებნა -->
     <div class="filter-box">
-        <label>თარიღის ფილტრი (ჩამოსატვირთად):</label>
+        <label>🔎 ID-ით ძებნა:</label>
+        <input type="text" id="filterSearchId" class="filter-search-id" placeholder="ჩაწერეთ ID..." oninput="renderRecordsTable()">
+        
+        <label style="margin-left: 12px;">📅 თარიღი:</label>
         <label>საიდან:</label>
         <input type="date" id="filterStartDate" onchange="renderRecordsTable()">
         <label>დამდე:</label>
@@ -625,22 +642,39 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
 </div>
 
 <script>
-    const STORAGE_KEY = 'brigadeReportRecords_v1';
     let workCounter = 0;
     let savedRecords = [];
     let allMembersCache = [];
     let currentMembers = [];
-    let editingIndex = null;
+    let editingRecordId = null;
 
     window.onload = function () {
         document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
         loadBrigades();
         loadWorkTypes();
         loadAllMembers();
-        restoreFromStorage();
+        fetchServerRecords();
         addWork();
         renderMemberList();
     };
+
+    function fetchServerRecords() {
+        fetch('/api/records')
+            .then(res => res.json())
+            .then(data => {
+                savedRecords = data.records || [];
+                renderRecordsTable();
+                updateRecordCounter();
+                
+                const alertBox = document.getElementById('cleanupAlert');
+                if (data.has_old_records) {
+                    alertBox.style.display = 'block';
+                } else {
+                    alertBox.style.display = 'none';
+                }
+            })
+            .catch(() => showStatus('სერვერიდან მონაცემების წამოღება ვერ მოხერხდა', 'error'));
+    }
 
     function loadBrigades() {
         fetch('/get_brigades')
@@ -977,6 +1011,7 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         if (el) el.remove();
     }
 
+    // ---------- შენახვა (სერვერული ბაზა + დუბლიკატი ID გაფრთხილება) ----------
     function saveRecord() {
         clearInvalidMarks();
         const id = document.getElementById('idInput').value.trim();
@@ -992,13 +1027,6 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         if (missing.length) {
             missing.forEach(([elId]) => document.getElementById(elId).classList.add('invalid'));
             showStatus('გთხოვთ შეავსოთ ID, ბრიგადა, რეგიონი, თარიღი და მისამართი.', 'error');
-            return;
-        }
-
-        const dupIndex = savedRecords.findIndex(r => r.id === id);
-        if (dupIndex !== -1 && dupIndex !== editingIndex) {
-            document.getElementById('idInput').classList.add('invalid');
-            showStatus(`ID "${id}" უკვე შენახულია. აირჩიეთ სხვა ID ან დაარედაქტირეთ არსებული ჩანაწერი.`, 'error');
             return;
         }
 
@@ -1040,25 +1068,46 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
             members, works,
         };
 
-        if (editingIndex !== null) {
-            savedRecords[editingIndex] = record;
-            showStatus(`✅ ჩანაწერი ID ${id} განახლდა.`, 'success');
-            editingIndex = null;
-            document.getElementById('saveBtn').textContent = '💾 შენახვა';
-        } else {
-            savedRecords.push(record);
-            showStatus(`✅ ჩანაწერი ID ${id} წარმატებით შეინახა!`, 'success');
-        }
+        const isDuplicateId = savedRecords.some(r => strEquals(r.id, id) && (!editingRecordId || !strEquals(r.id, editingRecordId)));
 
-        persistToStorage();
-        renderRecordsTable();
-        updateRecordCounter();
-        clearForm(true);
+        if (editingRecordId !== null) {
+            fetch(`/api/records/update/${encodeURIComponent(editingRecordId)}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(record)
+            })
+            .then(res => res.json())
+            .then(() => {
+                showStatus(`✅ ჩანაწერი ID ${id} განახლდა.`, 'success');
+                editingRecordId = null;
+                document.getElementById('saveBtn').textContent = '💾 შენახვა';
+                fetchServerRecords();
+                clearForm(true);
+            });
+        } else {
+            fetch('/api/records/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(record)
+            })
+            .then(res => res.json())
+            .then(() => {
+                if (isDuplicateId) {
+                    showStatus(`⚠️ ყურადღება: ID "${id}" უკვე არსებობს ბაზაში, თუმცა ჩანაწერი მაინც შეინახა.`, 'warning');
+                } else {
+                    showStatus(`✅ ჩანაწერი ID ${id} წარმატებით შეინახა სერვერზე!`, 'success');
+                }
+                fetchServerRecords();
+                clearForm(true);
+            });
+        }
     }
 
-    function editRecord(index) {
-        const rec = savedRecords[index];
-        editingIndex = index;
+    function editRecord(recordId) {
+        const rec = savedRecords.find(r => strEquals(r.id, recordId));
+        if (!rec) return;
+        
+        editingRecordId = rec.id;
         document.getElementById('idInput').value = rec.id;
         document.getElementById('brigadeSelect').value = rec.brigade;
 
@@ -1084,7 +1133,7 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
                     return { ...m, absent: !!preset.absent, note: preset.note || '', extra: false, homeBrigade: null };
                 });
                 rec.members.forEach(m => {
-                    if (m.extra && !currentMembers.some(cm => cm.personal_id === m.personal_id)) {
+                    if (m.extra && !currentMembers.some(cm => strEquals(cm.personal_id, m.personal_id))) {
                         currentMembers.push({
                             name: m.name, position: m.position, personal_id: m.personal_id,
                             absent: !!m.absent, note: m.note || '', extra: true, homeBrigade: m.home_brigade,
@@ -1109,22 +1158,35 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function removeRecord(index) {
-        if (!confirm(`წავშალო ჩანაწერი ID ${savedRecords[index].id}?`)) return;
-        savedRecords.splice(index, 1);
-        if (editingIndex === index) {
-            editingIndex = null;
-            document.getElementById('saveBtn').textContent = '💾 შენახვა';
-        }
-        persistToStorage();
-        renderRecordsTable();
-        updateRecordCounter();
+    function removeRecord(recordId) {
+        if (!confirm(`წავშალო ჩანაწერი ID ${recordId}?`)) return;
+        
+        fetch(`/api/records/delete/${encodeURIComponent(recordId)}`, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(() => {
+                if (strEquals(editingRecordId, recordId)) {
+                    editingRecordId = null;
+                    document.getElementById('saveBtn').textContent = '💾 შენახვა';
+                }
+                showStatus(`ჩანაწერი ID ${recordId} წაიშალა სერვერიდან.`, 'success');
+                fetchServerRecords();
+            });
     }
 
+    function strEquals(a, b) {
+        return String(a ?? '').trim() === String(b ?? '').trim();
+    }
+
+    // ---------- ფილტრაცია და ID-ით ძებნა ----------
     function getFilteredRecords() {
+        const searchId = document.getElementById('filterSearchId').value.trim().toLocaleLowerCase();
         const start = document.getElementById('filterStartDate').value;
         const end = document.getElementById('filterEndDate').value;
+
         return savedRecords.filter(rec => {
+            if (searchId && !String(rec.id).toLocaleLowerCase().includes(searchId)) {
+                return false;
+            }
             if (start && rec.date < start) return false;
             if (end && rec.date > end) return false;
             return true;
@@ -1146,9 +1208,8 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         }
         hint.style.display = 'none';
         table.style.display = 'table';
-        filtered.forEach((rec, idx) => {
+        filtered.forEach((rec) => {
             const activeCount = rec.members.filter(m => !(m.absent || (m.note || '').trim())).length;
-            const originalIndex = savedRecords.indexOf(rec);
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${rec.id}</td>
@@ -1159,8 +1220,8 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
                 <td>${activeCount}/${rec.members.length}</td>
                 <td>${rec.works.length}</td>
                 <td>
-                    <button type="button" class="btn btn-outline btn-small" onclick="editRecord(${originalIndex})">✏️ რედაქტირება</button>
-                    <button type="button" class="btn btn-danger btn-small" onclick="removeRecord(${originalIndex})">🗑️ წაშლა</button>
+                    <button type="button" class="btn btn-outline btn-small" onclick="editRecord('${rec.id}')">✏️ რედაქტირება</button>
+                    <button type="button" class="btn btn-danger btn-small" onclick="removeRecord('${rec.id}')">🗑️ წაშლა</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -1168,6 +1229,7 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
     }
 
     function resetFilter() {
+        document.getElementById('filterSearchId').value = '';
         document.getElementById('filterStartDate').value = '';
         document.getElementById('filterEndDate').value = '';
         renderRecordsTable();
@@ -1176,7 +1238,7 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
     function generateExcel() {
         const recordsToExport = getFilteredRecords();
         if (!recordsToExport.length) {
-            showStatus('არჩეულ პერიოდში შენახული ჩანაწერები ვერ მოიძებნა.', 'error');
+            showStatus('არჩეულ პერიოდში ან ID-ით შენახული ჩანაწერები ვერ მოიძებნა.', 'error');
             return;
         }
         const btn = document.getElementById('generateBtn');
@@ -1209,20 +1271,6 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
             btn.disabled = false;
             btn.textContent = originalText;
         });
-    }
-
-    function persistToStorage() {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(savedRecords)); } catch (e) { /* ignore */ }
-    }
-    function restoreFromStorage() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) {
-                savedRecords = JSON.parse(raw);
-                renderRecordsTable();
-                updateRecordCounter();
-            }
-        } catch (e) { /* ignore */ }
     }
 
     function updateRecordCounter() {
