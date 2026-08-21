@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>სამუშაოს ანგარიშის გენერატორი</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --ink: #0E1526;
+            --ink-soft: #56637A;
+            --ink-faint: #8A96A8;
+            --paper: #EEF1F6;
+            --surface: #FFFFFF;
+            --line: #DBE1E9;
+            --line-strong: #B9C3D0;
+            --signal: #CFE01A;
+            --signal-ink: #333B00;
+            --signal-dim: #F3F7CE;
+            --steel: #2E5F8A;
+            --steel-soft: #E7EFF6;
+            --success: #1E9D6C;
+            --success-soft: #E1F5EC;
+            --danger: #DA4A3C;
+            --danger-soft: #FBEAE7;
+            --r: 4px;
+            --font-body: 'Noto Sans Georgian', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font-body);
+            color: var(--ink);
+            background:
+                repeating-linear-gradient(0deg, rgba(14,21,38,0.05) 0 1px, transparent 1px 28px),
+                repeating-linear-gradient(90deg, rgba(14,21,38,0.05) 0 1px, transparent 1px 28px),
+                var(--paper);
+            min-height: 100vh;
+            line-height: 1.45;
+            padding-bottom: 70px;
+        }
+        :focus-visible { outline: 2.5px solid var(--steel); outline-offset: 2px; }
+
+        /* ---------- ზედა კონსოლი ---------- */
+        .topbar {
+            background: var(--ink); color: #fff;
+            border-bottom: 3px solid var(--signal);
+            padding: 0 28px;
+            display: flex; align-items: center; gap: 16px; height: 66px;
+        }
+        .topbar .mark {
+            width: 32px; height: 32px; flex-shrink: 0; position: relative;
+            border: 2px solid var(--signal); display: flex; align-items: center; justify-content: center;
+        }
+        .topbar .mark::before, .topbar .mark::after {
+            content: ""; position: absolute; background: var(--signal);
+        }
+        .topbar .mark::before { width: 10px; height: 2px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .topbar .mark::after { width: 2px; height: 10px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .topbar .titles h1 {
+            font-size: 17px; font-weight: 800; letter-spacing: 0.2px; line-height: 1.1;
+        }
+        .topbar .titles p {
+            font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 1.5px;
+            color: #93A2BE; margin-top: 3px; text-transform: uppercase;
+        }
+        .topbar .status {
+            display: flex; align-items: center; gap: 8px; margin-left: auto;
+            font-family: var(--font-mono); font-size: 11.5px; color: #A9C7A0; letter-spacing: 0.5px;
+        }
+        .topbar .status .dot {
+            width: 7px; height: 7px; border-radius: 50%; background: #58D68D;
+            box-shadow: 0 0 0 0 rgba(88,214,141,0.6);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(88,214,141,0.55); }
+            70% { box-shadow: 0 0 0 6px rgba(88,214,141,0); }
+            100% { box-shadow: 0 0 0 0 rgba(88,214,141,0); }
+        }
+        .topbar .quota {
+            font-family: var(--font-mono); font-size: 11.5px; color: var(--signal-ink);
+            background: var(--signal); padding: 6px 12px; border: 1px solid var(--signal);
+            white-space: nowrap; font-weight: 700;
+        }
+
+        .wrap { max-width: 1180px; margin: 0 auto; padding: 30px 24px 0; }
+
+        /* ---------- პანელები (blueprint ჩარჩო) ---------- */
+        .panel {
+            background: var(--surface); border: 1px solid var(--line);
+            padding: 24px 26px 26px; margin-bottom: 20px; position: relative;
+        }
+        .panel::before, .panel::after {
+            content: ""; position: absolute; width: 12px; height: 12px; pointer-events: none;
+        }
+        .panel::before { top: -1px; left: -1px; border-top: 2px solid var(--ink); border-left: 2px solid var(--ink); }
+        .panel::after { bottom: -1px; right: -1px; border-bottom: 2px solid var(--ink); border-right: 2px solid var(--ink); }
+        .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+        .panel-eyebrow {
+            font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--steel);
+            letter-spacing: 1px; background: var(--steel-soft); padding: 4px 8px; border: 1px solid var(--steel);
+        }
+        .panel-head h2 { font-size: 17px; font-weight: 800; letter-spacing: 0.1px; }
+        .panel-head .badge { margin-left: auto; }
+
+        /* ---------- ველები ---------- */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+        .form-grid + .form-grid { margin-top: 16px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label {
+            font-family: var(--font-mono); font-weight: 600; font-size: 10.5px; color: var(--ink-soft);
+            margin-bottom: 6px; letter-spacing: 0.8px; text-transform: uppercase;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px 12px; border: 1.5px solid var(--line-strong); border-radius: var(--r);
+            font-size: 14.5px; font-family: var(--font-body); background: var(--surface); color: var(--ink);
+            width: 100%; transition: border-color 0.12s, box-shadow 0.12s;
+        }
+        #idInput, #coefficientInput { font-family: var(--font-mono); }
+        .form-group select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%2356637A' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--steel); outline: none; box-shadow: 0 0 0 3px var(--steel-soft);
+        }
+        .form-group input.invalid, .form-group select.invalid { border-color: var(--danger); background: var(--danger-soft); }
+        .form-group input::placeholder { color: var(--ink-faint); }
+
+        /* ---------- წევრები ---------- */
+        .members-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 8px; }
+        .member-item {
+            display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+            background: var(--paper); padding: 9px 13px; border: 1px solid var(--line);
+            border-left: 3px solid var(--steel);
+        }
+        .member-item.extra-member { border-left-color: var(--signal); background: var(--signal-dim); }
+        .member-item label.member-name { font-weight: 700; font-size: 13.5px; min-width: 130px; display: flex; flex-direction: column; line-height: 1.35; }
+        .member-item .position-tag { font-size: 11px; color: var(--ink-faint); font-weight: 400; }
+        .member-item .extra-tag { font-family: var(--font-mono); font-size: 10px; color: var(--ink-soft); font-weight: 700; }
+        .member-item input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--steel); cursor: pointer; }
+        .member-item label[for^="absent_"] { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); font-weight: 600; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.4px; }
+        .member-item input[type="text"] {
+            flex: 1; min-width: 110px; padding: 6px 10px; border-radius: var(--r);
+            border: 1.5px solid var(--line-strong); font-size: 13px; font-family: var(--font-body); background: var(--surface);
+        }
+        .member-item input[type="text"]:focus { border-color: var(--steel); outline: none; box-shadow: 0 0 0 3px var(--steel-soft); }
+        .add-extra-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line-strong); }
+        .add-extra-row select {
+            flex: 1; min-width: 260px; padding: 10px 12px; border: 1.5px solid var(--line-strong); border-radius: var(--r);
+            background: var(--surface); font-family: var(--font-body); font-size: 14px;
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%2356637A' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
+        }
+
+        /* ---------- სამუშაოები (მონაცემთა-მწკრივის სტილი) ---------- */
+        #workContainer { border: 1px solid var(--line); }
+        .work-item {
+            display: flex; flex-wrap: wrap; align-items: stretch; background: var(--surface);
+        }
+        .work-item + .work-item { border-top: 1px solid var(--line); }
+        .field-cell { display: flex; flex-direction: column; justify-content: center; padding: 9px 12px; border-left: 1px solid var(--line); }
+        .field-cell:first-child { border-left: none; }
+        .field-cell .cell-label {
+            font-family: var(--font-mono); font-size: 9.5px; color: var(--steel); font-weight: 700;
+            letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px;
+        }
+        .work-item .work-type-input {
+            border: none; background: transparent; font-size: 14px; font-family: var(--font-body);
+            min-width: 200px; padding: 0; outline: none;
+        }
+        .cell-type { flex: 2; min-width: 210px; }
+        .cell-time { min-width: 130px; text-align: center; align-items: center; }
+        .cell-qty { width: 108px; }
+        .cell-comment { flex: 1.4; min-width: 160px; }
+        .work-item input[type="number"] { border: none; background: transparent; font-family: var(--font-mono); font-size: 14px; padding: 0; width: 100%; outline: none; }
+        .work-item input[type="text"].work-comment { border: none; background: transparent; font-size: 13.5px; font-family: var(--font-body); padding: 0; width: 100%; outline: none; }
+        .time-inputs { display: flex; align-items: center; justify-content: center; gap: 3px; width: 100%; }
+        .time-inputs select {
+            padding: 3px 2px; border: 1px solid var(--line-strong); border-radius: 3px;
+            background: var(--paper); font-size: 13.5px; font-family: var(--font-mono); width: 46px; text-align: center;
+            appearance: none; -webkit-appearance: none;
+        }
+        .time-inputs span { color: var(--ink-faint); font-weight: 700; font-family: var(--font-mono); font-size: 12px; }
+        .cell-remove { border-left: 1px solid var(--line); justify-content: center; align-items: center; padding: 6px 10px; }
+        .work-item .btn-remove {
+            background: transparent; color: var(--danger); border: 1.5px solid var(--danger);
+            border-radius: 50%; width: 26px; height: 26px; font-size: 12px; cursor: pointer; transition: 0.12s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .work-item .btn-remove:hover { background: var(--danger); color: #fff; }
+
+        /* ---------- ღილაკები ---------- */
+        .btn {
+            padding: 10px 20px; border: 1.5px solid var(--ink); border-radius: var(--r); font-weight: 700; font-size: 14px;
+            font-family: var(--font-body); cursor: pointer; transition: 0.12s ease;
+            display: inline-flex; align-items: center; gap: 8px; background: var(--surface); color: var(--ink);
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: var(--signal); color: var(--signal-ink); border-color: var(--signal-ink); }
+        .btn-primary:hover:not(:disabled) { background: var(--signal-ink); color: var(--signal); border-color: var(--signal-ink); }
+        .btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+        .btn-success:hover:not(:disabled) { background: #167A54; border-color: #167A54; }
+        .btn-danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+        .btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
+        .btn-ghost { background: transparent; border-color: var(--line-strong); color: var(--ink-soft); }
+        .btn-ghost:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); }
+        .btn-outline { background: transparent; border-color: var(--steel); color: var(--steel); padding: 6px 13px; font-size: 12.5px; }
+        .btn-outline:hover:not(:disabled) { background: var(--steel); color: #fff; }
+        .btn-small { padding: 6px 13px; font-size: 12px; }
+        .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; padding-top: 20px; border-top: 1px dashed var(--line-strong); align-items: center; }
+        .status { margin-top: 16px; padding: 12px 16px; border-radius: var(--r); display: none; font-weight: 600; font-size: 13.5px; font-family: var(--font-mono); }
+        .status.success { background: var(--success-soft); color: #106043; border: 1px solid #A9E0C6; display: block; }
+        .status.error { background: var(--danger-soft); color: #93261B; border: 1px solid #F0BCB5; display: block; }
+        .badge {
+            background: var(--ink); color: var(--signal); border-radius: var(--r); padding: 4px 11px;
+            font-size: 12px; font-weight: 700; font-family: var(--font-mono);
+        }
+        .record-count { background: var(--ink); color: #fff; padding: 8px 15px; border-radius: var(--r); font-size: 12.5px; font-family: var(--font-mono); margin-left: auto; }
+
+        /* ---------- ცხრილი ---------- */
+        table.records-table { width: 100%; border-collapse: collapse; font-size: 13.5px; border: 1px solid var(--line); }
+        table.records-table th, table.records-table td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: center; }
+        table.records-table th {
+            background: var(--ink); color: var(--signal); font-weight: 700; font-size: 10.5px;
+            font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.6px;
+        }
+        table.records-table td:first-child { font-family: var(--font-mono); font-weight: 700; }
+        table.records-table tbody tr:nth-child(even) { background: var(--paper); }
+        table.records-table tbody tr:hover { background: var(--steel-soft); }
+        table.records-table tr:last-child td { border-bottom: none; }
+        .empty-hint { color: var(--ink-faint); grid-column: 1/-1; padding: 6px 2px; font-size: 14px; }
+        #noRecordsHint {
+            text-align: center; padding: 24px; border: 1.5px dashed var(--line-strong);
+            font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-faint);
+        }
+        h2.section-title {
+            font-size: 12px; font-weight: 700; margin: 30px 0 12px; display: flex; align-items: center; gap: 10px;
+            font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft);
+        }
+
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+        @media (max-width: 720px) {
+            .topbar { padding: 0 16px; height: auto; flex-wrap: wrap; padding-top: 14px; padding-bottom: 14px; }
+            .topbar .status { display: none; }
+            .wrap { padding: 22px 12px 0; }
+            .panel { padding: 18px 14px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .members-list { grid-template-columns: 1fr; }
+            .work-item { flex-direction: column; }
+            .field-cell { border-left: none; border-top: 1px solid var(--line); }
+            .field-cell:first-child { border-top: none; }
+            .cell-remove { align-items: flex-end; }
+            table.records-table { font-size: 12px; }
+            .record-count { margin-left: 0; }
+        }
+    </style>
+
+<style id="premium-2026-ui">
+/* =========================================================
+   2026 PREMIUM UI — visual layer only
+   Existing IDs, forms and JavaScript are intentionally kept.
+   ========================================================= */
+:root{
+    --ink:#0b1220;
+    --ink-2:#182338;
+    --ink-soft:#66738a;
+    --ink-faint:#98a4b7;
+    --paper:#f4f7fb;
+    --surface:rgba(255,255,255,.92);
+    --surface-solid:#fff;
+    --line:#e4e9f1;
+    --line-strong:#cbd4e2;
+    --signal:#c7f33b;
+    --signal-2:#a8dc1f;
+    --signal-ink:#263400;
+    --steel:#3767ff;
+    --steel-2:#6b8cff;
+    --steel-soft:#eef2ff;
+    --success:#12a86b;
+    --success-soft:#e8faf2;
+    --danger:#e64b5d;
+    --danger-soft:#fff0f2;
+    --r:16px;
+    --shadow-sm:0 2px 10px rgba(15,23,42,.05);
+    --shadow-md:0 12px 34px rgba(15,23,42,.08);
+    --shadow-lg:0 24px 70px rgba(15,23,42,.12);
+}
+
+html{scroll-behavior:smooth}
+body{
+    background:
+      radial-gradient(circle at 8% 8%, rgba(55,103,255,.10), transparent 28%),
+      radial-gradient(circle at 92% 10%, rgba(199,243,59,.13), transparent 25%),
+      linear-gradient(180deg,#f8faff 0%,#f2f5fa 55%,#eef2f7 100%);
+    color:var(--ink);
+    padding-bottom:80px;
+}
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:-1;
+    background-image:
+      linear-gradient(rgba(16,24,40,.018) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(16,24,40,.018) 1px,transparent 1px);
+    background-size:32px 32px;
+    mask-image:linear-gradient(to bottom,rgba(0,0,0,.7),transparent 72%);
+}
+
+.topbar{
+    position:sticky;
+    top:0;
+    z-index:100;
+    height:78px;
+    padding:0 clamp(18px,4vw,52px);
+    gap:15px;
+    background:rgba(9,16,31,.88);
+    backdrop-filter:blur(20px) saturate(150%);
+    -webkit-backdrop-filter:blur(20px) saturate(150%);
+    border-bottom:1px solid rgba(255,255,255,.09);
+    box-shadow:0 10px 30px rgba(4,10,22,.16);
+}
+.topbar::after{
+    content:"";
+    position:absolute;
+    left:0;right:0;bottom:0;
+    height:2px;
+    background:linear-gradient(90deg,transparent,var(--signal),#6b8cff,transparent);
+    opacity:.9;
+}
+.topbar .mark{
+    width:42px;height:42px;
+    border-radius:12px;
+    border:1px solid rgba(199,243,59,.7);
+    background:linear-gradient(135deg,rgba(199,243,59,.18),rgba(55,103,255,.15));
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 0 24px rgba(199,243,59,.12);
+}
+.topbar .mark::before{width:14px;height:2px}
+.topbar .mark::after{height:14px;width:2px}
+.topbar .titles h1{
+    font-size:18px;
+    letter-spacing:-.25px;
+    color:#fff;
+}
+.topbar .titles p{
+    color:#9aa8c0;
+    font-size:9px;
+    letter-spacing:2px;
+}
+.topbar .status{
+    color:#b8f1cd;
+    background:rgba(18,168,107,.10);
+    border:1px solid rgba(18,168,107,.22);
+    padding:8px 12px;
+    border-radius:999px;
+}
+.topbar .status .dot{
+    width:8px;height:8px;
+    box-shadow:0 0 0 4px rgba(88,214,141,.08);
+}
+.topbar .quota{
+    border:1px solid rgba(199,243,59,.25);
+    border-radius:999px;
+    background:rgba(199,243,59,.13);
+    color:#d9fa70;
+    padding:7px 12px;
+}
+
+.wrap{
+    max-width:1280px;
+    padding:36px 22px 0;
+}
+
+.panel{
+    position:relative;
+    overflow:hidden;
+    background:var(--surface);
+    border:1px solid rgba(210,219,232,.82);
+    border-radius:22px;
+    padding:28px;
+    margin-bottom:22px;
+    box-shadow:var(--shadow-md);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.panel:hover{
+    transform:translateY(-1px);
+    box-shadow:var(--shadow-lg);
+    border-color:#d3ddec;
+}
+.panel::before,.panel::after{
+    width:34px;height:34px;
+    border-color:rgba(55,103,255,.20);
+    border-width:1px;
+}
+.panel::before{border-top:1px solid rgba(55,103,255,.22);border-left:1px solid rgba(55,103,255,.22)}
+.panel::after{border-bottom:1px solid rgba(55,103,255,.22);border-right:1px solid rgba(55,103,255,.22)}
+
+.panel-head{
+    margin-bottom:22px;
+    gap:12px;
+}
+.panel-eyebrow{
+    border:0;
+    border-radius:999px;
+    padding:6px 10px;
+    background:linear-gradient(135deg,#edf2ff,#f6f8ff);
+    color:var(--steel);
+    box-shadow:inset 0 0 0 1px #dce4ff;
+    font-size:10px;
+    letter-spacing:1.3px;
+}
+.panel-head h2{
+    font-size:19px;
+    letter-spacing:-.35px;
+}
+.panel-head .badge,.badge{
+    border-radius:999px;
+    background:var(--ink);
+    color:var(--signal);
+    padding:6px 11px;
+    box-shadow:0 4px 12px rgba(11,18,32,.12);
+}
+
+.form-grid{
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:18px;
+}
+.form-grid + .form-grid{margin-top:18px}
+.form-group label{
+    color:#718096;
+    font-size:9.5px;
+    letter-spacing:1.1px;
+    margin-bottom:7px;
+}
+.form-group input,.form-group select,.form-group textarea{
+    min-height:46px;
+    padding:11px 14px;
+    border:1px solid #d7deea;
+    border-radius:12px;
+    background:rgba(255,255,255,.92);
+    box-shadow:inset 0 1px 2px rgba(15,23,42,.025);
+    transition:border-color .16s,box-shadow .16s,transform .16s;
+}
+.form-group input:hover,.form-group select:hover{
+    border-color:#b9c5d8;
+}
+.form-group input:focus,.form-group select:focus{
+    border-color:var(--steel);
+    box-shadow:0 0 0 4px rgba(55,103,255,.10),0 5px 16px rgba(55,103,255,.07);
+    transform:translateY(-1px);
+}
+.form-group input.invalid,.form-group select.invalid{
+    border-color:var(--danger);
+    box-shadow:0 0 0 4px rgba(230,75,93,.08);
+}
+
+.members-list{
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:10px;
+}
+.member-item{
+    min-height:62px;
+    padding:11px 14px;
+    border:1px solid #e1e7ef;
+    border-left:4px solid #dbe3f0;
+    border-radius:14px;
+    background:linear-gradient(135deg,#fff,#f8faff);
+    box-shadow:var(--shadow-sm);
+    transition:transform .16s,border-color .16s,box-shadow .16s;
+}
+.member-item:hover{
+    transform:translateY(-1px);
+    border-color:#ccd7e8;
+    box-shadow:0 8px 20px rgba(15,23,42,.07);
+}
+.member-item.extra-member{
+    border-left-color:var(--signal);
+    background:linear-gradient(135deg,#fbffe9,#f7fbe9);
+}
+.member-item label.member-name{
+    font-size:13.5px;
+}
+.member-item input[type="checkbox"]{
+    width:19px;height:19px;
+    accent-color:var(--steel);
+}
+.member-item input[type="text"]{
+    border-radius:10px;
+    border:1px solid #d5deeb;
+    min-height:36px;
+}
+.add-extra-row{
+    margin-top:18px;
+    padding-top:18px;
+    border-top:1px solid #edf0f5;
+}
+.add-extra-row select{
+    min-height:44px;
+    border-radius:12px;
+    border:1px solid #d7deea;
+    background:#fff;
+}
+
+#workContainer{
+    border:1px solid #dfe5ee;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:inset 0 1px 0 #fff,0 5px 18px rgba(15,23,42,.035);
+}
+.work-item{
+    background:rgba(255,255,255,.95);
+    transition:background .15s;
+}
+.work-item:hover{background:#fbfcff}
+.work-item + .work-item{border-top:1px solid #e8edf4}
+.field-cell{
+    padding:13px 14px;
+    border-left:1px solid #e7ecf3;
+}
+.field-cell .cell-label{
+    color:#7890c8;
+    font-size:8.5px;
+    letter-spacing:1px;
+}
+.work-item .work-type-input{
+    font-size:14px;
+    font-weight:600;
+}
+.work-item input[type="number"],.work-item input[type="text"].work-comment{
+    font-size:13.5px;
+}
+.time-inputs select{
+    min-height:31px;
+    border-radius:7px;
+    border:1px solid #d5deeb;
+    background:#f8faff;
+}
+.work-item .btn-remove{
+    border:1px solid #f0b7c0;
+    color:var(--danger);
+    background:#fff7f8;
+    transition:.15s;
+}
+.work-item .btn-remove:hover{
+    background:var(--danger);
+    color:#fff;
+    transform:scale(1.05);
+}
+
+.btn{
+    min-height:44px;
+    padding:10px 17px;
+    border-radius:12px;
+    border:1px solid #d2dbe8;
+    box-shadow:0 3px 10px rgba(15,23,42,.05);
+    transition:transform .16s,box-shadow .16s,background .16s,border-color .16s;
+}
+.btn:hover:not(:disabled){
+    transform:translateY(-1px);
+    box-shadow:0 8px 20px rgba(15,23,42,.10);
+}
+.btn-primary{
+    background:linear-gradient(135deg,#d5f957,#b9ea28);
+    color:#233000;
+    border-color:#9cc817;
+    box-shadow:0 8px 22px rgba(171,218,36,.22);
+}
+.btn-primary:hover:not(:disabled){
+    background:linear-gradient(135deg,#b9ea28,#9fd21a);
+    color:#1c2700;
+}
+.btn-success{
+    background:linear-gradient(135deg,#17b879,#0c9d66);
+    border-color:#0b925e;
+}
+.btn-danger{
+    background:#fff;
+    border-color:#f0b7c0;
+}
+.btn-ghost{
+    background:rgba(255,255,255,.72);
+    border-color:#d8e0eb;
+}
+.btn-outline{
+    border-color:#c9d5ff;
+    color:#3767ff;
+    background:#f6f8ff;
+    border-radius:10px;
+}
+.btn-outline:hover:not(:disabled){
+    background:#3767ff;
+    border-color:#3767ff;
+    color:#fff;
+}
+.actions{
+    margin-top:24px;
+    padding-top:20px;
+    border-top:1px solid #edf0f5;
+}
+.status{
+    margin-top:16px;
+    border-radius:12px;
+    padding:13px 16px;
+    font-family:var(--font-body);
+    box-shadow:var(--shadow-sm);
+}
+.status.success{
+    background:linear-gradient(135deg,#effcf6,#e6f9f0);
+    color:#08734b;
+    border:1px solid #bcebd4;
+}
+.status.error{
+    background:linear-gradient(135deg,#fff5f6,#ffedef);
+    color:#a72d3b;
+    border:1px solid #f5c5cc;
+}
+
+.record-count{
+    border-radius:999px;
+    background:#0b1220;
+    color:#d8f866;
+    padding:8px 14px;
+    box-shadow:0 5px 15px rgba(11,18,32,.12);
+}
+table.records-table{
+    border:1px solid #dfe5ee;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:var(--shadow-sm);
+}
+table.records-table th{
+    background:linear-gradient(135deg,#0b1220,#182338);
+    color:#d7f75d;
+    padding:13px 12px;
+    font-size:9px;
+    letter-spacing:.9px;
+}
+table.records-table td{
+    padding:12px;
+    border-bottom:1px solid #e9edf3;
+}
+table.records-table tbody tr:nth-child(even){background:#fafbfe}
+table.records-table tbody tr:hover{
+    background:#f0f4ff;
+}
+#noRecordsHint{
+    border:1px dashed #cdd7e6;
+    border-radius:14px;
+    background:linear-gradient(135deg,#fbfcff,#f5f8fd);
+    padding:30px;
+}
+h2.section-title{
+    color:#64748b;
+    letter-spacing:1.2px;
+}
+
+@media (max-width:900px){
+    .topbar .status{display:none}
+    .panel{padding:22px}
+    .work-item{display:grid;grid-template-columns:1fr 1fr}
+    .cell-type,.cell-comment{min-width:0;width:auto}
+    .cell-type{grid-column:1/-1}
+    .cell-comment{grid-column:1/-1}
+    .cell-remove{grid-column:2;align-items:flex-end}
+}
+@media (max-width:720px){
+    .topbar{
+        height:auto;
+        min-height:72px;
+        padding:12px 14px;
+    }
+    .topbar .titles h1{font-size:15px}
+    .topbar .quota{margin-left:auto;font-size:9px}
+    .wrap{padding:20px 10px 0}
+    .panel{
+        border-radius:18px;
+        padding:18px 14px;
+        margin-bottom:16px;
+    }
+    .panel-head h2{font-size:17px}
+    .members-list{grid-template-columns:1fr}
+    .work-item{display:flex;flex-direction:column}
+    .field-cell{border-left:none;border-top:1px solid #e8edf4}
+    .field-cell:first-child{border-top:none}
+    .cell-remove{align-items:flex-end}
+    .actions .btn{flex:1 1 100%}
+    table.records-table{display:block;overflow-x:auto;white-space:nowrap}
+}
+</style>
+
+
+<style>
+/* 2026 UX polish: centered work times + searchable extra-member picker */
+.cell-time {
+    text-align: center !important;
+    align-items: center !important;
+}
+.cell-time .cell-label {
+    width: 100%;
+    text-align: center;
+}
+.time-inputs {
+    width: 100% !important;
+    justify-content: center !important;
+}
+.add-extra-row {
+    position: relative;
+    align-items: flex-start !important;
+}
+.extra-member-picker {
+    position: relative;
+    flex: 1;
+    min-width: 280px;
+}
+.extra-member-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.extra-search-icon {
+    position: absolute;
+    left: 13px;
+    z-index: 2;
+    font-size: 21px;
+    line-height: 1;
+    color: var(--steel);
+    pointer-events: none;
+    transform: translateY(-1px);
+}
+.extra-member-input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 42px 10px 40px !important;
+    border: 1.5px solid var(--line-strong) !important;
+    border-radius: 12px !important;
+    background: var(--surface) !important;
+    color: var(--ink) !important;
+    font-family: var(--font-body) !important;
+    font-size: 14px !important;
+    outline: none;
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.extra-member-input:focus {
+    border-color: var(--steel) !important;
+    box-shadow: 0 0 0 4px var(--steel-soft);
+    background: #fff !important;
+}
+.extra-clear {
+    position: absolute;
+    right: 9px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink-faint);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+.extra-clear:hover { background: var(--steel-soft); color: var(--ink); }
+.extra-member-results {
+    display: none;
+    position: absolute;
+    z-index: 50;
+    top: calc(100% + 7px);
+    left: 0;
+    right: 0;
+    max-height: 330px;
+    overflow-y: auto;
+    padding: 7px;
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    background: rgba(255,255,255,.98);
+    box-shadow: 0 18px 50px rgba(20,33,61,.16);
+    backdrop-filter: blur(16px);
+}
+.extra-member-results.open { display: block; }
+.extra-result {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 11px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    color: var(--ink);
+}
+.extra-result:hover, .extra-result.active { background: var(--steel-soft); }
+.extra-avatar {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--ink);
+    color: var(--signal);
+    font-family: var(--font-mono);
+    font-weight: 800;
+}
+.extra-result-main { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.extra-result-main strong { font-size: 13.5px; }
+.extra-result-main small { color: var(--ink-soft); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.extra-result-arrow { color: var(--ink-faint); font-family: var(--font-mono); font-size: 16px; }
+.extra-results-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:7px 10px 8px; margin-bottom:3px;
+    color:#7b879a; font-size:10px; font-weight:800;
+    letter-spacing:.7px; text-transform:uppercase;
+    border-bottom:1px solid #edf1f6;
+}
+.extra-results-head strong {
+    min-width:24px; height:22px; padding:0 7px;
+    display:inline-flex; align-items:center; justify-content:center;
+    border-radius:999px; background:#eef3ff; color:#3567ff;
+    font-family:var(--font-mono); font-size:10px;
+}
+.extra-no-results { padding: 16px 13px; color: var(--ink-soft); font-size: 13px; text-align: center; }
+.extra-member-selected {
+    align-items: center;
+    gap: 8px;
+    margin-top: 7px;
+    padding: 7px 10px;
+    border: 1px solid #A9E0C6;
+    border-radius: 10px;
+    background: var(--success-soft);
+    color: #106043;
+    font-size: 12px;
+}
+.extra-member-selected span { font-family: var(--font-mono); font-weight: 800; }
+.extra-member-selected small { color: #39775f; margin-left: auto; }
+@media (max-width:720px) {
+    .extra-member-picker { min-width: 100%; }
+    .add-extra-row .btn { width: 100%; }
+    .extra-member-selected { flex-wrap: wrap; }
+    .extra-member-selected small { margin-left: 0; width: 100%; }
+}
+
+/* FIX: searchable employee dropdown must escape the members panel clipping */
+.members-section {
+    overflow: visible !important;
+    z-index: 30 !important;
+}
+.members-section .add-extra-row {
+    position: relative;
+    z-index: 40;
+}
+.extra-member-picker {
+    z-index: 50;
+}
+.extra-member-results {
+    z-index: 9999 !important;
+    min-height: 0;
+}
+.extra-member-results.open {
+    display: block !important;
+}
+.extra-member-input::placeholder {
+    color: #8b97aa;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="topbar">
+    <div class="mark"></div>
+    <div class="titles">
+        <h1>სამუშაოს ანგარიშის გენერატორი</h1>
+        <p>Brigade-Ops / Report-Gen</p>
+    </div>
+    <div class="status"><span class="dot"></span>მზადაა</div>
+    <span class="quota">MAX 20 ID</span>
+</div>
+
+<div class="wrap">
+    <form id="mainForm" autocomplete="off">
+
+        <section class="panel">
+            <div class="panel-head">
+                <span class="panel-eyebrow">// 01</span>
+                <h2>ძირითადი ინფორმაცია</h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ID *</label>
+                    <input type="text" id="idInput" placeholder="მაგ: 123456" required>
+                </div>
+                <div class="form-group">
+                    <label>ბრიგადის ნომერი *</label>
+                    <select id="brigadeSelect" required>
+                        <option value="">-- აირჩიეთ --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>რეგიონი (ქალაქი) *</label>
+                    <select id="citySelect" required>
+                        <option value="">-- აირჩიეთ ბრიგადა --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>თარიღი *</label>
+                    <input type="date" id="dateInput" required>
+                </div>
+                <div class="form-group">
+                    <label>მისამართი *</label>
+                    <input type="text" id="addressInput" placeholder="მაგ: ლეონიძის 12" required>
+                </div>
+                <div class="form-group">
+                    <label>ობიექტის დასახელება</label>
+                    <input type="text" id="objectNameInput" placeholder="მაგ: ATS-Batumi-01">
+                </div>
+                <div class="form-group">
+                    <label>ქალაქი კოეფიციენტი (გადაადგილება)</label>
+                    <input type="text" id="coefficientInput" placeholder="მაგ: 1.2">
+                </div>
+            </div>
+        </section>
+
+        <section class="panel members-section">
+            <div class="panel-head">
+                <span class="panel-eyebrow">// 02</span>
+                <h2>ბრიგადის წევრები</h2>
+                <span class="badge" id="memberCount">0</span>
+            </div>
+            <div id="membersContainer" class="members-list">
+                <p class="empty-hint">აირჩიეთ ბრიგადა და რეგიონი</p>
+            </div>
+            <div class="add-extra-row">
+                <div class="extra-member-picker">
+                    <div class="extra-member-input-wrap">
+                        <span class="extra-search-icon">⌕</span>
+                        <input
+                            type="text"
+                            id="extraMemberInput"
+                            class="extra-member-input"
+                            placeholder="ჩაწერეთ თანამშრომლის სახელი და აირჩიეთ ბაზიდან..."
+                            autocomplete="off"
+                            oninput="searchExtraMembers(this.value)"
+                            onkeydown="handleExtraMemberKeydown(event)"
+                        >
+                        <button type="button" class="extra-clear" id="extraMemberClear" title="გასუფთავება" onclick="clearExtraMemberSearch()">×</button>
+                    </div>
+                    <div id="extraMemberResults" class="extra-member-results" role="listbox" aria-label="თანამშრომლების სია"></div>
+                    <div id="extraMemberSelected" class="extra-member-selected" style="display:none;"></div>
+                </div>
+                <button type="button" class="btn btn-outline btn-small" id="extraMemberAddBtn" onclick="addExtraMember()" disabled>➕ დამატება</button>
+            </div>
+        </section>
+
+        <section class="panel works-section">
+            <div class="panel-head">
+                <span class="panel-eyebrow">// 03</span>
+                <h2>სამუშაოები</h2>
+            </div>
+            <datalist id="workTypesList"></datalist>
+            <div id="workContainer"></div>
+            <button type="button" class="btn btn-success" style="margin-top: 14px;" onclick="addWork()">➕ სამუშაოს დამატება</button>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label>კომენტარი (სურვილისამებრ)</label>
+                <input type="text" id="overallComment" placeholder="ზოგადი კომენტარი">
+            </div>
+        </section>
+
+        <div class="actions">
+            <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveRecord()">💾 შენახვა</button>
+            <button type="button" class="btn btn-success" id="generateBtn" onclick="generateExcel()">📥 Excel-ის გენერირება</button>
+            <button type="button" class="btn btn-ghost" onclick="clearForm()">🔄 ფორმის გასუფთავება</button>
+            <button type="button" class="btn btn-danger" onclick="clearAllRecords()">🗑️ ყველა ჩანაწერის წაშლა</button>
+            <span class="record-count" id="recordCounter">ჩანაწერები: 0/20</span>
+        </div>
+    </form>
+
+    <div id="statusMessage" class="status"></div>
+
+    <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები</h2>
+    <div id="recordsListWrap">
+        <p class="empty-hint" id="noRecordsHint">ჯერ არცერთი ჩანაწერი არ არის შენახული</p>
+        <table class="records-table" id="recordsTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>თარიღი</th><th>მისამართი</th>
+                    <th>წევრები</th><th>სამუშაოები</th><th></th>
+                </tr>
+            </thead>
+            <tbody id="recordsTbody"></tbody>
+        </table>
+    </div>
+
+    <!-- Footer Branding -->
+    <footer class="mt-12 pt-6 border-t border-slate-200 dark:border-slate-800 text-center text-xs space-x-2">
+        <span class="text-slate-400">Designed &amp; Engineered by</span>
+        <span class="text-sky-400 font-semibold italic">Zaza Lomidze</span>
+        <span class="text-slate-400">|</span>
+        <span class="text-slate-400">Data Operations &amp; System Architecture</span>
+    </footer>
+</div>
+
+<script>
+    const STORAGE_KEY = 'brigadeReportRecords_v1';
+    let workCounter = 0;
+    let savedRecords = [];
+    let allMembersCache = [];   // მთელი როსტერი ყველა ბრიგადიდან
+    let currentMembers = [];    // მიმდინარე ფორმის წევრები: {name, position, personal_id, city, brigade, absent, note, extra, homeBrigade}
+    let editingIndex = null;    // თუ null არაა, saveRecord() ანახლებს ამ ინდექსის ჩანაწერს
+
+    window.onload = function () {
+        document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+        loadBrigades();
+        loadWorkTypes();
+        loadAllMembers();
+        restoreFromStorage();
+        addWork();
+        renderMemberList();
+    };
+
+    // ------------------ ერთჯერადი საწყისი ჩატვირთვები ------------------
+    function loadBrigades() {
+        fetch('/get_brigades')
+            .then(res => res.json())
+            .then(brigades => {
+                const sel = document.getElementById('brigadeSelect');
+                brigades.forEach(b => {
+                    const opt = document.createElement('option');
+                    opt.value = b;
+                    opt.textContent = b;
+                    sel.appendChild(opt);
+                });
+            })
+            .catch(() => showStatus('ბრიგადების ჩატვირთვა ვერ მოხერხდა', 'error'));
+    }
+
+    function loadWorkTypes() {
+        fetch('/get_work_types')
+            .then(res => res.json())
+            .then(types => {
+                const datalist = document.getElementById('workTypesList');
+                datalist.innerHTML = '';
+                types.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t;
+                    datalist.appendChild(opt);
+                });
+            })
+            .catch(() => showStatus('სამუშაო ტიპების ჩატვირთვა ვერ მოხერხდა', 'error'));
+    }
+
+    function loadAllMembers() {
+        fetch('/get_all_members')
+            .then(res => res.json())
+            .then(members => {
+                allMembersCache = members;
+                clearExtraMemberSelection(false);
+            })
+            .catch(() => showStatus('თანამშრომელთა სრული სიის ჩატვირთვა ვერ მოხერხდა', 'error'));
+    }
+
+    // ------------------ სხვა ბრიგადის თანამშრომლის სწრაფი ძებნა ------------------
+    let selectedExtraMemberId = '';
+    let extraSearchResults = [];
+    let extraSearchIndex = -1;
+
+    function searchExtraMembers(query) {
+        const resultsBox = document.getElementById('extraMemberResults');
+        const selectedBox = document.getElementById('extraMemberSelected');
+        const addBtn = document.getElementById('extraMemberAddBtn');
+        selectedExtraMemberId = '';
+        selectedBox.style.display = 'none';
+        addBtn.disabled = true;
+        extraSearchIndex = -1;
+
+        const q = (query || '').trim().toLocaleLowerCase('ka-GE');
+        if (!q) {
+            resultsBox.innerHTML = '';
+            resultsBox.classList.remove('open');
+            extraSearchResults = [];
+            return;
+        }
+
+        const currentBrigade = document.getElementById('brigadeSelect').value;
+        extraSearchResults = allMembersCache
+            .filter(m => !currentBrigade || String(m.brigade) !== String(currentBrigade))
+            .filter(m => {
+                const haystack = [m.name, m.personal_id, m.brigade, m.city, m.position]
+                    .filter(Boolean).join(' ').toLocaleLowerCase('ka-GE');
+                return haystack.includes(q);
+            })
+            .slice(0, 12);
+
+        if (!extraSearchResults.length) {
+            resultsBox.innerHTML = '<div class="extra-no-results">ვერ მოიძებნა. სცადეთ სახელი, გვარი, ბრიგადა ან პირადი ნომერი.</div>';
+            resultsBox.classList.add('open');
+            return;
+        }
+
+        resultsBox.innerHTML = `<div class="extra-results-head"><span>ბაზიდან ნაპოვნია</span><strong>${extraSearchResults.length}</strong></div>` + extraSearchResults.map((m, i) => `
+            <button type="button" class="extra-result" role="option" data-index="${i}" onclick="selectExtraMember(${i})">
+                <span class="extra-avatar">${escapeHtml((m.name || '?').trim().charAt(0))}</span>
+                <span class="extra-result-main">
+                    <strong>${escapeHtml(m.name || '')}</strong>
+                    <small>${escapeHtml(m.position || '')} · ბრიგადა ${escapeHtml(m.brigade || '')} · ${escapeHtml(m.city || '')}</small>
+                </span>
+                <span class="extra-result-arrow">↵</span>
+            </button>
+        `).join('');
+        resultsBox.classList.add('open');
+    }
+
+    function selectExtraMember(index) {
+        const member = extraSearchResults[index];
+        if (!member) return;
+        selectedExtraMemberId = String(member.personal_id);
+        const input = document.getElementById('extraMemberInput');
+        const resultsBox = document.getElementById('extraMemberResults');
+        const selectedBox = document.getElementById('extraMemberSelected');
+        const addBtn = document.getElementById('extraMemberAddBtn');
+
+        input.value = member.name;
+        selectedBox.innerHTML = `<span>✓ არჩეულია</span> <strong>${escapeHtml(member.name)}</strong><small>ბრიგადა ${escapeHtml(member.brigade)} · ${escapeHtml(member.position || '')}</small>`;
+        selectedBox.style.display = 'flex';
+        resultsBox.classList.remove('open');
+        addBtn.disabled = false;
+        extraSearchIndex = index;
+    }
+
+    function handleExtraMemberKeydown(event) {
+        const box = document.getElementById('extraMemberResults');
+        if (!box.classList.contains('open') || !extraSearchResults.length) {
+            if (event.key === 'Enter' && selectedExtraMemberId) {
+                event.preventDefault();
+                addExtraMember();
+            }
+            return;
+        }
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            extraSearchIndex = Math.min(extraSearchIndex + 1, extraSearchResults.length - 1);
+            highlightExtraResult();
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            extraSearchIndex = Math.max(extraSearchIndex - 1, 0);
+            highlightExtraResult();
+        } else if (event.key === 'Enter' && extraSearchIndex >= 0) {
+            event.preventDefault();
+            selectExtraMember(extraSearchIndex);
+        } else if (event.key === 'Escape') {
+            box.classList.remove('open');
+        }
+    }
+
+    function highlightExtraResult() {
+        document.querySelectorAll('.extra-result').forEach((el, i) => {
+            el.classList.toggle('active', i === extraSearchIndex);
+        });
+        const active = document.querySelector('.extra-result.active');
+        if (active) active.scrollIntoView({ block: 'nearest' });
+    }
+
+    function clearExtraMemberSearch() {
+        clearExtraMemberSelection(true);
+    }
+
+    function clearExtraMemberSelection(focusInput = true) {
+        selectedExtraMemberId = '';
+        extraSearchResults = [];
+        extraSearchIndex = -1;
+        const input = document.getElementById('extraMemberInput');
+        const resultsBox = document.getElementById('extraMemberResults');
+        const selectedBox = document.getElementById('extraMemberSelected');
+        const addBtn = document.getElementById('extraMemberAddBtn');
+        if (input) input.value = '';
+        if (resultsBox) { resultsBox.innerHTML = ''; resultsBox.classList.remove('open'); }
+        if (selectedBox) { selectedBox.innerHTML = ''; selectedBox.style.display = 'none'; }
+        if (addBtn) addBtn.disabled = true;
+        if (focusInput && input) input.focus();
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+    }
+
+
+    // ------------------ ბრიგადის არჩევა -> ქალაქები ------------------
+    document.getElementById('brigadeSelect').addEventListener('change', function () {
+        const citySelect = document.getElementById('citySelect');
+        citySelect.innerHTML = '<option value="">-- აირჩიეთ რეგიონი --</option>';
+        currentMembers = [];
+        renderMemberList();
+        if (!this.value) return;
+
+        fetch(`/get_brigade_cities?brigade=${encodeURIComponent(this.value)}`)
+            .then(res => res.json())
+            .then(cities => {
+                cities.forEach(city => {
+                    const opt = document.createElement('option');
+                    opt.value = city;
+                    opt.textContent = city;
+                    citySelect.appendChild(opt);
+                });
+                if (cities.length === 1) {
+                    citySelect.value = cities[0];
+                    citySelect.dispatchEvent(new Event('change'));
+                }
+            })
+            .catch(() => showStatus('ქალაქების ჩატვირთვა ვერ მოხერხდა', 'error'));
+    });
+
+    // ------------------ რეგიონის არჩევა -> წევრები ------------------
+    document.getElementById('citySelect').addEventListener('change', function () {
+        const brigade = document.getElementById('brigadeSelect').value;
+        const city = this.value;
+        if (!brigade || !city) {
+            currentMembers = [];
+            renderMemberList();
+            return;
+        }
+        fetch(`/get_brigade_members?brigade=${encodeURIComponent(brigade)}&city=${encodeURIComponent(city)}`)
+            .then(res => res.json())
+            .then(members => {
+                currentMembers = members.map(m => ({ ...m, absent: false, note: '', extra: false, homeBrigade: null }));
+                renderMemberList();
+            })
+            .catch(() => showStatus('წევრების ჩატვირთვა ვერ მოხერხდა', 'error'));
+    });
+
+    // ------------------ წევრების სია (currentMembers მასივზე დაფუძნებული) ------------------
+    function renderMemberList() {
+        const container = document.getElementById('membersContainer');
+        container.innerHTML = '';
+        if (!currentMembers.length) {
+            container.innerHTML = '<p class="empty-hint">აირჩიეთ ბრიგადა და რეგიონი</p>';
+            document.getElementById('memberCount').textContent = '0';
+            return;
+        }
+        currentMembers.forEach((m, idx) => {
+            const div = document.createElement('div');
+            div.className = 'member-item' + (m.extra ? ' extra-member' : '');
+            const extraTag = m.extra ? `<span class="extra-tag">ბრიგადა ${m.homeBrigade}-დან</span>` : '';
+            div.innerHTML = `
+                <label class="member-name">
+                    ${m.name}
+                    <span class="position-tag">${m.position}${m.extra ? ' · ' : ''}${extraTag}</span>
+                </label>
+                <input type="checkbox" id="absent_${idx}" ${m.absent ? 'checked' : ''} onchange="updateMemberField(${idx}, 'absent', this.checked)">
+                <label for="absent_${idx}" style="width:auto; font-weight:400;">არ გამოცხ.</label>
+                <input type="text" placeholder="შენიშვნა" value="${m.note || ''}" oninput="updateMemberField(${idx}, 'note', this.value)" style="min-width:100px;">
+                ${m.extra ? `<button type="button" class="btn-remove" title="წაშლა სიიდან" onclick="removeExtraMember(${idx})">✖</button>` : ''}
+            `;
+            container.appendChild(div);
+        });
+        document.getElementById('memberCount').textContent = currentMembers.length;
+    }
+
+    function updateMemberField(idx, field, value) {
+        if (!currentMembers[idx]) return;
+        currentMembers[idx][field] = value;
+    }
+
+    function addExtraMember() {
+        const personalId = selectedExtraMemberId;
+        if (!personalId) {
+            showStatus('ჯერ მოძებნეთ და აირჩიეთ თანამშრომელი ბაზიდან.', 'error');
+            return;
+        }
+        if (currentMembers.some(m => String(m.personal_id) === String(personalId))) {
+            showStatus('ეს თანამშრომელი უკვე სიაშია.', 'error');
+            return;
+        }
+        const source = allMembersCache.find(m => String(m.personal_id) === String(personalId));
+        if (!source) return;
+        currentMembers.push({
+            name: source.name,
+            position: source.position,
+            personal_id: source.personal_id,
+            city: source.city,
+            absent: false,
+            note: '',
+            extra: true,
+            homeBrigade: source.brigade,
+        });
+        renderMemberList();
+        clearExtraMemberSelection();
+    }
+
+    function removeExtraMember(idx) {
+        if (!currentMembers[idx] || !currentMembers[idx].extra) return;
+        currentMembers.splice(idx, 1);
+        renderMemberList();
+    }
+
+    // ------------------ დროის dropdown-ების დახმარე ფუნქციები ------------------
+    function buildTimeOptions(count, selected) {
+        let html = '<option value="">--</option>';
+        for (let i = 0; i < count; i++) {
+            const val = String(i).padStart(2, '0');
+            html += `<option value="${val}"${val === selected ? ' selected' : ''}>${val}</option>`;
+        }
+        return html;
+    }
+
+    // ------------------ სამუშაოს დამატება ------------------
+    function addWork(workType = '', start = '', end = '', quantity = '', comment = '') {
+        const container = document.getElementById('workContainer');
+        const div = document.createElement('div');
+        div.className = 'work-item';
+        div.id = `work_${workCounter}`;
+
+        const [startH, startM] = (start || '').split(':');
+        const [endH, endM] = (end || '').split(':');
+
+        div.innerHTML = `
+            <div class="field-cell cell-type">
+                <span class="cell-label">სამუშაოს ტიპი</span>
+                <input list="workTypesList" class="work-type-input" placeholder="-- აირჩიეთ ან ჩაწერეთ --" value="${workType}">
+            </div>
+            <div class="field-cell cell-time">
+                <span class="cell-label">დაწყება</span>
+                <div class="time-inputs">
+                    <select class="work-start-h" title="საათი">${buildTimeOptions(24, startH)}</select>
+                    <span>:</span>
+                    <select class="work-start-m" title="წუთი">${buildTimeOptions(60, startM)}</select>
+                </div>
+            </div>
+            <div class="field-cell cell-time">
+                <span class="cell-label">დასრულება</span>
+                <div class="time-inputs">
+                    <select class="work-end-h" title="საათი">${buildTimeOptions(24, endH)}</select>
+                    <span>:</span>
+                    <select class="work-end-m" title="წუთი">${buildTimeOptions(60, endM)}</select>
+                </div>
+            </div>
+            <div class="field-cell cell-qty">
+                <span class="cell-label">რაოდენობა</span>
+                <input type="number" class="work-qty" placeholder="0" value="${quantity}" min="0" step="0.01">
+            </div>
+            <div class="field-cell cell-comment">
+                <span class="cell-label">კომენტარი</span>
+                <input type="text" class="work-comment" placeholder="სურვილისამებრ" value="${comment}">
+            </div>
+            <div class="field-cell cell-remove">
+                <button type="button" class="btn-remove" onclick="removeWork('work_${workCounter}')">✖</button>
+            </div>
+        `;
+        container.appendChild(div);
+        workCounter++;
+    }
+
+    function readTimeValue(div, prefix) {
+        const h = div.querySelector(`.${prefix}-h`).value;
+        const m = div.querySelector(`.${prefix}-m`).value;
+        if (!h || !m) return '';
+        return `${h}:${m}`;
+    }
+
+    function removeWork(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
+
+    // ------------------ ჩანაწერის შენახვა / განახლება ------------------
+    function saveRecord() {
+        clearInvalidMarks();
+        const id = document.getElementById('idInput').value.trim();
+        const brigade = document.getElementById('brigadeSelect').value;
+        const city = document.getElementById('citySelect').value;
+        const date = document.getElementById('dateInput').value;
+        const address = document.getElementById('addressInput').value.trim();
+        const objectName = document.getElementById('objectNameInput').value.trim();
+        const coefficient = document.getElementById('coefficientInput').value.trim();
+
+        const requiredMap = { idInput: id, brigadeSelect: brigade, citySelect: city, dateInput: date, addressInput: address };
+        const missing = Object.entries(requiredMap).filter(([, v]) => !v);
+        if (missing.length) {
+            missing.forEach(([elId]) => document.getElementById(elId).classList.add('invalid'));
+            showStatus('გთხოვთ შეავსოთ ID, ბრიგადა, რეგიონი, თარიღი და მისამართი.', 'error');
+            return;
+        }
+
+        const dupIndex = savedRecords.findIndex(r => r.id === id);
+        if (dupIndex !== -1 && dupIndex !== editingIndex) {
+            document.getElementById('idInput').classList.add('invalid');
+            showStatus(`ID "${id}" უკვე შენახულია. აირჩიეთ სხვა ID ან დაარედაქტირეთ არსებული ჩანაწერი.`, 'error');
+            return;
+        }
+
+        if (!currentMembers.length) {
+            showStatus('გთხოვთ აირჩიოთ ბრიგადა და რეგიონი, რომ წევრები ჩაიტვირთოს.', 'error');
+            return;
+        }
+        const members = currentMembers.map(m => ({
+            name: m.name,
+            position: m.position,
+            personal_id: m.personal_id,
+            absent: !!m.absent,
+            note: (m.note || '').trim(),
+            extra: !!m.extra,
+            home_brigade: m.homeBrigade || null,
+        }));
+
+        const works = [];
+        document.querySelectorAll('.work-item').forEach(div => {
+            const workType = div.querySelector('.work-type-input').value.trim();
+            const quantity = div.querySelector('.work-qty').value.trim();
+            if (!workType) return;
+            works.push({
+                work_type: workType,
+                start: readTimeValue(div, 'work-start'),
+                end: readTimeValue(div, 'work-end'),
+                quantity: quantity,
+                comment: div.querySelector('.work-comment').value.trim(),
+            });
+        });
+        if (!works.length) {
+            showStatus('დაამატეთ მინიმუმ ერთი სამუშაო.', 'error');
+            return;
+        }
+
+        const record = {
+            id, brigade, city, date, address, object_name: objectName, coefficient,
+            overall_comment: document.getElementById('overallComment').value.trim(),
+            members, works,
+        };
+
+        if (editingIndex !== null) {
+            savedRecords[editingIndex] = record;
+            showStatus(`✅ ჩანაწერი ID ${id} განახლდა.`, 'success');
+            editingIndex = null;
+            document.getElementById('saveBtn').textContent = '💾 შენახვა';
+        } else {
+            if (savedRecords.length >= 20) {
+                showStatus('მაქსიმუმ 20 ჩანაწერის შენახვა შეიძლება.', 'error');
+                return;
+            }
+            savedRecords.push(record);
+            showStatus(`✅ ჩანაწერი ID ${id} წარმატებით შეინახა! (${savedRecords.length}/20)`, 'success');
+        }
+
+        persistToStorage();
+        renderRecordsTable();
+        updateRecordCounter();
+        clearForm(true);
+    }
+
+    function editRecord(index) {
+        const rec = savedRecords[index];
+        editingIndex = index;
+        document.getElementById('idInput').value = rec.id;
+        document.getElementById('brigadeSelect').value = rec.brigade;
+
+        fetch(`/get_brigade_cities?brigade=${encodeURIComponent(rec.brigade)}`)
+            .then(res => res.json())
+            .then(cities => {
+                const citySelect = document.getElementById('citySelect');
+                citySelect.innerHTML = '<option value="">-- აირჩიეთ რეგიონი --</option>';
+                cities.forEach(city => {
+                    const opt = document.createElement('option');
+                    opt.value = city; opt.textContent = city;
+                    citySelect.appendChild(opt);
+                });
+                citySelect.value = rec.city;
+                return fetch(`/get_brigade_members?brigade=${encodeURIComponent(rec.brigade)}&city=${encodeURIComponent(rec.city)}`);
+            })
+            .then(res => res.json())
+            .then(members => {
+                const presetMap = {};
+                rec.members.forEach(m => { presetMap[m.personal_id] = m; });
+                currentMembers = members.map(m => {
+                    const preset = presetMap[m.personal_id] || {};
+                    return { ...m, absent: !!preset.absent, note: preset.note || '', extra: false, homeBrigade: null };
+                });
+                // დავამატოთ ის "extra" წევრები, რომლებიც ბაზისურ როსტერში არ შედის
+                rec.members.forEach(m => {
+                    if (m.extra && !currentMembers.some(cm => cm.personal_id === m.personal_id)) {
+                        currentMembers.push({
+                            name: m.name, position: m.position, personal_id: m.personal_id,
+                            absent: !!m.absent, note: m.note || '', extra: true, homeBrigade: m.home_brigade,
+                        });
+                    }
+                });
+                renderMemberList();
+            });
+
+        document.getElementById('dateInput').value = rec.date;
+        document.getElementById('addressInput').value = rec.address;
+        document.getElementById('objectNameInput').value = rec.object_name || '';
+        document.getElementById('coefficientInput').value = rec.coefficient || '';
+        document.getElementById('overallComment').value = rec.overall_comment || '';
+
+        document.getElementById('workContainer').innerHTML = '';
+        workCounter = 0;
+        rec.works.forEach(w => addWork(w.work_type, w.start, w.end, w.quantity, w.comment));
+
+        document.getElementById('saveBtn').textContent = '💾 განახლების შენახვა';
+        showStatus(`ჩანაწერი ID ${rec.id} რედაქტირებისთვის ჩაიტვირთა.`, 'success');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function removeRecord(index) {
+        if (!confirm(`წავშალო ჩანაწერი ID ${savedRecords[index].id}?`)) return;
+        savedRecords.splice(index, 1);
+        if (editingIndex === index) {
+            editingIndex = null;
+            document.getElementById('saveBtn').textContent = '💾 შენახვა';
+        }
+        persistToStorage();
+        renderRecordsTable();
+        updateRecordCounter();
+    }
+
+    function renderRecordsTable() {
+        const tbody = document.getElementById('recordsTbody');
+        const table = document.getElementById('recordsTable');
+        const hint = document.getElementById('noRecordsHint');
+        tbody.innerHTML = '';
+        if (!savedRecords.length) {
+            table.style.display = 'none';
+            hint.style.display = 'block';
+            return;
+        }
+        hint.style.display = 'none';
+        table.style.display = 'table';
+        savedRecords.forEach((rec, idx) => {
+            const activeCount = rec.members.filter(m => !(m.absent || (m.note || '').trim())).length;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${rec.id}</td>
+                <td>${rec.brigade}</td>
+                <td>${rec.city}</td>
+                <td>${rec.date}</td>
+                <td>${rec.address}</td>
+                <td>${activeCount}/${rec.members.length}</td>
+                <td>${rec.works.length}</td>
+                <td>
+                    <button type="button" class="btn btn-outline btn-small" onclick="editRecord(${idx})">✏️ რედაქტირება</button>
+                    <button type="button" class="btn btn-danger btn-small" onclick="removeRecord(${idx})">🗑️ წაშლა</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ------------------ Excel-ის გენერირება ------------------
+    function generateExcel() {
+        if (!savedRecords.length) {
+            showStatus('ჯერ არ არის შენახული ჩანაწერები. გთხოვთ შეინახოთ მინიმუმ ერთი.', 'error');
+            return;
+        }
+        const btn = document.getElementById('generateBtn');
+        btn.disabled = true;
+        const originalText = btn.textContent;
+        btn.textContent = '⏳ გენერირდება...';
+
+        fetch('/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ records: savedRecords }),
+        })
+        .then(response => {
+            if (!response.ok) return response.json().then(err => { throw new Error(err.error || 'შეცდომა'); });
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ანგარიში_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            showStatus('✅ Excel ფაილი წარმატებით ჩამოიტვირთა!', 'success');
+        })
+        .catch(err => showStatus('❌ ' + err.message, 'error'))
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        });
+    }
+
+    // ------------------ localStorage შენახვა/აღდგენა ------------------
+    function persistToStorage() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(savedRecords)); } catch (e) { /* ignore */ }
+    }
+    function restoreFromStorage() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                savedRecords = JSON.parse(raw);
+                renderRecordsTable();
+                updateRecordCounter();
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    // ------------------ დამხმარე ფუნქციები ------------------
+    function updateRecordCounter() {
+        document.getElementById('recordCounter').textContent = `ჩანაწერები: ${savedRecords.length}/20`;
+    }
+
+    function clearInvalidMarks() {
+        document.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
+    }
+
+    function showStatus(msg, type = 'success') {
+        const status = document.getElementById('statusMessage');
+        status.textContent = msg;
+        status.className = `status ${type}`;
+        status.style.display = 'block';
+    }
+
+    function clearForm(keepStatus = false) {
+        clearInvalidMarks();
+        document.getElementById('idInput').value = '';
+        document.getElementById('objectNameInput').value = '';
+        document.getElementById('coefficientInput').value = '';
+        document.getElementById('overallComment').value = '';
+        document.getElementById('workContainer').innerHTML = '';
+        workCounter = 0;
+        addWork();
+
+        // ყველა ჩასაწერი ველი ნულდება: ბრიგადა/რეგიონი/წევრები/თარიღი/მისამართიც.
+        document.getElementById('brigadeSelect').value = '';
+        document.getElementById('citySelect').innerHTML = '<option value="">-- აირჩიეთ ბრიგადა --</option>';
+        currentMembers = [];
+        renderMemberList();
+        document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+        document.getElementById('addressInput').value = '';
+
+        if (!keepStatus) document.getElementById('statusMessage').style.display = 'none';
+        document.getElementById('idInput').focus();
+    }
+
+    function clearAllRecords() {
+        if (!savedRecords.length) {
+            showStatus('შენახული ჩანაწერები ისედაც არ არის.', 'error');
+            return;
+        }
+        if (!confirm(`ნამდვილად გსურთ ყველა შენახული ჩანაწერის წაშლა? (${savedRecords.length} ჩანაწერი დაიკარგება, ეს მოქმედება შეუქცევადია)`)) {
+            return;
+        }
+        savedRecords = [];
+        editingIndex = null;
+        document.getElementById('saveBtn').textContent = '💾 შენახვა';
+        persistToStorage();
+        renderRecordsTable();
+        updateRecordCounter();
+        showStatus('🗑️ ყველა ჩანაწერი წაიშალა.', 'success');
+    }
+</script>
+</body>
+</html>
