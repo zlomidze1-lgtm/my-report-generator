@@ -29,7 +29,6 @@ COL = {name: i + 1 for i, name in enumerate([
 ])}
 
 LEADER_POSITIONS = {"ბრიგადირი", "სარემონტო ბრიგადის უფროსი"}
-NO_RECORD_TEXT = "არ არის ჩანაწერი"
 
 
 def load_config():
@@ -176,8 +175,8 @@ def generate_excel_from_records(records):
             row[COL["coefficient"] - 1] = coefficient
             row[COL["work_type"] - 1] = "არ გამოცხადება"
             row[COL["member_count"] - 1] = 0
-            row[COL["start"] - 1] = NO_RECORD_TEXT
-            row[COL["end"] - 1] = NO_RECORD_TEXT
+            row[COL["start"] - 1] = ""  # სრულიად ცარიელი ველი "დაწყება"-სთვის
+            row[COL["end"] - 1] = ""    # სრულიად ცარიელი ველი "დასრულება"-სთვის
             row[COL["note"] - 1] = member["note"]
             row[COL["position"] - 1] = member["position"]
             ws.append(row)
@@ -260,7 +259,7 @@ def get_work_types():
     return jsonify(config.get("work_types", []))
 
 
-# ---------- POSTGRES API-ები (db_id მხარდაჭერით) ----------
+# ---------- POSTGRES API-ები ----------
 
 @app.route("/api/records", methods=["GET"])
 def api_get_records():
