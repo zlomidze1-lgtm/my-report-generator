@@ -175,16 +175,22 @@ def generate_excel_from_records(records):
             row[COL["coefficient"] - 1] = coefficient
             row[COL["work_type"] - 1] = "არ გამოცხადება"
             row[COL["member_count"] - 1] = 0
-            row[COL["start"] - 1] = ""  # სრულიად ცარიელი ველი "დაწყება"-სთვის
-            row[COL["end"] - 1] = ""    # სრულიად ცარიელი ველი "დასრულება"-სთვის
+            row[COL["start"] - 1] = ""
+            row[COL["end"] - 1] = ""
             row[COL["note"] - 1] = member["note"]
             row[COL["position"] - 1] = member["position"]
             ws.append(row)
             row_num += 1
 
-    widths = [14, 22, 26, 12, 12, 10, 20, 20, 12, 30, 12, 10, 10, 12, 12, 20, 18, 22]
-    for i, w in enumerate(widths, start=1):
-        ws.column_dimensions[get_column_letter(i)].width = w
+    # დინამიკური Autofit ლოგიკა სვეტების სიგანისთვის
+    for col in ws.columns:
+        max_len = 0
+        col_letter = get_column_letter(col[0].column)
+        for cell in col:
+            val_str = str(cell.value or '')
+            if val_str:
+                max_len = max(max_len, len(val_str))
+        ws.column_dimensions[col_letter].width = max(max_len + 5, 12)
 
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=len(HEADERS)):
         for cell in row:
