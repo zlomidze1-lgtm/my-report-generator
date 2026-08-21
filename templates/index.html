@@ -223,15 +223,22 @@
 
         .filter-box {
             display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
-            background: var(--surface); padding: 16px; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.95); padding: 18px 20px; border-radius: 16px; 
+            border: 1px solid #DCE4EE; margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+            backdrop-filter: blur(10px);
         }
-        .filter-box label { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+        .filter-box label { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: #4A5568; }
         .filter-box input[type="date"], .filter-box input[type="text"] {
-            padding: 7px 11px; border: 1px solid var(--line-strong); border-radius: 8px; font-size: 13px; background: #fff;
+            padding: 8px 12px; border: 1px solid #CBD5E0; border-radius: 10px; font-size: 13px; background: #fff;
+            transition: all 0.15s ease;
+        }
+        .filter-box input[type="date"]:focus, .filter-box input[type="text"]:focus {
+            border-color: #3767FF; box-shadow: 0 0 0 3px rgba(55, 103, 255, 0.15); outline: none;
         }
         .filter-search-id {
-            border-color: var(--steel) !important;
-            box-shadow: 0 0 0 3px var(--steel-soft);
+            border-color: #3767FF !important;
+            box-shadow: 0 0 0 3px rgba(55, 103, 255, 0.1);
             font-family: var(--font-mono); font-weight: 700;
         }
 
@@ -400,6 +407,7 @@ body::before{
 .status{ margin-top:16px; border-radius:12px; padding:13px 16px; font-family:var(--font-body); box-shadow:var(--shadow-sm); }
 .status.success{ background:linear-gradient(135deg,#effcf6,#e6f9f0); color:#08734b; border:1px solid #bcebd4; }
 .status.error{ background:linear-gradient(135deg,#fff5f6,#ffedef); color:#a72d3b; border:1px solid #f5c5cc; }
+.status.warning{ background:linear-gradient(135deg,#fffdf0,#fff9db); color:#8c6b00; border:1px solid #f5e6a3; }
 
 .record-count{ border-radius:999px; background:#0b1220; color:#d8f866; padding:8px 14px; box-shadow:0 5px 15px rgba(11,18,32,.12); }
 table.records-table{ border:1px solid #dfe5ee; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-sm); }
@@ -602,22 +610,26 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
 
     <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები</h2>
     
-    <!-- 1 წლის ვადაგადაცილების გაფრთხილების ბლოკი -->
     <div id="cleanupAlert" class="status warning" style="display:none; margin-bottom: 16px;">
         ⚠️ <strong>ყურადღება!</strong> ბაზაში მოიძებნა 1 წელზე (365 დღეზე) ძველი ჩანაწერები. სისტემის ოპტიმიზაციისთვის გთხოვთ გადაამოწმოთ და წაშალოთ ვადაგასული მონაცემები.
     </div>
 
-    <!-- ფილტრები და ID-ით ძებნა -->
+    <!-- განახლებული Glassmorphism ფილტრების ბლოკი -->
     <div class="filter-box">
-        <label>🔎 ID-ით ძებნა:</label>
-        <input type="text" id="filterSearchId" class="filter-search-id" placeholder="ჩაწერეთ ID..." oninput="renderRecordsTable()">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <label>🔎 ID-ით ძებნა:</label>
+            <input type="text" id="filterSearchId" class="filter-search-id" placeholder="ჩაწერეთ ID..." oninput="renderRecordsTable()">
+        </div>
         
-        <label style="margin-left: 12px;">📅 თარიღი:</label>
-        <label>საიდან:</label>
-        <input type="date" id="filterStartDate" onchange="renderRecordsTable()">
-        <label>დამდე:</label>
-        <input type="date" id="filterEndDate" onchange="renderRecordsTable()">
-        <button type="button" class="btn btn-ghost btn-small" onclick="resetFilter()">ფილტრის გასუფთავება</button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <label>📅 თარიღი:</label>
+            <label style="font-weight: normal; color: #718096;">საიდან:</label>
+            <input type="date" id="filterStartDate" onchange="renderRecordsTable()">
+            <label style="font-weight: normal; color: #718096;">დამდე:</label>
+            <input type="date" id="filterEndDate" onchange="renderRecordsTable()">
+        </div>
+
+        <button type="button" class="btn btn-ghost btn-small" style="margin-left: auto;" onclick="resetFilter()">🔄 ფილტრის გასუფთავება</button>
     </div>
 
     <div id="recordsListWrap">
@@ -1011,7 +1023,6 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         if (el) el.remove();
     }
 
-    // ---------- შენახვა (სერვერული ბაზა + დუბლიკატი ID გაფრთხილება) ----------
     function saveRecord() {
         clearInvalidMarks();
         const id = document.getElementById('idInput').value.trim();
@@ -1070,37 +1081,28 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
 
         const isDuplicateId = savedRecords.some(r => strEquals(r.id, id) && (!editingRecordId || !strEquals(r.id, editingRecordId)));
 
-        if (editingRecordId !== null) {
-            fetch(`/api/records/update/${encodeURIComponent(editingRecordId)}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(record)
-            })
-            .then(res => res.json())
-            .then(() => {
-                showStatus(`✅ ჩანაწერი ID ${id} განახლდა.`, 'success');
+        fetch('/api/records/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(record)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                if (isDuplicateId) {
+                    showStatus(`⚠️ ყურადღება: ID "${id}" უკვე არსებობდა ბაზაში, თუმცა ჩანაწერი მაინც შეინახა.`, 'warning');
+                } else {
+                    showStatus(`✅ ჩანაწერი ID ${id} წარმატებით შეინახა ბაზაში!`, 'success');
+                }
                 editingRecordId = null;
                 document.getElementById('saveBtn').textContent = '💾 შენახვა';
                 fetchServerRecords();
                 clearForm(true);
-            });
-        } else {
-            fetch('/api/records/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(record)
-            })
-            .then(res => res.json())
-            .then(() => {
-                if (isDuplicateId) {
-                    showStatus(`⚠️ ყურადღება: ID "${id}" უკვე არსებობს ბაზაში, თუმცა ჩანაწერი მაინც შეინახა.`, 'warning');
-                } else {
-                    showStatus(`✅ ჩანაწერი ID ${id} წარმატებით შეინახა სერვერზე!`, 'success');
-                }
-                fetchServerRecords();
-                clearForm(true);
-            });
-        }
+            } else {
+                showStatus(`❌ შეცდომა: ${data.error}`, 'error');
+            }
+        })
+        .catch(err => showStatus(`❌ სერვერთან კავშირის შეცდომა: ${err}`, 'error'));
     }
 
     function editRecord(recordId) {
@@ -1177,7 +1179,6 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         return String(a ?? '').trim() === String(b ?? '').trim();
     }
 
-    // ---------- ფილტრაცია და ID-ით ძებნა ----------
     function getFilteredRecords() {
         const searchId = document.getElementById('filterSearchId').value.trim().toLocaleLowerCase();
         const start = document.getElementById('filterStartDate').value;
