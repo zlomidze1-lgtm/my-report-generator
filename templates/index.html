@@ -6,494 +6,259 @@
     <title>სამუშაოს ანგარიშის გენერატორი</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --ink: #0E1526;
-            --ink-soft: #56637A;
-            --ink-faint: #8A96A8;
-            --paper: #EEF1F6;
-            --surface: #FFFFFF;
-            --line: #DBE1E9;
-            --line-strong: #B9C3D0;
-            --signal: #CFE01A;
-            --signal-ink: #333B00;
-            --signal-dim: #F3F7CE;
-            --steel: #2E5F8A;
-            --steel-soft: #E7EFF6;
-            --success: #1E9D6C;
-            --success-soft: #E1F5EC;
-            --danger: #DA4A3C;
-            --danger-soft: #FBEAE7;
-            --r: 4px;
-            --font-body: 'Noto Sans Georgian', sans-serif;
+            --ink: #0f172a;
+            --ink-soft: #475569;
+            --ink-faint: #94a3b8;
+            --paper: #f8fafc;
+            --surface: rgba(255, 255, 255, 0.85);
+            --surface-solid: #ffffff;
+            --line: rgba(226, 232, 240, 0.8);
+            --line-strong: #cbd5e1;
+            --primary: #2563eb;
+            --primary-glow: rgba(37, 99, 235, 0.35);
+            --signal: #c7f33b;
+            --signal-ink: #1a2e00;
+            --signal-dim: #f7fbe9;
+            --steel: #3767ff;
+            --steel-soft: #eef2ff;
+            --success: #10b981;
+            --success-soft: #ecfdf5;
+            --danger: #ef4444;
+            --danger-soft: #fef2f2;
+            --warning: #f59e0b;
+            --warning-soft: #fffbeb;
+            --r: 16px;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+            --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.03);
+            --shadow-card: 0 12px 32px -4px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+            --shadow-glow: 0 0 25px -5px var(--primary-glow);
+            --font-body: 'Noto Sans Georgian', 'Plus Jakarta Sans', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: var(--font-body);
             color: var(--ink);
             background:
-                repeating-linear-gradient(0deg, rgba(14,21,38,0.05) 0 1px, transparent 1px 28px),
-                repeating-linear-gradient(90deg, rgba(14,21,38,0.05) 0 1px, transparent 1px 28px),
-                var(--paper);
+                radial-gradient(circle at 8% 8%, rgba(55,103,255,.08), transparent 28%),
+                radial-gradient(circle at 92% 10%, rgba(199,243,59,.12), transparent 25%),
+                linear-gradient(180deg,#f8faff 0%,#f2f5fa 55%,#eef2f7 100%);
             min-height: 100vh;
             line-height: 1.45;
-            padding-bottom: 70px;
+            padding-bottom: 80px;
         }
-        :focus-visible { outline: 2.5px solid var(--steel); outline-offset: 2px; }
 
         .topbar {
-            background: var(--ink); color: #fff;
-            border-bottom: 3px solid var(--signal);
-            padding: 0 28px;
-            display: flex; align-items: center; gap: 16px; height: 66px;
+            position: sticky; top: 0; z-index: 100; height: 74px;
+            padding: 0 clamp(18px,4vw,52px); display: flex; align-items: center; gap: 15px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            box-shadow: 0 10px 30px rgba(4,10,22,.15);
+        }
+        .topbar::after {
+            content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--signal), #6b8cff, transparent); opacity: .9;
         }
         .topbar .mark {
-            width: 32px; height: 32px; flex-shrink: 0; position: relative;
-            border: 2px solid var(--signal); display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border-radius: 12px; border: 1px solid rgba(199,243,59,.7);
+            background: linear-gradient(135deg,rgba(199,243,59,.18),rgba(55,103,255,.15));
+            display: flex; align-items: center; justify-content: center; position: relative;
         }
-        .topbar .mark::before, .topbar .mark::after {
-            content: ""; position: absolute; background: var(--signal);
-        }
-        .topbar .mark::before { width: 10px; height: 2px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
-        .topbar .mark::after { width: 2px; height: 10px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
-        .topbar .titles h1 {
-            font-size: 17px; font-weight: 800; letter-spacing: 0.2px; line-height: 1.1;
-        }
-        .topbar .titles p {
-            font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 1.5px;
-            color: #93A2BE; margin-top: 3px; text-transform: uppercase;
-        }
+        .topbar .mark::before, .topbar .mark::after { content: ""; position: absolute; background: var(--signal); }
+        .topbar .mark::before { width: 12px; height: 2px; }
+        .topbar .mark::after { width: 2px; height: 12px; }
+        .topbar .titles h1 { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.2px; }
+        .topbar .titles p { font-family: var(--font-mono); font-size: 9.5px; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; }
         .topbar .status {
-            display: flex; align-items: center; gap: 8px; margin-left: auto;
-            font-family: var(--font-mono); font-size: 11.5px; color: #A9C7A0; letter-spacing: 0.5px;
+            margin-left: auto; display: flex; align-items: center; gap: 8px;
+            color: #b8f1cd; background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.25);
+            padding: 6px 14px; border-radius: 999px; font-family: var(--font-mono); font-size: 11.5px;
         }
-        .topbar .status .dot {
-            width: 7px; height: 7px; border-radius: 50%; background: #58D68D;
-            box-shadow: 0 0 0 0 rgba(88,214,141,0.6);
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(88,214,141,0.55); }
-            70% { box-shadow: 0 0 0 6px rgba(88,214,141,0); }
-            100% { box-shadow: 0 0 0 0 rgba(88,214,141,0); }
-        }
+        .topbar .status .dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981; }
 
-        .wrap { max-width: 1180px; margin: 0 auto; padding: 30px 24px 0; }
+        .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 22px 0; }
 
         .panel {
             background: var(--surface); border: 1px solid var(--line);
-            padding: 24px 26px 26px; margin-bottom: 20px; position: relative;
+            border-radius: var(--radius-lg); padding: 28px; margin-bottom: 22px;
+            box-shadow: var(--shadow-card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            transition: transform .2s ease, box-shadow .2s ease;
         }
-        .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+        .panel:hover { transform: translateY(-1px); box-shadow: var(--shadow-card), 0 20px 40px rgba(15,23,42,0.06); }
+        .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
         .panel-eyebrow {
-            font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--steel);
-            letter-spacing: 1px; background: var(--steel-soft); padding: 4px 8px; border: 1px solid var(--steel);
+            font-family: var(--font-mono); font-size: 10px; font-weight: 800; color: var(--primary);
+            letter-spacing: 1.2px; background: var(--steel-soft); padding: 5px 10px; border-radius: 999px;
         }
-        .panel-head h2 { font-size: 17px; font-weight: 800; letter-spacing: 0.1px; }
-        .panel-head .badge { margin-left: auto; }
+        .panel-head h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
-        .form-grid + .form-grid { margin-top: 16px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+        .form-grid + .form-grid { margin-top: 18px; }
         .form-group { display: flex; flex-direction: column; }
         .form-group label {
-            font-family: var(--font-mono); font-weight: 600; font-size: 10.5px; color: var(--ink-soft);
-            margin-bottom: 6px; letter-spacing: 0.8px; text-transform: uppercase;
+            font-family: var(--font-mono); font-weight: 700; font-size: 10px; color: var(--ink-soft);
+            margin-bottom: 7px; letter-spacing: 0.9px; text-transform: uppercase;
         }
         .form-group input, .form-group select, .form-group textarea {
-            padding: 10px 12px; border: 1.5px solid var(--line-strong); border-radius: var(--r);
-            font-size: 14.5px; font-family: var(--font-body); background: var(--surface); color: var(--ink);
-            width: 100%; transition: border-color 0.12s, box-shadow 0.12s;
+            padding: 11px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+            font-size: 14px; font-family: var(--font-body); background: var(--surface-solid); color: var(--ink);
+            width: 100%; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); min-height: 44px;
         }
-        #idInput, #coefficientInput { font-family: var(--font-mono); }
-        .form-group select {
-            appearance: none; -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%2356637A' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
-        }
+        #idInput, #coefficientInput { font-family: var(--font-mono); font-weight: 600; }
         .form-group input:focus, .form-group select:focus {
-            border-color: var(--steel); outline: none; box-shadow: 0 0 0 3px var(--steel-soft);
+            border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-glow); transform: translateY(-1px);
         }
         .form-group input.invalid, .form-group select.invalid { border-color: var(--danger); background: var(--danger-soft); }
-        .form-group input::placeholder { color: var(--ink-faint); }
 
-        .members-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 8px; }
+        .members-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
         .member-item {
-            display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
-            background: var(--paper); padding: 9px 13px; border: 1px solid var(--line);
-            border-left: 3px solid var(--steel);
+            display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+            background: var(--surface-solid); border: 1px solid var(--line); border-left: 4px solid var(--line-strong);
+            border-radius: var(--radius-md); box-shadow: var(--shadow-subtle); transition: all 0.2s ease;
         }
+        .member-item:hover { transform: translateY(-1px); border-color: var(--line-strong); box-shadow: var(--shadow-card); }
         .member-item.extra-member { border-left-color: var(--signal); background: var(--signal-dim); }
-        .member-item label.member-name { font-weight: 700; font-size: 13.5px; min-width: 130px; display: flex; flex-direction: column; line-height: 1.35; }
-        .member-item .position-tag { font-size: 11px; color: var(--ink-faint); font-weight: 400; }
-        .member-item .extra-tag { font-family: var(--font-mono); font-size: 10px; color: var(--ink-soft); font-weight: 700; }
-        .member-item input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--steel); cursor: pointer; }
-        .member-item label[for^="absent_"] { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); font-weight: 600; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.4px; }
-        .member-item input[type="text"] {
-            flex: 1; min-width: 110px; padding: 6px 10px; border-radius: var(--r);
-            border: 1.5px solid var(--line-strong); font-size: 13px; font-family: var(--font-body); background: var(--surface);
-        }
-        .member-item input[type="text"]:focus { border-color: var(--steel); outline: none; box-shadow: 0 0 0 3px var(--steel-soft); }
-        .add-extra-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line-strong); }
+        .member-item label.member-name { font-weight: 700; font-size: 13.5px; flex: 1; line-height: 1.3; }
+        .member-item .position-tag { font-size: 11px; color: var(--ink-faint); font-weight: 400; display: block; }
+        .member-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+        .member-item input[type="text"] { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line-strong); font-size: 13px; }
 
-        #workContainer { border: 1px solid var(--line); }
-        .work-item { display: flex; flex-wrap: wrap; align-items: stretch; background: var(--surface); }
+        .add-extra-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); position: relative; }
+        .extra-member-picker { position: relative; flex: 1; min-width: 280px; }
+        .extra-member-input {
+            width: 100%; min-height: 44px; padding: 10px 40px 10px 40px;
+            border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+            background: var(--surface-solid); font-size: 14px; outline: none; transition: all .2s ease;
+        }
+        .extra-member-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
+        .extra-search-icon { position: absolute; left: 13px; top: 10px; font-size: 20px; color: var(--ink-faint); pointer-events: none; }
+        .extra-clear { position: absolute; right: 10px; top: 8px; width: 28px; height: 28px; border: 0; background: transparent; font-size: 20px; color: var(--ink-faint); cursor: pointer; }
+        .extra-member-results {
+            display: none; position: absolute; z-index: 999; top: calc(100% + 6px); left: 0; right: 0;
+            max-height: 300px; overflow-y: auto; padding: 8px; border: 1px solid var(--line-strong);
+            border-radius: var(--radius-md); background: rgba(255,255,255,.98); box-shadow: 0 20px 50px rgba(15,23,42,.15); backdrop-filter: blur(16px);
+        }
+        .extra-member-results.open { display: block; }
+        .extra-result { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; }
+        .extra-result:hover, .extra-result.active { background: var(--steel-soft); }
+
+        #workContainer { border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-subtle); }
+        .work-item { display: flex; flex-wrap: wrap; align-items: stretch; background: var(--surface-solid); transition: background .15s; }
+        .work-item:hover { background: #f8fafc; }
         .work-item + .work-item { border-top: 1px solid var(--line); }
-        .field-cell { display: flex; flex-direction: column; justify-content: center; padding: 9px 12px; border-left: 1px solid var(--line); }
+        .field-cell { display: flex; flex-direction: column; justify-content: center; padding: 12px 14px; border-left: 1px solid var(--line); }
         .field-cell:first-child { border-left: none; }
-        .field-cell .cell-label {
-            font-family: var(--font-mono); font-size: 9.5px; color: var(--steel); font-weight: 700;
-            letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px;
-        }
-        .work-item .work-type-input {
-            border: none; background: transparent; font-size: 14px; font-family: var(--font-body);
-            min-width: 200px; padding: 0; outline: none;
-        }
+        .field-cell .cell-label { font-family: var(--font-mono); font-size: 9px; color: var(--primary); font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
         .cell-type { flex: 2; min-width: 210px; }
         .cell-time { min-width: 130px; text-align: center; align-items: center; }
-        .cell-qty { width: 108px; }
+        .cell-qty { width: 110px; }
         .cell-comment { flex: 1.4; min-width: 160px; }
-        .work-item input[type="number"] { border: none; background: transparent; font-family: var(--font-mono); font-size: 14px; padding: 0; width: 100%; outline: none; }
-        .work-item input[type="text"].work-comment { border: none; background: transparent; font-size: 13.5px; font-family: var(--font-body); padding: 0; width: 100%; outline: none; }
-        .time-inputs { display: flex; align-items: center; justify-content: center; gap: 3px; width: 100%; }
-        .time-inputs select {
-            padding: 3px 2px; border: 1px solid var(--line-strong); border-radius: 3px;
-            background: var(--paper); font-size: 13.5px; font-family: var(--font-mono); width: 46px; text-align: center;
-            appearance: none; -webkit-appearance: none;
-        }
-        .time-inputs span { color: var(--ink-faint); font-weight: 700; font-family: var(--font-mono); font-size: 12px; }
-        .cell-remove { border-left: 1px solid var(--line); justify-content: center; align-items: center; padding: 6px 10px; }
-        .work-item .btn-remove {
-            background: transparent; color: var(--danger); border: 1.5px solid var(--danger);
-            border-radius: 50%; width: 26px; height: 26px; font-size: 12px; cursor: pointer; transition: 0.12s;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .work-item .btn-remove:hover { background: var(--danger); color: #fff; }
+        .work-item input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; }
+        .time-inputs { display: flex; align-items: center; gap: 4px; }
+        .time-inputs select { padding: 4px; border: 1px solid var(--line-strong); border-radius: 6px; background: #fff; font-family: var(--font-mono); font-size: 13px; }
 
         .btn {
-            padding: 10px 20px; border: 1.5px solid var(--ink); border-radius: var(--r); font-weight: 700; font-size: 14px;
-            font-family: var(--font-body); cursor: pointer; transition: 0.12s ease;
-            display: inline-flex; align-items: center; gap: 8px; background: var(--surface); color: var(--ink);
+            padding: 10px 18px; border-radius: var(--radius-sm); font-weight: 700; font-size: 13.5px;
+            font-family: var(--font-body); cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-strong); background: var(--surface-solid); color: var(--ink);
         }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-primary { background: var(--signal); color: var(--signal-ink); border-color: var(--signal-ink); }
-        .btn-primary:hover:not(:disabled) { background: var(--signal-ink); color: var(--signal); border-color: var(--signal-ink); }
-        .btn-success { background: var(--success); color: #fff; border-color: var(--success); }
-        .btn-success:hover:not(:disabled) { background: #167A54; border-color: #167A54; }
-        .btn-danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.12); }
+        .btn:active:not(:disabled) { transform: translateY(0); }
+        .btn-primary { background: linear-gradient(135deg,#c7f33b,#a8dc1f); color: var(--signal-ink); border-color: #a8dc1f; }
+        .btn-success { background: linear-gradient(135deg,#10b981,#059669); color: #fff; border-color: #059669; }
+        .btn-danger { background: #fff; color: var(--danger); border-color: #fecaca; }
         .btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
         .btn-ghost { background: transparent; border-color: var(--line-strong); color: var(--ink-soft); }
-        .btn-ghost:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); }
-        .btn-outline { background: transparent; border-color: var(--steel); color: var(--steel); padding: 6px 13px; font-size: 12.5px; }
-        .btn-outline:hover:not(:disabled) { background: var(--steel); color: #fff; }
-        .btn-small { padding: 6px 13px; font-size: 12px; }
-        .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; padding-top: 20px; border-top: 1px dashed var(--line-strong); align-items: center; }
-        .status { margin-top: 16px; padding: 12px 16px; border-radius: var(--r); display: none; font-weight: 600; font-size: 13.5px; font-family: var(--font-mono); }
-        .status.success { background: var(--success-soft); color: #106043; border: 1px solid #A9E0C6; display: block; }
-        .status.error { background: var(--danger-soft); color: #93261B; border: 1px solid #F0BCB5; display: block; }
-        .status.warning { background: #FFF8E1; color: #8C6B00; border: 1px solid #FFE082; display: block; }
-        
-        .badge {
-            background: var(--ink); color: var(--signal); border-radius: var(--r); padding: 4px 11px;
-            font-size: 12px; font-weight: 700; font-family: var(--font-mono);
-        }
-        .record-count { background: var(--ink); color: #fff; padding: 8px 15px; border-radius: var(--r); font-size: 12.5px; font-family: var(--font-mono); margin-left: auto; }
+        .btn-outline { border-color: #c9d5ff; color: var(--primary); background: #f4f7ff; }
+        .btn-outline:hover:not(:disabled) { background: var(--primary); color: #fff; }
 
-        table.records-table { width: 100%; border-collapse: collapse; font-size: 13.5px; border: 1px solid var(--line); }
-        table.records-table th, table.records-table td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: center; }
-        table.records-table th {
-            background: var(--ink); color: var(--signal); font-weight: 700; font-size: 10.5px;
-            font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.6px;
-        }
-        table.records-table td:first-child { font-family: var(--font-mono); font-weight: 700; }
-        table.records-table tbody tr:nth-child(even) { background: var(--paper); }
-        table.records-table tbody tr:hover { background: var(--steel-soft); }
-        table.records-table tr:last-child td { border-bottom: none; }
-        .empty-hint { color: var(--ink-faint); grid-column: 1/-1; padding: 6px 2px; font-size: 14px; }
-        #noRecordsHint {
-            text-align: center; padding: 24px; border: 1.5px dashed var(--line-strong);
-            font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-faint);
-        }
-        h2.section-title {
-            font-size: 12px; font-weight: 700; margin: 30px 0 12px; display: flex; align-items: center; gap: 10px;
-            font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft);
-        }
+        .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); align-items: center; }
+        .record-count { border-radius: 999px; background: var(--ink); color: var(--signal); padding: 8px 16px; font-size: 12.5px; font-family: var(--font-mono); font-weight: 700; margin-left: auto; }
 
+        /* 1. Glassmorphism ფილტრების ბლოკი */
         .filter-box {
-            display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
-            background: rgba(255, 255, 255, 0.95); padding: 18px 20px; border-radius: 16px; 
-            border: 1px solid #DCE4EE; margin-bottom: 20px;
-            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
-            backdrop-filter: blur(10px);
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+            background: var(--surface) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.9) !important;
+            border-radius: var(--radius-lg) !important;
+            padding: 18px 24px !important;
+            box-shadow: var(--shadow-card) !important;
+            margin-bottom: 24px !important;
         }
-        .filter-box label { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: #4A5568; }
-        .filter-box input[type="date"], .filter-box input[type="text"] {
-            padding: 8px 12px; border: 1px solid #CBD5E0; border-radius: 10px; font-size: 13px; background: #fff;
-            transition: all 0.15s ease;
-        }
-        .filter-box input[type="date"]:focus, .filter-box input[type="text"]:focus {
-            border-color: #3767FF; box-shadow: 0 0 0 3px rgba(55, 103, 255, 0.15); outline: none;
-        }
+        .filter-box label { font-family: var(--font-mono); font-size: 11px !important; font-weight: 800 !important; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-soft); }
+
+        /* 2. Glow-ეფექტიანი ID ძებნის გრაფა */
         .filter-search-id {
-            border-color: #3767FF !important;
-            box-shadow: 0 0 0 3px rgba(55, 103, 255, 0.1);
-            font-family: var(--font-mono); font-weight: 700;
+            border: 1.5px solid var(--primary) !important;
+            background: var(--surface-solid) !important;
+            border-radius: var(--radius-sm) !important;
+            padding: 9px 14px !important;
+            font-family: var(--font-mono) !important;
+            font-weight: 700 !important; font-size: 13.5px !important; color: var(--ink) !important; outline: none !important;
+            box-shadow: var(--shadow-glow) !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .filter-search-id:focus { box-shadow: 0 0 30px 2px rgba(37, 99, 235, 0.5) !important; transform: translateY(-1px); }
+
+        /* 3. პროფესიონალური ცხრილი (Subtle Gradient + Micro-Hover) */
+        table.records-table {
+            width: 100% !important; border-collapse: separate !important; border-spacing: 0 !important;
+            border-radius: var(--radius-lg) !important; overflow: hidden !important;
+            border: 1px solid var(--line) !important; box-shadow: var(--shadow-card) !important;
+            background: var(--surface-solid) !important;
+        }
+        table.records-table th {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+            color: var(--signal) !important; font-family: var(--font-mono); font-size: 10.5px !important;
+            font-weight: 800 !important; letter-spacing: 1.2px !important; padding: 16px 14px !important;
+            text-transform: uppercase; border-bottom: none !important;
+        }
+        table.records-table tbody tr { transition: all 0.2s ease !important; }
+        table.records-table tbody tr:hover { background-color: #f1f5f9 !important; }
+        table.records-table td { padding: 14px 16px !important; border-bottom: 1px solid var(--line) !important; font-size: 13.5px !important; text-align: center; }
+        table.records-table tr:last-child td { border-bottom: none !important; }
+
+        /* 4. Micro-Interactions სტილის სტატუსის ბანერები */
+        .status {
+            border-radius: var(--radius-md) !important; padding: 14px 20px !important; font-size: 13.5px !important; font-weight: 600 !important;
+            box-shadow: var(--shadow-subtle) !important; animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            display: none; margin-top: 16px;
+        }
+        .status.success { background: var(--success-soft) !important; color: #065f46 !important; border: 1px solid #a7f3d0 !important; display: block; }
+        .status.error { background: var(--danger-soft) !important; color: #991b1b !important; border: 1px solid #fecaca !important; display: block; }
+        .status.warning { background: var(--warning-soft) !important; color: #92400e !important; border: 1px solid #fde68a !important; display: block; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-        @media (max-width: 720px) {
-            .topbar { padding: 0 16px; height: auto; flex-wrap: wrap; padding-top: 14px; padding-bottom: 14px; }
+        #noRecordsHint { text-align: center; padding: 36px; border: 1.5px dashed var(--line-strong); border-radius: var(--radius-lg); font-family: var(--font-mono); font-size: 13px; color: var(--ink-faint); }
+        h2.section-title { font-size: 12px; font-weight: 800; margin: 36px 0 16px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-soft); }
+
+        @media (max-width:720px) {
+            .topbar { height: auto; padding: 12px 16px; }
             .topbar .status { display: none; }
-            .wrap { padding: 22px 12px 0; }
-            .panel { padding: 18px 14px; }
-            .form-grid { grid-template-columns: 1fr; }
-            .members-list { grid-template-columns: 1fr; }
+            .wrap { padding: 20px 12px 0; }
+            .panel { padding: 20px 16px; }
             .work-item { flex-direction: column; }
             .field-cell { border-left: none; border-top: 1px solid var(--line); }
-            .field-cell:first-child { border-top: none; }
-            .cell-remove { align-items: flex-end; }
-            table.records-table { font-size: 12px; }
-            .record-count { margin-left: 0; }
+            table.records-table { display: block; overflow-x: auto; }
+            .actions { flex-direction: column; align-items: stretch; }
+            .record-count { margin-left: 0; text-align: center; }
         }
     </style>
-
-<style id="premium-2026-ui">
-:root{
-    --ink:#0b1220;
-    --ink-2:#182338;
-    --ink-soft:#66738a;
-    --ink-faint:#98a4b7;
-    --paper:#f4f7fb;
-    --surface:rgba(255,255,255,.92);
-    --surface-solid:#fff;
-    --line:#e4e9f1;
-    --line-strong:#cbd4e2;
-    --signal:#c7f33b;
-    --signal-2:#a8dc1f;
-    --signal-ink:#263400;
-    --steel:#3767ff;
-    --steel-2:#6b8cff;
-    --steel-soft:#eef2ff;
-    --success:#12a86b;
-    --success-soft:#e8faf2;
-    --danger:#e64b5d;
-    --danger-soft:#fff0f2;
-    --r:16px;
-    --shadow-sm:0 2px 10px rgba(15,23,42,.05);
-    --shadow-md:0 12px 34px rgba(15,23,42,.08);
-    --shadow-lg:0 24px 70px rgba(15,23,42,.12);
-}
-
-html{scroll-behavior:smooth}
-body{
-    background:
-      radial-gradient(circle at 8% 8%, rgba(55,103,255,.10), transparent 28%),
-      radial-gradient(circle at 92% 10%, rgba(199,243,59,.13), transparent 25%),
-      linear-gradient(180deg,#f8faff 0%,#f2f5fa 55%,#eef2f7 100%);
-    color:var(--ink);
-    padding-bottom:80px;
-}
-body::before{
-    content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
-    background-image:
-      linear-gradient(rgba(16,24,40,.018) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(16,24,40,.018) 1px,transparent 1px);
-    background-size:32px 32px;
-    mask-image:linear-gradient(to bottom,rgba(0,0,0,.7),transparent 72%);
-}
-
-.topbar{
-    position:sticky; top:0; z-index:100; height:78px;
-    padding:0 clamp(18px,4vw,52px); gap:15px;
-    background:rgba(9,16,31,.88);
-    backdrop-filter:blur(20px) saturate(150%);
-    -webkit-backdrop-filter:blur(20px) saturate(150%);
-    border-bottom:1px solid rgba(255,255,255,.09);
-    box-shadow:0 10px 30px rgba(4,10,22,.16);
-}
-.topbar::after{
-    content:""; position:absolute; left:0;right:0;bottom:0; height:2px;
-    background:linear-gradient(90deg,transparent,var(--signal),#6b8cff,transparent); opacity:.9;
-}
-.topbar .mark{
-    width:42px;height:42px; border-radius:12px; border:1px solid rgba(199,243,59,.7);
-    background:linear-gradient(135deg,rgba(199,243,59,.18),rgba(55,103,255,.15));
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 0 24px rgba(199,243,59,.12);
-}
-.topbar .mark::before{width:14px;height:2px}
-.topbar .mark::after{height:14px;width:2px}
-.topbar .titles h1{ font-size:18px; letter-spacing:-.25px; color:#fff; }
-.topbar .titles p{ color:#9aa8c0; font-size:9px; letter-spacing:2px; }
-.topbar .status{ color:#b8f1cd; background:rgba(18,168,107,.10); border:1px solid rgba(18,168,107,.22); padding:8px 12px; border-radius:999px; }
-.topbar .status .dot{ width:8px;height:8px; box-shadow:0 0 0 4px rgba(88,214,141,.08); }
-
-.wrap{ max-width:1280px; padding:36px 22px 0; }
-
-.panel{
-    position:relative; overflow:hidden; background:var(--surface);
-    border:1px solid rgba(210,219,232,.82); border-radius:22px; padding:28px; margin-bottom:22px;
-    box-shadow:var(--shadow-md); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-    transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
-}
-.panel:hover{ transform:translateY(-1px); box-shadow:var(--shadow-lg); border-color:#d3ddec; }
-.panel::before, .panel::after { display: none !important; }
-
-.panel-head{ margin-bottom:22px; gap:12px; }
-.panel-eyebrow{
-    border:0; border-radius:999px; padding:6px 10px;
-    background:linear-gradient(135deg,#edf2ff,#f6f8ff); color:var(--steel);
-    box-shadow:inset 0 0 0 1px #dce4ff; font-size:10px; letter-spacing:1.3px;
-}
-.panel-head h2{ font-size:19px; letter-spacing:-.35px; }
-.panel-head .badge,.badge{
-    border-radius:999px; background:var(--ink); color:var(--signal);
-    padding:6px 11px; box-shadow:0 4px 12px rgba(11,18,32,.12);
-}
-
-.form-grid{ grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
-.form-grid + .form-grid{margin-top:18px}
-.form-group label{ color:#718096; font-size:9.5px; letter-spacing:1.1px; margin-bottom:7px; }
-.form-group input,.form-group select,.form-group textarea{
-    min-height:46px; padding:11px 14px; border:1px solid #d7deea; border-radius:12px;
-    background:rgba(255,255,255,.92); box-shadow:inset 0 1px 2px rgba(15,23,42,.025);
-    transition:border-color .16s,box-shadow .16s,transform .16s;
-}
-.form-group input:hover,.form-group select:hover{ border-color:#b9c5d8; }
-.form-group input:focus,.form-group select:focus{
-    border-color:var(--steel); box-shadow:0 0 0 4px rgba(55,103,255,.10),0 5px 16px rgba(55,103,255,.07); transform:translateY(-1px);
-}
-.form-group input.invalid,.form-group select.invalid{ border-color:var(--danger); box-shadow:0 0 0 4px rgba(230,75,93,.08); }
-
-.members-list{ grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:10px; }
-.member-item{
-    min-height:62px; padding:11px 14px; border:1px solid #e1e7ef; border-left:4px solid #dbe3f0;
-    border-radius:14px; background:linear-gradient(135deg,#fff,#f8faff); box-shadow:var(--shadow-sm);
-    transition:transform .16s,border-color .16s,box-shadow .16s;
-}
-.member-item:hover{ transform:translateY(-1px); border-color:#ccd7e8; box-shadow:0 8px 20px rgba(15,23,42,.07); }
-.member-item.extra-member{ border-left-color:var(--signal); background:linear-gradient(135deg,#fbffe9,#f7fbe9); }
-.member-item label.member-name{ font-size:13.5px; }
-.member-item input[type="checkbox"]{ width:19px;height:19px; accent-color:var(--steel); }
-.member-item input[type="text"]{ border-radius:10px; border:1px solid #d5deeb; min-height:36px; }
-.add-extra-row{ margin-top:18px; padding-top:18px; border-top:1px solid #edf0f5; }
-
-#workContainer{ border:1px solid #dfe5ee; border-radius:16px; overflow:hidden; box-shadow:inset 0 1px 0 #fff,0 5px 18px rgba(15,23,42,.035); }
-.work-item{ background:rgba(255,255,255,.95); transition:background .15s; }
-.work-item:hover{background:#fbfcff}
-.work-item + .work-item{border-top:1px solid #e8edf4}
-.field-cell{ padding:13px 14px; border-left:1px solid #e7ecf3; }
-.field-cell .cell-label{ color:#7890c8; font-size:8.5px; letter-spacing:1px; }
-.work-item .work-type-input{ font-size:14px; font-weight:600; }
-.work-item input[type="number"],.work-item input[type="text"].work-comment{ font-size:13.5px; }
-.time-inputs select{ min-height:31px; border-radius:7px; border:1px solid #d5deeb; background:#f8faff; }
-.work-item .btn-remove{ border:1px solid #f0b7c0; color:var(--danger); background:#fff7f8; transition:.15s; }
-.work-item .btn-remove:hover{ background:var(--danger); color:#fff; transform:scale(1.05); }
-
-.btn{
-    min-height:44px; padding:10px 17px; border-radius:12px; border:1px solid #d2dbe8;
-    box-shadow:0 3px 10px rgba(15,23,42,.05); transition:transform .16s,box-shadow .16s,background .16s,border-color .16s;
-}
-.btn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 8px 20px rgba(15,23,42,.10); }
-.btn-primary{ background:linear-gradient(135deg,#d5f957,#b9ea28); color:#233000; border-color:#9cc817; box-shadow:0 8px 22px rgba(171,218,36,.22); }
-.btn-primary:hover:not(:disabled){ background:linear-gradient(135deg,#b9ea28,#9fd21a); color:#1c2700; }
-.btn-success{ background:linear-gradient(135deg,#17b879,#0c9d66); border-color:#0b925e; }
-.btn-danger{ background:#fff; border-color:#f0b7c0; }
-.btn-ghost{ background:rgba(255,255,255,.72); border-color:#d8e0eb; }
-.btn-outline{ border-color:#c9d5ff; color:#3767ff; background:#f6f8ff; border-radius:10px; }
-.btn-outline:hover:not(:disabled){ background:#3767ff; border-color:#3767ff; color:#fff; }
-.actions{ margin-top:24px; padding-top:20px; border-top:1px solid #edf0f5; }
-.status{ margin-top:16px; border-radius:12px; padding:13px 16px; font-family:var(--font-body); box-shadow:var(--shadow-sm); }
-.status.success{ background:linear-gradient(135deg,#effcf6,#e6f9f0); color:#08734b; border:1px solid #bcebd4; }
-.status.error{ background:linear-gradient(135deg,#fff5f6,#ffedef); color:#a72d3b; border:1px solid #f5c5cc; }
-.status.warning{ background:linear-gradient(135deg,#fffdf0,#fff9db); color:#8c6b00; border:1px solid #f5e6a3; }
-
-.record-count{ border-radius:999px; background:#0b1220; color:#d8f866; padding:8px 14px; box-shadow:0 5px 15px rgba(11,18,32,.12); }
-table.records-table{ border:1px solid #dfe5ee; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-sm); }
-table.records-table th{ background:linear-gradient(135deg,#0b1220,#182338); color:#d7f75d; padding:13px 12px; font-size:9px; letter-spacing:.9px; }
-table.records-table td{ padding:12px; border-bottom:1px solid #e9edf3; }
-table.records-table tbody tr:nth-child(even){background:#fafbfe}
-table.records-table tbody tr:hover{ background:#f0f4ff; }
-#noRecordsHint{ border:1px dashed #cdd7e6; border-radius:14px; background:linear-gradient(135deg,#fbfcff,#f5f8fd); padding:30px; }
-h2.section-title{ color:#64748b; letter-spacing:1.2px; }
-
-@media (max-width:900px){
-    .topbar .status{display:none}
-    .panel{padding:22px}
-    .work-item{display:grid;grid-template-columns:1fr 1fr}
-    .cell-type,.cell-comment{min-width:0;width:auto}
-    .cell-type{grid-column:1/-1}
-    .cell-comment{grid-column:1/-1}
-    .cell-remove{grid-column:2;align-items:flex-end}
-}
-@media (max-width:720px){
-    .topbar{ height:auto; min-height:72px; padding:12px 14px; }
-    .topbar .titles h1{font-size:15px}
-    .wrap{padding:20px 10px 0}
-    .panel{ border-radius:18px; padding:18px 14px; margin-bottom:16px; }
-    .panel-head h2{font-size:17px}
-    .members-list{grid-template-columns:1fr}
-    .work-item{display:flex;flex-direction:column}
-    .field-cell{border-left:none;border-top:1px solid #e8edf4}
-    .field-cell:first-child{border-top:none}
-    .cell-remove{align-items:flex-end}
-    .actions .btn{flex:1 1 100%}
-    table.records-table{display:block;overflow-x:auto;white-space:nowrap}
-}
-</style>
-
-<style>
-.cell-time { text-align: center !important; align-items: center !important; }
-.cell-time .cell-label { width: 100%; text-align: center; }
-.time-inputs { width: 100% !important; justify-content: center !important; }
-.add-extra-row { position: relative; align-items: flex-start !important; }
-.extra-member-picker { position: relative; flex: 1; min-width: 280px; }
-.extra-member-input-wrap { position: relative; display: flex; align-items: center; }
-.extra-search-icon { position: absolute; left: 13px; z-index: 2; font-size: 21px; line-height: 1; color: var(--steel); pointer-events: none; transform: translateY(-1px); }
-.extra-member-input {
-    width: 100%; min-height: 44px; padding: 10px 42px 10px 40px !important;
-    border: 1.5px solid var(--line-strong) !important; border-radius: 12px !important;
-    background: var(--surface) !important; color: var(--ink) !important;
-    font-family: var(--font-body) !important; font-size: 14px !important; outline: none; transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
-}
-.extra-member-input:focus { border-color: var(--steel) !important; box-shadow: 0 0 0 4px var(--steel-soft); background: #fff !important; }
-.extra-clear { position: absolute; right: 9px; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: var(--ink-faint); font-size: 22px; line-height: 1; cursor: pointer; }
-.extra-clear:hover { background: var(--steel-soft); color: var(--ink); }
-.extra-member-results {
-    display: none; position: absolute; z-index: 50; top: calc(100% + 7px); left: 0; right: 0;
-    max-height: 330px; overflow-y: auto; padding: 7px; border: 1px solid var(--line-strong);
-    border-radius: 14px; background: rgba(255,255,255,.98); box-shadow: 0 18px 50px rgba(20,33,61,.16); backdrop-filter: blur(16px);
-}
-.extra-member-results.open { display: block; }
-.extra-result { width: 100%; display: flex; align-items: center; gap: 11px; padding: 10px 11px; border: 0; border-radius: 10px; background: transparent; text-align: left; cursor: pointer; color: var(--ink); }
-.extra-result:hover, .extra-result.active { background: var(--steel-soft); }
-.extra-avatar { flex: 0 0 34px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: var(--ink); color: var(--signal); font-family: var(--font-mono); font-weight: 800; }
-.extra-result-main { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.extra-result-main strong { font-size: 13.5px; }
-.extra-result-main small { color: var(--ink-soft); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.extra-result-arrow { color: var(--ink-faint); font-family: var(--font-mono); font-size: 16px; }
-.extra-results-head { display:flex; align-items:center; justify-content:space-between; padding:7px 10px 8px; margin-bottom:3px; color:#7b879a; font-size:10px; font-weight:800; letter-spacing:.7px; text-transform:uppercase; border-bottom:1px solid #edf1f6; }
-.extra-results-head strong { min-width:24px; height:22px; padding:0 7px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:#eef3ff; color:#3567ff; font-family:var(--font-mono); font-size:10px; }
-.extra-no-results { padding: 16px 13px; color: var(--ink-soft); font-size: 13px; text-align: center; }
-.extra-member-selected { align-items: center; gap: 8px; margin-top: 7px; padding: 7px 10px; border: 1px solid #A9E0C6; border-radius: 10px; background: var(--success-soft); color: #106043; font-size: 12px; }
-.extra-member-selected span { font-family: var(--font-mono); font-weight: 800; }
-.extra-member-selected small { color: #39775f; margin-left: auto; }
-@media (max-width:720px) {
-    .extra-member-picker { min-width: 100%; }
-    .add-extra-row .btn { width: 100%; }
-    .extra-member-selected { flex-wrap: wrap; }
-    .extra-member-selected small { margin-left: 0; width: 100%; }
-}
-
-.members-section { overflow: visible !important; z-index: 30 !important; }
-.members-section .add-extra-row { position: relative; z-index: 40; }
-.extra-member-picker { z-index: 50; }
-.extra-member-results { z-index: 9999 !important; min-height: 0; }
-.extra-member-results.open { display: block !important; }
-.extra-member-input::placeholder { color: #8b97aa; }
-</style>
-
 </head>
 <body>
 
@@ -501,9 +266,9 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
     <div class="mark"></div>
     <div class="titles">
         <h1>სამუშაოს ანგარიშის გენერატორი</h1>
-        <p>Brigade-Ops / Report-Gen</p>
+        <p>Brigade-Ops / Enterprise v2.0</p>
     </div>
-    <div class="status"><span class="dot"></span>მზადაა</div>
+    <div class="status"><span class="dot"></span>სისტემა მზადაა</div>
 </div>
 
 <div class="wrap">
@@ -552,56 +317,45 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
             </div>
         </section>
 
-        <section class="panel members-section">
+        <section class="panel">
             <div class="panel-head">
                 <span class="panel-eyebrow">// 02</span>
                 <h2>ბრიგადის წევრები</h2>
-                <span class="badge" id="memberCount">0</span>
+                <span class="record-count" id="memberCount" style="padding: 4px 12px; font-size: 11px;">0 წევრი</span>
             </div>
             <div id="membersContainer" class="members-list">
-                <p class="empty-hint">აირჩიეთ ბრიგადა და რეგიონი</p>
+                <p style="color: var(--ink-faint); font-size: 13.5px;">აირჩიეთ ბრიგადა და რეგიონი</p>
             </div>
             <div class="add-extra-row">
                 <div class="extra-member-picker">
-                    <div class="extra-member-input-wrap">
-                        <span class="extra-search-icon">⌕</span>
-                        <input
-                            type="text"
-                            id="extraMemberInput"
-                            class="extra-member-input"
-                            placeholder="ჩაწერეთ თანამშრომლის სახელი და აირჩიეთ ბაზიდან..."
-                            autocomplete="off"
-                            oninput="searchExtraMembers(this.value)"
-                            onkeydown="handleExtraMemberKeydown(event)"
-                        >
-                        <button type="button" class="extra-clear" id="extraMemberClear" title="გასუფთავება" onclick="clearExtraMemberSearch()">×</button>
-                    </div>
-                    <div id="extraMemberResults" class="extra-member-results" role="listbox" aria-label="თანამშრომლების სია"></div>
-                    <div id="extraMemberSelected" class="extra-member-selected" style="display:none;"></div>
+                    <span class="extra-search-icon">⌕</span>
+                    <input type="text" id="extraMemberInput" class="extra-member-input" placeholder="ჩაწერეთ თანამშრომლის სახელი ან პირადი #..." oninput="searchExtraMembers(this.value)" onkeydown="handleExtraMemberKeydown(event)">
+                    <button type="button" class="extra-clear" onclick="clearExtraMemberSearch()">×</button>
+                    <div id="extraMemberResults" class="extra-member-results"></div>
                 </div>
-                <button type="button" class="btn btn-outline btn-small" id="extraMemberAddBtn" onclick="addExtraMember()" disabled>➕ დამატება</button>
+                <button type="button" class="btn btn-outline" id="extraMemberAddBtn" onclick="addExtraMember()" disabled>➕ დამატება</button>
             </div>
         </section>
 
-        <section class="panel works-section">
+        <section class="panel">
             <div class="panel-head">
                 <span class="panel-eyebrow">// 03</span>
                 <h2>სამუშაოები</h2>
             </div>
             <datalist id="workTypesList"></datalist>
             <div id="workContainer"></div>
-            <button type="button" class="btn btn-success" style="margin-top: 14px;" onclick="addWork()">➕ სამუშაოს დამატება</button>
+            <button type="button" class="btn btn-success" style="margin-top: 16px;" onclick="addWork()">➕ სამუშაოს დამატება</button>
 
-            <div class="form-group" style="margin-top: 20px;">
-                <label>კომენტარი (სურვილისამებრ)</label>
-                <input type="text" id="overallComment" placeholder="ზოგადი კომენტარი">
+            <div class="form-group" style="margin-top: 22px;">
+                <label>ზოგადი კომენტარი</label>
+                <input type="text" id="overallComment" placeholder="სურვილისამებრ">
             </div>
         </section>
 
         <div class="actions">
             <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveRecord()">💾 შენახვა</button>
             <button type="button" class="btn btn-success" id="generateBtn" onclick="generateExcel()">📥 Excel-ის გენერირება</button>
-            <button type="button" class="btn btn-ghost" onclick="clearForm()">🔄 ფორმის გასუფთავება</button>
+            <button type="button" class="btn btn-ghost" onclick="clearForm()">🔄 გასუფთავება</button>
             <span class="record-count" id="recordCounter">ჩანაწერები: 0</span>
         </div>
     </form>
@@ -610,46 +364,42 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
 
     <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები</h2>
     
-    <div id="cleanupAlert" class="status warning" style="display:none; margin-bottom: 16px;">
+    <div id="cleanupAlert" class="status warning">
         ⚠️ <strong>ყურადღება!</strong> ბაზაში მოიძებნა 1 წელზე (365 დღეზე) ძველი ჩანაწერები. სისტემის ოპტიმიზაციისთვის გთხოვთ გადაამოწმოთ და წაშალოთ ვადაგასული მონაცემები.
     </div>
 
-    <!-- განახლებული Glassmorphism ფილტრების ბლოკი -->
+    <!-- Glassmorphism ფილტრების ბლოკი + Glow ID Search -->
     <div class="filter-box">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <label>🔎 ID-ით ძებნა:</label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <label>🔎 ID ძებნა:</label>
             <input type="text" id="filterSearchId" class="filter-search-id" placeholder="ჩაწერეთ ID..." oninput="renderRecordsTable()">
         </div>
         
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <label>📅 თარიღი:</label>
-            <label style="font-weight: normal; color: #718096;">საიდან:</label>
-            <input type="date" id="filterStartDate" onchange="renderRecordsTable()">
-            <label style="font-weight: normal; color: #718096;">დამდე:</label>
-            <input type="date" id="filterEndDate" onchange="renderRecordsTable()">
+            <input type="date" id="filterStartDate" style="padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()">
+            <span style="color: var(--ink-faint); font-weight: bold;">→</span>
+            <input type="date" id="filterEndDate" style="padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()">
         </div>
 
-        <button type="button" class="btn btn-ghost btn-small" style="margin-left: auto;" onclick="resetFilter()">🔄 ფილტრის გასუფთავება</button>
+        <button type="button" class="btn btn-ghost" style="margin-left: auto; padding: 7px 12px; font-size: 12px;" onclick="resetFilter()">🔄 ფილტრის გასუფთავება</button>
     </div>
 
     <div id="recordsListWrap">
-        <p class="empty-hint" id="noRecordsHint">ჯერ არცერთი ჩანაწერი არ არის შენახული</p>
+        <p id="noRecordsHint">ჯერ არცერთი ჩანაწერი არ არის შენახული</p>
         <table class="records-table" id="recordsTable" style="display:none;">
             <thead>
                 <tr>
                     <th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>თარიღი</th><th>მისამართი</th>
-                    <th>წევრები</th><th>სამუშაოები</th><th></th>
+                    <th>წევრები</th><th>სამუშაოები</th><th>მოქმედება</th>
                 </tr>
             </thead>
             <tbody id="recordsTbody"></tbody>
         </table>
     </div>
 
-    <footer class="mt-12 pt-6 border-t border-slate-200 dark:border-slate-800 text-center text-xs space-x-2">
-        <span class="text-slate-400">Designed &amp; Engineered by</span>
-        <span class="text-sky-400 font-semibold italic">Zaza Lomidze</span>
-        <span class="text-slate-400">|</span>
-        <span class="text-slate-400">Data Operations &amp; System Architecture</span>
+    <footer style="margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); text-align: center; font-size: 12px; color: var(--ink-faint);">
+        <span>Engineered by </span><strong style="color: var(--ink);">Zaza Lomidze</strong> &nbsp;|&nbsp; Enterprise Operations System
     </footer>
 </div>
 
@@ -723,7 +473,6 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
             .then(res => res.json())
             .then(members => {
                 allMembersCache = members;
-                clearExtraMemberSelection(false);
             })
             .catch(() => showStatus('თანამშრომელთა სრული სიის ჩატვირთვა ვერ მოხერხდა', 'error'));
     }
@@ -734,18 +483,14 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
 
     function searchExtraMembers(query) {
         const resultsBox = document.getElementById('extraMemberResults');
-        const selectedBox = document.getElementById('extraMemberSelected');
         const addBtn = document.getElementById('extraMemberAddBtn');
         selectedExtraMemberId = '';
-        selectedBox.style.display = 'none';
         addBtn.disabled = true;
-        extraSearchIndex = -1;
 
         const q = (query || '').trim().toLocaleLowerCase('ka-GE');
         if (!q) {
             resultsBox.innerHTML = '';
             resultsBox.classList.remove('open');
-            extraSearchResults = [];
             return;
         }
 
@@ -757,22 +502,18 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
                     .filter(Boolean).join(' ').toLocaleLowerCase('ka-GE');
                 return haystack.includes(q);
             })
-            .slice(0, 12);
+            .slice(0, 8);
 
         if (!extraSearchResults.length) {
-            resultsBox.innerHTML = '<div class="extra-no-results">ვერ მოიძებნა. სცადეთ სახელი, გვარი, ბრიგადა ან პირადი ნომერი.</div>';
+            resultsBox.innerHTML = '<div style="padding:10px; color:var(--ink-faint); font-size:12px; text-align:center;">ვერ მოიძებნა</div>';
             resultsBox.classList.add('open');
             return;
         }
 
-        resultsBox.innerHTML = `<div class="extra-results-head"><span>ბაზიდან ნაპოვნია</span><strong>${extraSearchResults.length}</strong></div>` + extraSearchResults.map((m, i) => `
-            <button type="button" class="extra-result" role="option" data-index="${i}" onclick="selectExtraMember(${i})">
-                <span class="extra-avatar">${escapeHtml((m.name || '?').trim().charAt(0))}</span>
-                <span class="extra-result-main">
-                    <strong>${escapeHtml(m.name || '')}</strong>
-                    <small>${escapeHtml(m.position || '')} · ბრიგადა ${escapeHtml(m.brigade || '')} · ${escapeHtml(m.city || '')}</small>
-                </span>
-                <span class="extra-result-arrow">↵</span>
+        resultsBox.innerHTML = extraSearchResults.map((m, i) => `
+            <button type="button" class="extra-result" onclick="selectExtraMember(${i})">
+                <div style="font-weight:700; font-size:13px;">${escapeHtml(m.name)}</div>
+                <div style="font-size:11px; color:var(--ink-faint);">${escapeHtml(m.position || '')} · ბრიგადა ${escapeHtml(m.brigade)}</div>
             </button>
         `).join('');
         resultsBox.classList.add('open');
@@ -782,69 +523,16 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         const member = extraSearchResults[index];
         if (!member) return;
         selectedExtraMemberId = String(member.personal_id);
-        const input = document.getElementById('extraMemberInput');
-        const resultsBox = document.getElementById('extraMemberResults');
-        const selectedBox = document.getElementById('extraMemberSelected');
-        const addBtn = document.getElementById('extraMemberAddBtn');
-
-        input.value = member.name;
-        selectedBox.innerHTML = `<span>✓ არჩეულია</span> <strong>${escapeHtml(member.name)}</strong><small>ბრიგადა ${escapeHtml(member.brigade)} · ${escapeHtml(member.position || '')}</small>`;
-        selectedBox.style.display = 'flex';
-        resultsBox.classList.remove('open');
-        addBtn.disabled = false;
-        extraSearchIndex = index;
-    }
-
-    function handleExtraMemberKeydown(event) {
-        const box = document.getElementById('extraMemberResults');
-        if (!box.classList.contains('open') || !extraSearchResults.length) {
-            if (event.key === 'Enter' && selectedExtraMemberId) {
-                event.preventDefault();
-                addExtraMember();
-            }
-            return;
-        }
-        if (event.key === 'ArrowDown') {
-            event.preventDefault();
-            extraSearchIndex = Math.min(extraSearchIndex + 1, extraSearchResults.length - 1);
-            highlightExtraResult();
-        } else if (event.key === 'ArrowUp') {
-            event.preventDefault();
-            extraSearchIndex = Math.max(extraSearchIndex - 1, 0);
-            highlightExtraResult();
-        } else if (event.key === 'Enter' && extraSearchIndex >= 0) {
-            event.preventDefault();
-            selectExtraMember(extraSearchIndex);
-        } else if (event.key === 'Escape') {
-            box.classList.remove('open');
-        }
-    }
-
-    function highlightExtraResult() {
-        document.querySelectorAll('.extra-result').forEach((el, i) => {
-            el.classList.toggle('active', i === extraSearchIndex);
-        });
-        const active = document.querySelector('.extra-result.active');
-        if (active) active.scrollIntoView({ block: 'nearest' });
+        document.getElementById('extraMemberInput').value = member.name;
+        document.getElementById('extraMemberResults').classList.remove('open');
+        document.getElementById('extraMemberAddBtn').disabled = false;
     }
 
     function clearExtraMemberSearch() {
-        clearExtraMemberSelection(true);
-    }
-
-    function clearExtraMemberSelection(focusInput = true) {
+        document.getElementById('extraMemberInput').value = '';
+        document.getElementById('extraMemberResults').classList.remove('open');
+        document.getElementById('extraMemberAddBtn').disabled = true;
         selectedExtraMemberId = '';
-        extraSearchResults = [];
-        extraSearchIndex = -1;
-        const input = document.getElementById('extraMemberInput');
-        const resultsBox = document.getElementById('extraMemberResults');
-        const selectedBox = document.getElementById('extraMemberSelected');
-        const addBtn = document.getElementById('extraMemberAddBtn');
-        if (input) input.value = '';
-        if (resultsBox) { resultsBox.innerHTML = ''; resultsBox.classList.remove('open'); }
-        if (selectedBox) { selectedBox.innerHTML = ''; selectedBox.style.display = 'none'; }
-        if (addBtn) addBtn.disabled = true;
-        if (focusInput && input) input.focus();
     }
 
     function escapeHtml(value) {
@@ -863,95 +551,71 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
             .then(cities => {
                 cities.forEach(city => {
                     const opt = document.createElement('option');
-                    opt.value = city;
-                    opt.textContent = city;
+                    opt.value = city; opt.textContent = city;
                     citySelect.appendChild(opt);
                 });
                 if (cities.length === 1) {
                     citySelect.value = cities[0];
                     citySelect.dispatchEvent(new Event('change'));
                 }
-            })
-            .catch(() => showStatus('ქალაქების ჩატვირთვა ვერ მოხერხდა', 'error'));
+            });
     });
 
     document.getElementById('citySelect').addEventListener('change', function () {
         const brigade = document.getElementById('brigadeSelect').value;
         const city = this.value;
-        if (!brigade || !city) {
-            currentMembers = [];
-            renderMemberList();
-            return;
-        }
+        if (!brigade || !city) { currentMembers = []; renderMemberList(); return; }
         fetch(`/get_brigade_members?brigade=${encodeURIComponent(brigade)}&city=${encodeURIComponent(city)}`)
             .then(res => res.json())
             .then(members => {
                 currentMembers = members.map(m => ({ ...m, absent: false, note: '', extra: false, homeBrigade: null }));
                 renderMemberList();
-            })
-            .catch(() => showStatus('წევრების ჩატვირთვა ვერ მოხერხდა', 'error'));
+            });
     });
 
     function renderMemberList() {
         const container = document.getElementById('membersContainer');
         container.innerHTML = '';
         if (!currentMembers.length) {
-            container.innerHTML = '<p class="empty-hint">აირჩიეთ ბრიგადა და რეგიონი</p>';
-            document.getElementById('memberCount').textContent = '0';
+            container.innerHTML = '<p style="color: var(--ink-faint); font-size: 13.5px;">აირჩიეთ ბრიგადა და რეგიონი</p>';
+            document.getElementById('memberCount').textContent = '0 წევრი';
             return;
         }
         currentMembers.forEach((m, idx) => {
             const div = document.createElement('div');
             div.className = 'member-item' + (m.extra ? ' extra-member' : '');
-            const extraTag = m.extra ? `<span class="extra-tag">ბრიგადა ${m.homeBrigade}-დან</span>` : '';
             div.innerHTML = `
                 <label class="member-name">
                     ${m.name}
-                    <span class="position-tag">${m.position}${m.extra ? ' · ' : ''}${extraTag}</span>
+                    <span class="position-tag">${m.position} ${m.extra ? `(ბრიგადა ${m.homeBrigade})` : ''}</span>
                 </label>
                 <input type="checkbox" id="absent_${idx}" ${m.absent ? 'checked' : ''} onchange="updateMemberField(${idx}, 'absent', this.checked)">
-                <label for="absent_${idx}" style="width:auto; font-weight:400;">არ გამოცხ.</label>
-                <input type="text" placeholder="შენიშვნა" value="${m.note || ''}" oninput="updateMemberField(${idx}, 'note', this.value)" style="min-width:100px;">
-                ${m.extra ? `<button type="button" class="btn-remove" title="წაშლა სიიდან" onclick="removeExtraMember(${idx})">✖</button>` : ''}
+                <label for="absent_${idx}" style="font-size: 11px; font-weight: 700; color: var(--ink-soft);">არ გამოცხ.</label>
+                <input type="text" placeholder="შენიშვნა" value="${m.note || ''}" oninput="updateMemberField(${idx}, 'note', this.value)" style="width: 110px;">
+                ${m.extra ? `<button type="button" style="border:none; background:transparent; color:var(--danger); cursor:pointer;" onclick="removeExtraMember(${idx})">✖</button>` : ''}
             `;
             container.appendChild(div);
         });
-        document.getElementById('memberCount').textContent = currentMembers.length;
+        document.getElementById('memberCount').textContent = `${currentMembers.length} წევრი`;
     }
 
     function updateMemberField(idx, field, value) {
-        if (!currentMembers[idx]) return;
-        currentMembers[idx][field] = value;
+        if (currentMembers[idx]) currentMembers[idx][field] = value;
     }
 
     function addExtraMember() {
-        const personalId = selectedExtraMemberId;
-        if (!personalId) {
-            showStatus('ჯერ მოძებნეთ და აირჩიეთ თანამშრომელი ბაზიდან.', 'error');
-            return;
-        }
-        if (currentMembers.some(m => String(m.personal_id) === String(personalId))) {
-            showStatus('ეს თანამშრომელი უკვე სიაშია.', 'error');
-            return;
-        }
-        const source = allMembersCache.find(m => String(m.personal_id) === String(personalId));
+        if (!selectedExtraMemberId) return;
+        const source = allMembersCache.find(m => String(m.personal_id) === String(selectedExtraMemberId));
         if (!source) return;
         currentMembers.push({
-            name: source.name,
-            position: source.position,
-            personal_id: source.personal_id,
-            city: source.city,
-            absent: false,
-            note: '',
-            extra: true,
-            homeBrigade: source.brigade,
+            name: source.name, position: source.position, personal_id: source.personal_id,
+            city: source.city, absent: false, note: '', extra: true, homeBrigade: source.brigade,
         });
         renderMemberList();
-        clearExtraMemberSelection();
+        clearExtraMemberSearch();
     }
 
     function removeExtraMember(idx) {
-        if (!currentMembers[idx] || !currentMembers[idx].extra) return;
         currentMembers.splice(idx, 1);
         renderMemberList();
     }
@@ -982,29 +646,27 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
             <div class="field-cell cell-time">
                 <span class="cell-label">დაწყება</span>
                 <div class="time-inputs">
-                    <select class="work-start-h" title="საათი">${buildTimeOptions(24, startH)}</select>
-                    <span>:</span>
-                    <select class="work-start-m" title="წუთი">${buildTimeOptions(60, startM)}</select>
+                    <select class="work-start-h">${buildTimeOptions(24, startH)}</select><span>:</span>
+                    <select class="work-start-m">${buildTimeOptions(60, startM)}</select>
                 </div>
             </div>
             <div class="field-cell cell-time">
                 <span class="cell-label">დასრულება</span>
                 <div class="time-inputs">
-                    <select class="work-end-h" title="საათი">${buildTimeOptions(24, endH)}</select>
-                    <span>:</span>
-                    <select class="work-end-m" title="წუთი">${buildTimeOptions(60, endM)}</select>
+                    <select class="work-end-h">${buildTimeOptions(24, endH)}</select><span>:</span>
+                    <select class="work-end-m">${buildTimeOptions(60, endM)}</select>
                 </div>
             </div>
             <div class="field-cell cell-qty">
                 <span class="cell-label">რაოდენობა</span>
-                <input type="number" class="work-qty" placeholder="0" value="${quantity}" min="0" step="0.01">
+                <input type="number" class="work-qty" placeholder="0" value="${quantity}">
             </div>
             <div class="field-cell cell-comment">
                 <span class="cell-label">კომენტარი</span>
                 <input type="text" class="work-comment" placeholder="სურვილისამებრ" value="${comment}">
             </div>
-            <div class="field-cell cell-remove">
-                <button type="button" class="btn-remove" onclick="removeWork('work_${workCounter}')">✖</button>
+            <div class="field-cell" style="justify-content:center;">
+                <button type="button" class="btn btn-danger" style="padding:4px 8px; border-radius:50%; font-size:11px;" onclick="removeWork('work_${workCounter}')">✖</button>
             </div>
         `;
         container.appendChild(div);
@@ -1014,8 +676,7 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
     function readTimeValue(div, prefix) {
         const h = div.querySelector(`.${prefix}-h`).value;
         const m = div.querySelector(`.${prefix}-m`).value;
-        if (!h || !m) return '';
-        return `${h}:${m}`;
+        return (h && m) ? `${h}:${m}` : '';
     }
 
     function removeWork(id) {
@@ -1024,62 +685,48 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
     }
 
     function saveRecord() {
-        clearInvalidMarks();
         const id = document.getElementById('idInput').value.trim();
         const brigade = document.getElementById('brigadeSelect').value;
         const city = document.getElementById('citySelect').value;
         const date = document.getElementById('dateInput').value;
         const address = document.getElementById('addressInput').value.trim();
-        const objectName = document.getElementById('objectNameInput').value.trim();
-        const coefficient = document.getElementById('coefficientInput').value.trim();
 
-        const requiredMap = { idInput: id, brigadeSelect: brigade, citySelect: city, dateInput: date, addressInput: address };
-        const missing = Object.entries(requiredMap).filter(([, v]) => !v);
-        if (missing.length) {
-            missing.forEach(([elId]) => document.getElementById(elId).classList.add('invalid'));
+        if (!id || !brigade || !city || !date || !address) {
             showStatus('გთხოვთ შეავსოთ ID, ბრიგადა, რეგიონი, თარიღი და მისამართი.', 'error');
             return;
         }
-
-        if (!currentMembers.length) {
-            showStatus('გთხოვთ აირჩიოთ ბრიგადა და რეგიონი, რომ წევრები ჩაიტვირთოს.', 'error');
-            return;
-        }
-        const members = currentMembers.map(m => ({
-            name: m.name,
-            position: m.position,
-            personal_id: m.personal_id,
-            absent: !!m.absent,
-            note: (m.note || '').trim(),
-            extra: !!m.extra,
-            home_brigade: m.homeBrigade || null,
-        }));
 
         const works = [];
         document.querySelectorAll('.work-item').forEach(div => {
             const workType = div.querySelector('.work-type-input').value.trim();
             const quantity = div.querySelector('.work-qty').value.trim();
-            if (!workType) return;
-            works.push({
-                work_type: workType,
-                start: readTimeValue(div, 'work-start'),
-                end: readTimeValue(div, 'work-end'),
-                quantity: quantity,
-                comment: div.querySelector('.work-comment').value.trim(),
-            });
+            if (workType) {
+                works.push({
+                    work_type: workType,
+                    start: readTimeValue(div, 'work-start'),
+                    end: readTimeValue(div, 'work-end'),
+                    quantity: quantity,
+                    comment: div.querySelector('.work-comment').value.trim(),
+                });
+            }
         });
+
         if (!works.length) {
             showStatus('დაამატეთ მინიმუმ ერთი სამუშაო.', 'error');
             return;
         }
 
         const record = {
-            id, brigade, city, date, address, object_name: objectName, coefficient,
+            id, brigade, city, date, address,
+            object_name: document.getElementById('objectNameInput').value.trim(),
+            coefficient: document.getElementById('coefficientInput').value.trim(),
             overall_comment: document.getElementById('overallComment').value.trim(),
-            members, works,
+            members: currentMembers.map(m => ({
+                name: m.name, position: m.position, personal_id: m.personal_id,
+                absent: !!m.absent, note: (m.note || '').trim(), extra: !!m.extra, home_brigade: m.homeBrigade || null
+            })),
+            works,
         };
-
-        const isDuplicateId = savedRecords.some(r => strEquals(r.id, id) && (!editingRecordId || !strEquals(r.id, editingRecordId)));
 
         fetch('/api/records/save', {
             method: 'POST',
@@ -1089,11 +736,7 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                if (isDuplicateId) {
-                    showStatus(`⚠️ ყურადღება: ID "${id}" უკვე არსებობდა ბაზაში, თუმცა ჩანაწერი მაინც შეინახა.`, 'warning');
-                } else {
-                    showStatus(`✅ ჩანაწერი ID ${id} წარმატებით შეინახა ბაზაში!`, 'success');
-                }
+                showStatus(`✨ ჩანაწერი ID ${id} წარმატებით შეინახა ბაზაში!`, 'success');
                 editingRecordId = null;
                 document.getElementById('saveBtn').textContent = '💾 შენახვა';
                 fetchServerRecords();
@@ -1106,9 +749,9 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
     }
 
     function editRecord(recordId) {
-        const rec = savedRecords.find(r => strEquals(r.id, recordId));
+        const rec = savedRecords.find(r => String(r.id) === String(recordId));
         if (!rec) return;
-        
+
         editingRecordId = rec.id;
         document.getElementById('idInput').value = rec.id;
         document.getElementById('brigadeSelect').value = rec.brigade;
@@ -1118,11 +761,7 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
             .then(cities => {
                 const citySelect = document.getElementById('citySelect');
                 citySelect.innerHTML = '<option value="">-- აირჩიეთ რეგიონი --</option>';
-                cities.forEach(city => {
-                    const opt = document.createElement('option');
-                    opt.value = city; opt.textContent = city;
-                    citySelect.appendChild(opt);
-                });
+                cities.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; citySelect.appendChild(opt); });
                 citySelect.value = rec.city;
                 return fetch(`/get_brigade_members?brigade=${encodeURIComponent(rec.brigade)}&city=${encodeURIComponent(rec.city)}`);
             })
@@ -1135,11 +774,8 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
                     return { ...m, absent: !!preset.absent, note: preset.note || '', extra: false, homeBrigade: null };
                 });
                 rec.members.forEach(m => {
-                    if (m.extra && !currentMembers.some(cm => strEquals(cm.personal_id, m.personal_id))) {
-                        currentMembers.push({
-                            name: m.name, position: m.position, personal_id: m.personal_id,
-                            absent: !!m.absent, note: m.note || '', extra: true, homeBrigade: m.home_brigade,
-                        });
+                    if (m.extra && !currentMembers.some(cm => String(cm.personal_id) === String(m.personal_id))) {
+                        currentMembers.push({ name: m.name, position: m.position, personal_id: m.personal_id, absent: !!m.absent, note: m.note || '', extra: true, homeBrigade: m.home_brigade });
                     }
                 });
                 renderMemberList();
@@ -1162,21 +798,12 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
 
     function removeRecord(recordId) {
         if (!confirm(`წავშალო ჩანაწერი ID ${recordId}?`)) return;
-        
         fetch(`/api/records/delete/${encodeURIComponent(recordId)}`, { method: 'DELETE' })
             .then(res => res.json())
             .then(() => {
-                if (strEquals(editingRecordId, recordId)) {
-                    editingRecordId = null;
-                    document.getElementById('saveBtn').textContent = '💾 შენახვა';
-                }
-                showStatus(`ჩანაწერი ID ${recordId} წაიშალა სერვერიდან.`, 'success');
+                showStatus(`ჩანაწერი ID ${recordId} წაიშალა.`, 'success');
                 fetchServerRecords();
             });
-    }
-
-    function strEquals(a, b) {
-        return String(a ?? '').trim() === String(b ?? '').trim();
     }
 
     function getFilteredRecords() {
@@ -1185,9 +812,7 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         const end = document.getElementById('filterEndDate').value;
 
         return savedRecords.filter(rec => {
-            if (searchId && !String(rec.id).toLocaleLowerCase().includes(searchId)) {
-                return false;
-            }
+            if (searchId && !String(rec.id).toLocaleLowerCase().includes(searchId)) return false;
             if (start && rec.date < start) return false;
             if (end && rec.date > end) return false;
             return true;
@@ -1199,9 +824,8 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         const table = document.getElementById('recordsTable');
         const hint = document.getElementById('noRecordsHint');
         tbody.innerHTML = '';
-        
-        const filtered = getFilteredRecords();
 
+        const filtered = getFilteredRecords();
         if (!filtered.length) {
             table.style.display = 'none';
             hint.style.display = 'block';
@@ -1209,11 +833,12 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         }
         hint.style.display = 'none';
         table.style.display = 'table';
-        filtered.forEach((rec) => {
+
+        filtered.forEach(rec => {
             const activeCount = rec.members.filter(m => !(m.absent || (m.note || '').trim())).length;
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${rec.id}</td>
+                <td style="font-family:var(--font-mono); font-weight:700;">${rec.id}</td>
                 <td>${rec.brigade}</td>
                 <td>${rec.city}</td>
                 <td>${rec.date}</td>
@@ -1221,8 +846,8 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
                 <td>${activeCount}/${rec.members.length}</td>
                 <td>${rec.works.length}</td>
                 <td>
-                    <button type="button" class="btn btn-outline btn-small" onclick="editRecord('${rec.id}')">✏️ რედაქტირება</button>
-                    <button type="button" class="btn btn-danger btn-small" onclick="removeRecord('${rec.id}')">🗑️ წაშლა</button>
+                    <button type="button" class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="editRecord('${rec.id}')">✏️</button>
+                    <button type="button" class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="removeRecord('${rec.id}')">🗑️</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -1239,12 +864,11 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
     function generateExcel() {
         const recordsToExport = getFilteredRecords();
         if (!recordsToExport.length) {
-            showStatus('არჩეულ პერიოდში ან ID-ით შენახული ჩანაწერები ვერ მოიძებნა.', 'error');
+            showStatus('ჩანაწერები ვერ მოიძებნა.', 'error');
             return;
         }
         const btn = document.getElementById('generateBtn');
         btn.disabled = true;
-        const originalText = btn.textContent;
         btn.textContent = '⏳ გენერირდება...';
 
         fetch('/generate', {
@@ -1252,10 +876,7 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ records: recordsToExport }),
         })
-        .then(response => {
-            if (!response.ok) return response.json().then(err => { throw new Error(err.error || 'შეცდომა'); });
-            return response.blob();
-        })
+        .then(res => res.blob())
         .then(blob => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1264,22 +885,17 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
             document.body.appendChild(a);
             a.click();
             a.remove();
-            window.URL.revokeObjectURL(url);
-            showStatus('✅ Excel ფაილი წარმატებით ჩამოიტვირთა!', 'success');
+            showStatus('✅ Excel ფაილი ჩამოიტვირთა!', 'success');
         })
-        .catch(err => showStatus('❌ ' + err.message, 'error'))
+        .catch(err => showStatus('❌ შეცდომა გენერირებისას', 'error'))
         .finally(() => {
             btn.disabled = false;
-            btn.textContent = originalText;
+            btn.textContent = '📥 Excel-ის გენერირება';
         });
     }
 
     function updateRecordCounter() {
         document.getElementById('recordCounter').textContent = `ჩანაწერები: ${savedRecords.length}`;
-    }
-
-    function clearInvalidMarks() {
-        document.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
     }
 
     function showStatus(msg, type = 'success') {
@@ -1290,7 +906,6 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
     }
 
     function clearForm(keepStatus = false) {
-        clearInvalidMarks();
         document.getElementById('idInput').value = '';
         document.getElementById('objectNameInput').value = '';
         document.getElementById('coefficientInput').value = '';
@@ -1298,14 +913,12 @@ h2.section-title{ color:#64748b; letter-spacing:1.2px; }
         document.getElementById('workContainer').innerHTML = '';
         workCounter = 0;
         addWork();
-
         document.getElementById('brigadeSelect').value = '';
         document.getElementById('citySelect').innerHTML = '<option value="">-- აირჩიეთ ბრიგადა --</option>';
         currentMembers = [];
         renderMemberList();
         document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
         document.getElementById('addressInput').value = '';
-
         if (!keepStatus) document.getElementById('statusMessage').style.display = 'none';
         document.getElementById('idInput').focus();
     }
