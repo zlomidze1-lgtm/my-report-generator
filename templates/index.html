@@ -92,6 +92,7 @@
             border-radius: var(--radius-lg); padding: 28px; margin-bottom: 22px;
             box-shadow: var(--shadow-card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
             transition: transform .2s ease, box-shadow .2s ease;
+            position: relative;
         }
         .panel:hover { transform: translateY(-1px); box-shadow: var(--shadow-card), 0 20px 40px rgba(15,23,42,0.06); }
         .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
@@ -119,6 +120,10 @@
         }
         .form-group input.invalid, .form-group select.invalid { border-color: var(--danger); background: var(--danger-soft); }
 
+        /* Z-Index Fixes */
+        .members-section { z-index: 40 !important; overflow: visible !important; }
+        .works-section { z-index: 10 !important; }
+
         .members-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
         .member-item {
             display: flex; align-items: center; gap: 10px; padding: 12px 14px;
@@ -132,7 +137,7 @@
         .member-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
         .member-item input[type="text"] { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line-strong); font-size: 13px; }
 
-        .add-extra-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); position: relative; }
+        .add-extra-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); position: relative; z-index: 50; }
         .extra-member-picker { position: relative; flex: 1; min-width: 280px; }
         .extra-member-input {
             width: 100%; min-height: 44px; padding: 10px 40px 10px 40px;
@@ -142,13 +147,15 @@
         .extra-member-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
         .extra-search-icon { position: absolute; left: 13px; top: 10px; font-size: 20px; color: var(--ink-faint); pointer-events: none; }
         .extra-clear { position: absolute; right: 10px; top: 8px; width: 28px; height: 28px; border: 0; background: transparent; font-size: 20px; color: var(--ink-faint); cursor: pointer; }
+        
+        /* Dropdown Overlap Fix */
         .extra-member-results {
-            display: none; position: absolute; z-index: 999; top: calc(100% + 6px); left: 0; right: 0;
-            max-height: 300px; overflow-y: auto; padding: 8px; border: 1px solid var(--line-strong);
-            border-radius: var(--radius-md); background: rgba(255,255,255,.98); box-shadow: 0 20px 50px rgba(15,23,42,.15); backdrop-filter: blur(16px);
+            display: none; position: absolute; z-index: 9999 !important; top: calc(100% + 6px); left: 0; right: 0;
+            max-height: 280px; overflow-y: auto; padding: 8px; border: 1px solid var(--line-strong);
+            border-radius: var(--radius-md); background: #ffffff; box-shadow: 0 20px 50px rgba(15,23,42,0.2); backdrop-filter: blur(16px);
         }
-        .extra-member-results.open { display: block; }
-        .extra-result { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; }
+        .extra-member-results.open { display: block !important; }
+        .extra-result { width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 10px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; transition: background 0.15s; }
         .extra-result:hover, .extra-result.active { background: var(--steel-soft); }
 
         #workContainer { border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-subtle); }
@@ -184,7 +191,6 @@
         .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); align-items: center; }
         .record-count { border-radius: 999px; background: var(--ink); color: var(--signal); padding: 8px 16px; font-size: 12.5px; font-family: var(--font-mono); font-weight: 700; margin-left: auto; }
 
-        /* 1. Glassmorphism ფილტრების ბლოკი */
         .filter-box {
             display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
             background: var(--surface) !important;
@@ -198,7 +204,6 @@
         }
         .filter-box label { font-family: var(--font-mono); font-size: 11px !important; font-weight: 800 !important; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-soft); }
 
-        /* 2. Glow-ეფექტიანი ID ძებნის გრაფა */
         .filter-search-id {
             border: 1.5px solid var(--primary) !important;
             background: var(--surface-solid) !important;
@@ -211,7 +216,6 @@
         }
         .filter-search-id:focus { box-shadow: 0 0 30px 2px rgba(37, 99, 235, 0.5) !important; transform: translateY(-1px); }
 
-        /* 3. პროფესიონალური ცხრილი (Subtle Gradient + Micro-Hover) */
         table.records-table {
             width: 100% !important; border-collapse: separate !important; border-spacing: 0 !important;
             border-radius: var(--radius-lg) !important; overflow: hidden !important;
@@ -229,7 +233,6 @@
         table.records-table td { padding: 14px 16px !important; border-bottom: 1px solid var(--line) !important; font-size: 13.5px !important; text-align: center; }
         table.records-table tr:last-child td { border-bottom: none !important; }
 
-        /* 4. Micro-Interactions სტილის სტატუსის ბანერები */
         .status {
             border-radius: var(--radius-md) !important; padding: 14px 20px !important; font-size: 13.5px !important; font-weight: 600 !important;
             box-shadow: var(--shadow-subtle) !important; animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -317,7 +320,7 @@
             </div>
         </section>
 
-        <section class="panel">
+        <section class="panel members-section">
             <div class="panel-head">
                 <span class="panel-eyebrow">// 02</span>
                 <h2>ბრიგადის წევრები</h2>
@@ -337,7 +340,7 @@
             </div>
         </section>
 
-        <section class="panel">
+        <section class="panel works-section">
             <div class="panel-head">
                 <span class="panel-eyebrow">// 03</span>
                 <h2>სამუშაოები</h2>
@@ -368,7 +371,6 @@
         ⚠️ <strong>ყურადღება!</strong> ბაზაში მოიძებნა 1 წელზე (365 დღეზე) ძველი ჩანაწერები. სისტემის ოპტიმიზაციისთვის გთხოვთ გადაამოწმოთ და წაშალოთ ვადაგასული მონაცემები.
     </div>
 
-    <!-- Glassmorphism ფილტრების ბლოკი + Glow ID Search -->
     <div class="filter-box">
         <div style="display: flex; align-items: center; gap: 10px;">
             <label>🔎 ID ძებნა:</label>
@@ -479,7 +481,6 @@
 
     let selectedExtraMemberId = '';
     let extraSearchResults = [];
-    let extraSearchIndex = -1;
 
     function searchExtraMembers(query) {
         const resultsBox = document.getElementById('extraMemberResults');
@@ -512,8 +513,8 @@
 
         resultsBox.innerHTML = extraSearchResults.map((m, i) => `
             <button type="button" class="extra-result" onclick="selectExtraMember(${i})">
-                <div style="font-weight:700; font-size:13px;">${escapeHtml(m.name)}</div>
-                <div style="font-size:11px; color:var(--ink-faint);">${escapeHtml(m.position || '')} · ბრიგადა ${escapeHtml(m.brigade)}</div>
+                <div style="font-weight:700; font-size:13px; color:var(--ink);">${escapeHtml(m.name)}</div>
+                <div style="font-size:11px; color:var(--ink-soft);">${escapeHtml(m.position || '')} · ბრიგადა ${escapeHtml(m.brigade)}</div>
             </button>
         `).join('');
         resultsBox.classList.add('open');
@@ -685,13 +686,13 @@
     }
 
     function saveRecord() {
-        const id = document.getElementById('idInput').value.trim();
+        const inputId = document.getElementById('idInput').value.trim();
         const brigade = document.getElementById('brigadeSelect').value;
         const city = document.getElementById('citySelect').value;
         const date = document.getElementById('dateInput').value;
         const address = document.getElementById('addressInput').value.trim();
 
-        if (!id || !brigade || !city || !date || !address) {
+        if (!inputId || !brigade || !city || !date || !address) {
             showStatus('გთხოვთ შეავსოთ ID, ბრიგადა, რეგიონი, თარიღი და მისამართი.', 'error');
             return;
         }
@@ -716,8 +717,24 @@
             return;
         }
 
+        // შემოწმება: არსებობს თუ არა უკვე ეს ID ბაზაში
+        const existingRecords = savedRecords.filter(r => String(r.id) === String(inputId));
+        
+        if (existingRecords.length > 0 && !editingRecordId) {
+            const userChoice = confirm(`⚠️ ID "${inputId}" უკვე შეყვანილია ბაზაში!\n\nგსურთ დაამატოთ ახალი ჩანაწერი ამავე ID-ით?`);
+            if (!userChoice) {
+                showStatus('შენახვა გაუქმებულია.', 'warning');
+                return;
+            }
+        }
+
+        // უნიკალური ID ბაზისთვის, რომ ძველი ჩანაწერი არ წაიშალოს
+        const recordDbId = editingRecordId || `${inputId}_${Date.now()}`;
+
         const record = {
-            id, brigade, city, date, address,
+            id: inputId,
+            db_id: recordDbId,
+            brigade, city, date, address,
             object_name: document.getElementById('objectNameInput').value.trim(),
             coefficient: document.getElementById('coefficientInput').value.trim(),
             overall_comment: document.getElementById('overallComment').value.trim(),
@@ -736,7 +753,7 @@
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                showStatus(`✨ ჩანაწერი ID ${id} წარმატებით შეინახა ბაზაში!`, 'success');
+                showStatus(`✨ ჩანაწერი ID ${inputId} წარმატებით შეინახა ბაზაში!`, 'success');
                 editingRecordId = null;
                 document.getElementById('saveBtn').textContent = '💾 შენახვა';
                 fetchServerRecords();
@@ -748,11 +765,11 @@
         .catch(err => showStatus(`❌ სერვერთან კავშირის შეცდომა: ${err}`, 'error'));
     }
 
-    function editRecord(recordId) {
-        const rec = savedRecords.find(r => String(r.id) === String(recordId));
+    function editRecord(recordDbId) {
+        const rec = savedRecords.find(r => String(r.db_id || r.id) === String(recordDbId));
         if (!rec) return;
 
-        editingRecordId = rec.id;
+        editingRecordId = rec.db_id || rec.id;
         document.getElementById('idInput').value = rec.id;
         document.getElementById('brigadeSelect').value = rec.brigade;
 
@@ -796,12 +813,12 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function removeRecord(recordId) {
-        if (!confirm(`წავშალო ჩანაწერი ID ${recordId}?`)) return;
-        fetch(`/api/records/delete/${encodeURIComponent(recordId)}`, { method: 'DELETE' })
+    function removeRecord(recordDbId) {
+        if (!confirm(`წავშალო ჩანაწერი?`)) return;
+        fetch(`/api/records/delete/${encodeURIComponent(recordDbId)}`, { method: 'DELETE' })
             .then(res => res.json())
             .then(() => {
-                showStatus(`ჩანაწერი ID ${recordId} წაიშალა.`, 'success');
+                showStatus(`ჩანაწერი წაიშალა.`, 'success');
                 fetchServerRecords();
             });
     }
@@ -836,6 +853,7 @@
 
         filtered.forEach(rec => {
             const activeCount = rec.members.filter(m => !(m.absent || (m.note || '').trim())).length;
+            const recDbId = rec.db_id || rec.id;
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="font-family:var(--font-mono); font-weight:700;">${rec.id}</td>
@@ -846,8 +864,8 @@
                 <td>${activeCount}/${rec.members.length}</td>
                 <td>${rec.works.length}</td>
                 <td>
-                    <button type="button" class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="editRecord('${rec.id}')">✏️</button>
-                    <button type="button" class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="removeRecord('${rec.id}')">🗑️</button>
+                    <button type="button" class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="editRecord('${recDbId}')">✏️</button>
+                    <button type="button" class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="removeRecord('${recDbId}')">🗑️</button>
                 </td>
             `;
             tbody.appendChild(tr);
