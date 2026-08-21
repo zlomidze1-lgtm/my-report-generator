@@ -120,7 +120,6 @@
         }
         .form-group input.invalid, .form-group select.invalid { border-color: var(--danger); background: var(--danger-soft); }
 
-        /* Z-Index Fixes */
         .members-section { z-index: 40 !important; overflow: visible !important; }
         .works-section { z-index: 10 !important; }
 
@@ -148,7 +147,6 @@
         .extra-search-icon { position: absolute; left: 13px; top: 10px; font-size: 20px; color: var(--ink-faint); pointer-events: none; }
         .extra-clear { position: absolute; right: 10px; top: 8px; width: 28px; height: 28px; border: 0; background: transparent; font-size: 20px; color: var(--ink-faint); cursor: pointer; }
         
-        /* Dropdown Overlap Fix */
         .extra-member-results {
             display: none; position: absolute; z-index: 9999 !important; top: calc(100% + 6px); left: 0; right: 0;
             max-height: 280px; overflow-y: auto; padding: 8px; border: 1px solid var(--line-strong);
@@ -367,7 +365,8 @@
 
     <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები</h2>
     
-    <div id="cleanupAlert" class="status warning">
+    <!-- ნაგულისხმევად დამალული warning ბანერი -->
+    <div id="cleanupAlert" class="status warning" style="display: none;">
         ⚠️ <strong>ყურადღება!</strong> ბაზაში მოიძებნა 1 წელზე (365 დღეზე) ძველი ჩანაწერები. სისტემის ოპტიმიზაციისთვის გთხოვთ გადაამოწმოთ და წაშალოთ ვადაგასული მონაცემები.
     </div>
 
@@ -717,7 +716,6 @@
             return;
         }
 
-        // შემოწმება: არსებობს თუ არა უკვე ეს ID ბაზაში
         const existingRecords = savedRecords.filter(r => String(r.id) === String(inputId));
         
         if (existingRecords.length > 0 && !editingRecordId) {
@@ -728,7 +726,6 @@
             }
         }
 
-        // უნიკალური ID ბაზისთვის, რომ ძველი ჩანაწერი არ წაიშალოს
         const recordDbId = editingRecordId || `${inputId}_${Date.now()}`;
 
         const record = {
