@@ -51,7 +51,8 @@ def init_db():
         cur = conn.cursor()
         cur.execute("""
             CREATE TABLE IF NOT EXISTS records (
-                id VARCHAR(100) PRIMARY KEY,
+                db_id VARCHAR(100) PRIMARY KEY,
+                id VARCHAR(100) NOT NULL,
                 data JSONB NOT NULL,
                 created_at DATE NOT NULL
             );
@@ -112,7 +113,7 @@ def generate_excel_from_records(records):
             else:
                 active_members.append(entry)
 
-        # იერარქიული სორტირება: ბრიგადირი / სარემონტო ბრიგადის უფროსი პირველ ადგილზე
+        # იერარქიული სორტირება: ბრიგადირი პირველ ადგილზე
         active_members.sort(key=lambda x: 0 if x.get("position") in LEADER_POSITIONS else 1)
         absent_members.sort(key=lambda x: 0 if x.get("position") in LEADER_POSITIONS else 1)
 
@@ -259,7 +260,7 @@ def get_work_types():
     return jsonify(config.get("work_types", []))
 
 
-# ---------- POSTGRES API-ები ----------
+# ---------- POSTGRES API-ები (db_id მხარდაჭერით) ----------
 
 @app.route("/api/records", methods=["GET"])
 def api_get_records():
@@ -292,16 +293,18 @@ def api_save_record():
         return jsonify({"error": "არასწორი მონაცემები"}), 400
 
     rec_id = str(data["id"])
+    db_id = str(data.get("db_id") or f"{rec_id}_{int(datetime.now().timestamp()*1000)}")
+    data["db_id"] = db_id
     rec_date = data.get("date", datetime.now().strftime("%Y-%m-%d"))
 
     try:
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO records (id, data, created_at)
-            VALUES (%s, %s, %s)
-            ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data, created_at = EXCLUDED.created_at;
-        """, (rec_id, json.dumps(data, ensure_ascii=False), rec_date))
+            INSERT INTO records (db_id, id, data, created_at)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (db_id) DO UPDATE SET data = EXCLUDED.data, created_at = EXCLUDED.created_at;
+        """, (db_id, rec_id, json.dumps(data, ensure_ascii=False), rec_date))
         conn.commit()
         cur.close()
         conn.close()
@@ -315,7 +318,7 @@ def api_delete_record(record_id):
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("DELETE FROM records WHERE id = %s;", (str(record_id),))
+        cur.execute("DELETE FROM records WHERE db_id = %s OR id = %s;", (str(record_id), str(record_id)))
         conn.commit()
         cur.close()
         conn.close()
