@@ -9,8 +9,7 @@ import io
 
 app = Flask(__name__)
 
-# აბსოლუტური გზა app.py-ის საკუთარი მდებარეობიდან -- არ არის დამოკიდებული
-# იმაზე, საიდან გაეშვება პროცესი (PythonAnywhere-ზე ხშირი პრობლემის თავიდან ასაცილებლად)
+# აბსოლუტური გზა app.py-ის საკუთარი მდებარეობიდან
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 
@@ -20,7 +19,7 @@ HEADERS = [
     "ბრიგადის წევრთა რაოდენობა", "დაწყება", "დასრულება", "რაოდენობა ჯამი",
     "რაოდენობა კაცზე", "კომენტარი", "შენიშვნა", "თანამდებობა"
 ]
-# სვეტების ინდექსები (1-based) წაკითხვადობისთვის
+
 COL = {name: i + 1 for i, name in enumerate([
     "city", "name", "position_id", "brigade", "date", "id",
     "object_name", "address", "coefficient", "work_type",
@@ -50,7 +49,7 @@ def generate_excel_from_records(records):
         cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.freeze_panes = "A2"
 
-    row_num = 2  # პირველი მონაცემთა მწკრივი (1 არის სათაური)
+    row_num = 2
 
     for record in records:
         id_val = record.get("id", "")
@@ -61,10 +60,9 @@ def generate_excel_from_records(records):
         address = record.get("address", "")
         coefficient = record.get("coefficient", "")
         overall_comment = record.get("overall_comment", "")
-        member_data = record.get("members", [])  # [{name, position, personal_id, absent, note}]
+        member_data = record.get("members", [])
         works = record.get("works", [])
 
-        # გავყოთ აქტიურები და არ გამოცხადებულები
         active_members, absent_members = [], []
         for m in member_data:
             note = (m.get("note") or "").strip()
@@ -81,9 +79,6 @@ def generate_excel_from_records(records):
             else:
                 active_members.append(entry)
 
-        # "ბრიგადის წევრთა რაოდენობა": ლიდერს (ბრიგადირი/სარემონტო ბრ. უფროსი) ყოველთვის 1,
-        # ჩვეულებრივ მუშას -- იმ დღეს/ID-ზე აქტიური "მუშა"-ების ჯამური რაოდენობა (არა ფორმულა).
-        # "რაოდენობა კაცზე" ამ ალემენტით ისახება: qty_total / member_count(member).
         worker_count = sum(1 for m in active_members if m["position"] not in LEADER_POSITIONS)
 
         def position_id_label(member):
@@ -95,7 +90,6 @@ def generate_excel_from_records(records):
         def member_count_value(member):
             return 1 if member["position"] in LEADER_POSITIONS else worker_count
 
-        # აქტიური წევრები – თითოეული სამუშაოსთვის
         for work in works:
             work_type = work.get("work_type", "")
             start_val = work.get("start", "")
@@ -121,7 +115,6 @@ def generate_excel_from_records(records):
                 row[COL["coefficient"] - 1] = coefficient
                 row[COL["work_type"] - 1] = work_type
                 row[COL["member_count"] - 1] = member_count_value(member)
-                # ცარიელი რჩება, თუ არ შეუვსია -- "არ არის ჩანაწერი" მხოლოდ არგამოცხადებულებზეა
                 row[COL["start"] - 1] = start_val
                 row[COL["end"] - 1] = end_val
                 row[COL["qty_total"] - 1] = total_qty
@@ -132,7 +125,6 @@ def generate_excel_from_records(records):
                 ws.append(row)
                 row_num += 1
 
-        # არ გამოცხადებული წევრები
         for member in absent_members:
             row = [""] * len(HEADERS)
             row[COL["city"] - 1] = city
@@ -153,7 +145,6 @@ def generate_excel_from_records(records):
             ws.append(row)
             row_num += 1
 
-    # სვეტების სიგანე + სათაურის wrap
     widths = [14, 22, 26, 12, 12, 10, 20, 20, 12, 30, 12, 10, 10, 12, 12, 20, 18, 22]
     for i, w in enumerate(widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = w
@@ -177,7 +168,6 @@ def index():
 
 @app.route("/get_brigades")
 def get_brigades():
-    """ბრიგადების ნომრები config.json-იდან (აღარაა hardcode-ული HTML-ში)."""
     config = load_config()
     brigades = sorted(config["brigades"].keys(), key=lambda x: int(x))
     return jsonify(brigades)
@@ -209,7 +199,6 @@ def get_brigade_members():
 
 @app.route("/get_all_members")
 def get_all_members():
-    """მთელი როსტერი ყველა ბრიგადიდან -- სხვა ბრიგადის თანამშრომლის დამატების dropdown-ისთვის."""
     config = load_config()
     all_members = []
     for brigade_num, data in config["brigades"].items():
@@ -241,7 +230,6 @@ def generate():
     if not records:
         return jsonify({"error": "ჩანაწერები ვერ მოიძებნა"}), 400
 
-    # უმარტივესი server-side ვალიდაცია
     for rec in records:
         for field in ("id", "brigade", "city", "date", "address"):
             if not rec.get(field):
@@ -251,7 +239,7 @@ def generate():
 
     try:
         output = generate_excel_from_records(records)
-    except Exception as exc:  # noqa: BLE001 - ვაბრუნებთ წაკითხვად შეცდომას frontend-ს
+    except Exception as exc:
         return jsonify({"error": f"Excel-ის გენერირება ვერ მოხერხდა: {exc}"}), 500
 
     filename = f"ანგარიში_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
@@ -262,6 +250,9 @@ def generate():
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
 
+
+# Vercel-ის სერვერლეს გარემოსთვის
+app = app
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
