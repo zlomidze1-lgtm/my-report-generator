@@ -44,7 +44,6 @@
         }
         :focus-visible { outline: 2.5px solid var(--steel); outline-offset: 2px; }
 
-        /* ---------- ზედა კონსოლი ---------- */
         .topbar {
             background: var(--ink); color: #fff;
             border-bottom: 3px solid var(--signal);
@@ -81,15 +80,9 @@
             70% { box-shadow: 0 0 0 6px rgba(88,214,141,0); }
             100% { box-shadow: 0 0 0 0 rgba(88,214,141,0); }
         }
-        .topbar .quota {
-            font-family: var(--font-mono); font-size: 11.5px; color: var(--signal-ink);
-            background: var(--signal); padding: 6px 12px; border: 1px solid var(--signal);
-            white-space: nowrap; font-weight: 700;
-        }
 
         .wrap { max-width: 1180px; margin: 0 auto; padding: 30px 24px 0; }
 
-        /* ---------- პანელები (blueprint ჩარჩო) ---------- */
         .panel {
             background: var(--surface); border: 1px solid var(--line);
             padding: 24px 26px 26px; margin-bottom: 20px; position: relative;
@@ -102,7 +95,6 @@
         .panel-head h2 { font-size: 17px; font-weight: 800; letter-spacing: 0.1px; }
         .panel-head .badge { margin-left: auto; }
 
-        /* ---------- ველები ---------- */
         .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
         .form-grid + .form-grid { margin-top: 16px; }
         .form-group { display: flex; flex-direction: column; }
@@ -127,7 +119,6 @@
         .form-group input.invalid, .form-group select.invalid { border-color: var(--danger); background: var(--danger-soft); }
         .form-group input::placeholder { color: var(--ink-faint); }
 
-        /* ---------- წევრები ---------- */
         .members-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 8px; }
         .member-item {
             display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
@@ -146,19 +137,9 @@
         }
         .member-item input[type="text"]:focus { border-color: var(--steel); outline: none; box-shadow: 0 0 0 3px var(--steel-soft); }
         .add-extra-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line-strong); }
-        .add-extra-row select {
-            flex: 1; min-width: 260px; padding: 10px 12px; border: 1.5px solid var(--line-strong); border-radius: var(--r);
-            background: var(--surface); font-family: var(--font-body); font-size: 14px;
-            appearance: none; -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%2356637A' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
-        }
 
-        /* ---------- სამუშაოები (მონაცემთა-მწკრივის სტილი) ---------- */
         #workContainer { border: 1px solid var(--line); }
-        .work-item {
-            display: flex; flex-wrap: wrap; align-items: stretch; background: var(--surface);
-        }
+        .work-item { display: flex; flex-wrap: wrap; align-items: stretch; background: var(--surface); }
         .work-item + .work-item { border-top: 1px solid var(--line); }
         .field-cell { display: flex; flex-direction: column; justify-content: center; padding: 9px 12px; border-left: 1px solid var(--line); }
         .field-cell:first-child { border-left: none; }
@@ -191,7 +172,6 @@
         }
         .work-item .btn-remove:hover { background: var(--danger); color: #fff; }
 
-        /* ---------- ღილაკები ---------- */
         .btn {
             padding: 10px 20px; border: 1.5px solid var(--ink); border-radius: var(--r); font-weight: 700; font-size: 14px;
             font-family: var(--font-body); cursor: pointer; transition: 0.12s ease;
@@ -219,7 +199,6 @@
         }
         .record-count { background: var(--ink); color: #fff; padding: 8px 15px; border-radius: var(--r); font-size: 12.5px; font-family: var(--font-mono); margin-left: auto; }
 
-        /* ---------- ცხრილი ---------- */
         table.records-table { width: 100%; border-collapse: collapse; font-size: 13.5px; border: 1px solid var(--line); }
         table.records-table th, table.records-table td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: center; }
         table.records-table th {
@@ -240,6 +219,13 @@
             font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft);
         }
 
+        .filter-box {
+            display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+            background: var(--surface); padding: 16px; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 16px;
+        }
+        .filter-box label { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+        .filter-box input[type="date"] { padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 8px; font-size: 13px; }
+
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
         @media (max-width: 720px) {
             .topbar { padding: 0 16px; height: auto; flex-wrap: wrap; padding-top: 14px; padding-bottom: 14px; }
@@ -258,10 +244,6 @@
     </style>
 
 <style id="premium-2026-ui">
-/* =========================================================
-   2026 PREMIUM UI — visual layer only
-   Existing IDs, forms and JavaScript are intentionally kept.
-   ========================================================= */
 :root{
     --ink:#0b1220;
     --ink-2:#182338;
@@ -298,11 +280,7 @@ body{
     padding-bottom:80px;
 }
 body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    z-index:-1;
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
     background-image:
       linear-gradient(rgba(16,24,40,.018) 1px,transparent 1px),
       linear-gradient(90deg,rgba(16,24,40,.018) 1px,transparent 1px);
@@ -311,12 +289,8 @@ body::before{
 }
 
 .topbar{
-    position:sticky;
-    top:0;
-    z-index:100;
-    height:78px;
-    padding:0 clamp(18px,4vw,52px);
-    gap:15px;
+    position:sticky; top:0; z-index:100; height:78px;
+    padding:0 clamp(18px,4vw,52px); gap:15px;
     background:rgba(9,16,31,.88);
     backdrop-filter:blur(20px) saturate(150%);
     -webkit-backdrop-filter:blur(20px) saturate(150%);
@@ -324,337 +298,108 @@ body::before{
     box-shadow:0 10px 30px rgba(4,10,22,.16);
 }
 .topbar::after{
-    content:"";
-    position:absolute;
-    left:0;right:0;bottom:0;
-    height:2px;
-    background:linear-gradient(90deg,transparent,var(--signal),#6b8cff,transparent);
-    opacity:.9;
+    content:""; position:absolute; left:0;right:0;bottom:0; height:2px;
+    background:linear-gradient(90deg,transparent,var(--signal),#6b8cff,transparent); opacity:.9;
 }
 .topbar .mark{
-    width:42px;height:42px;
-    border-radius:12px;
-    border:1px solid rgba(199,243,59,.7);
+    width:42px;height:42px; border-radius:12px; border:1px solid rgba(199,243,59,.7);
     background:linear-gradient(135deg,rgba(199,243,59,.18),rgba(55,103,255,.15));
     box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 0 24px rgba(199,243,59,.12);
 }
 .topbar .mark::before{width:14px;height:2px}
 .topbar .mark::after{height:14px;width:2px}
-.topbar .titles h1{
-    font-size:18px;
-    letter-spacing:-.25px;
-    color:#fff;
-}
-.topbar .titles p{
-    color:#9aa8c0;
-    font-size:9px;
-    letter-spacing:2px;
-}
-.topbar .status{
-    color:#b8f1cd;
-    background:rgba(18,168,107,.10);
-    border:1px solid rgba(18,168,107,.22);
-    padding:8px 12px;
-    border-radius:999px;
-}
-.topbar .status .dot{
-    width:8px;height:8px;
-    box-shadow:0 0 0 4px rgba(88,214,141,.08);
-}
-.topbar .quota{
-    border:1px solid rgba(199,243,59,.25);
-    border-radius:999px;
-    background:rgba(199,243,59,.13);
-    color:#d9fa70;
-    padding:7px 12px;
-}
+.topbar .titles h1{ font-size:18px; letter-spacing:-.25px; color:#fff; }
+.topbar .titles p{ color:#9aa8c0; font-size:9px; letter-spacing:2px; }
+.topbar .status{ color:#b8f1cd; background:rgba(18,168,107,.10); border:1px solid rgba(18,168,107,.22); padding:8px 12px; border-radius:999px; }
+.topbar .status .dot{ width:8px;height:8px; box-shadow:0 0 0 4px rgba(88,214,141,.08); }
 
-.wrap{
-    max-width:1280px;
-    padding:36px 22px 0;
-}
+.wrap{ max-width:1280px; padding:36px 22px 0; }
 
 .panel{
-    position:relative;
-    overflow:hidden;
-    background:var(--surface);
-    border:1px solid rgba(210,219,232,.82);
-    border-radius:22px;
-    padding:28px;
-    margin-bottom:22px;
-    box-shadow:var(--shadow-md);
-    backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);
+    position:relative; overflow:hidden; background:var(--surface);
+    border:1px solid rgba(210,219,232,.82); border-radius:22px; padding:28px; margin-bottom:22px;
+    box-shadow:var(--shadow-md); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
     transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
 }
-.panel:hover{
-    transform:translateY(-1px);
-    box-shadow:var(--shadow-lg);
-    border-color:#d3ddec;
-}
-/* წაშლილია ძველი Blueprint-ის კუთხეები */
-.panel::before, .panel::after {
-    display: none !important;
-}
+.panel:hover{ transform:translateY(-1px); box-shadow:var(--shadow-lg); border-color:#d3ddec; }
+.panel::before, .panel::after { display: none !important; }
 
-.panel-head{
-    margin-bottom:22px;
-    gap:12px;
-}
+.panel-head{ margin-bottom:22px; gap:12px; }
 .panel-eyebrow{
-    border:0;
-    border-radius:999px;
-    padding:6px 10px;
-    background:linear-gradient(135deg,#edf2ff,#f6f8ff);
-    color:var(--steel);
-    box-shadow:inset 0 0 0 1px #dce4ff;
-    font-size:10px;
-    letter-spacing:1.3px;
+    border:0; border-radius:999px; padding:6px 10px;
+    background:linear-gradient(135deg,#edf2ff,#f6f8ff); color:var(--steel);
+    box-shadow:inset 0 0 0 1px #dce4ff; font-size:10px; letter-spacing:1.3px;
 }
-.panel-head h2{
-    font-size:19px;
-    letter-spacing:-.35px;
-}
+.panel-head h2{ font-size:19px; letter-spacing:-.35px; }
 .panel-head .badge,.badge{
-    border-radius:999px;
-    background:var(--ink);
-    color:var(--signal);
-    padding:6px 11px;
-    box-shadow:0 4px 12px rgba(11,18,32,.12);
+    border-radius:999px; background:var(--ink); color:var(--signal);
+    padding:6px 11px; box-shadow:0 4px 12px rgba(11,18,32,.12);
 }
 
-.form-grid{
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:18px;
-}
+.form-grid{ grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
 .form-grid + .form-grid{margin-top:18px}
-.form-group label{
-    color:#718096;
-    font-size:9.5px;
-    letter-spacing:1.1px;
-    margin-bottom:7px;
-}
+.form-group label{ color:#718096; font-size:9.5px; letter-spacing:1.1px; margin-bottom:7px; }
 .form-group input,.form-group select,.form-group textarea{
-    min-height:46px;
-    padding:11px 14px;
-    border:1px solid #d7deea;
-    border-radius:12px;
-    background:rgba(255,255,255,.92);
-    box-shadow:inset 0 1px 2px rgba(15,23,42,.025);
+    min-height:46px; padding:11px 14px; border:1px solid #d7deea; border-radius:12px;
+    background:rgba(255,255,255,.92); box-shadow:inset 0 1px 2px rgba(15,23,42,.025);
     transition:border-color .16s,box-shadow .16s,transform .16s;
 }
-.form-group input:hover,.form-group select:hover{
-    border-color:#b9c5d8;
-}
+.form-group input:hover,.form-group select:hover{ border-color:#b9c5d8; }
 .form-group input:focus,.form-group select:focus{
-    border-color:var(--steel);
-    box-shadow:0 0 0 4px rgba(55,103,255,.10),0 5px 16px rgba(55,103,255,.07);
-    transform:translateY(-1px);
+    border-color:var(--steel); box-shadow:0 0 0 4px rgba(55,103,255,.10),0 5px 16px rgba(55,103,255,.07); transform:translateY(-1px);
 }
-.form-group input.invalid,.form-group select.invalid{
-    border-color:var(--danger);
-    box-shadow:0 0 0 4px rgba(230,75,93,.08);
-}
+.form-group input.invalid,.form-group select.invalid{ border-color:var(--danger); box-shadow:0 0 0 4px rgba(230,75,93,.08); }
 
-.members-list{
-    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-    gap:10px;
-}
+.members-list{ grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:10px; }
 .member-item{
-    min-height:62px;
-    padding:11px 14px;
-    border:1px solid #e1e7ef;
-    border-left:4px solid #dbe3f0;
-    border-radius:14px;
-    background:linear-gradient(135deg,#fff,#f8faff);
-    box-shadow:var(--shadow-sm);
+    min-height:62px; padding:11px 14px; border:1px solid #e1e7ef; border-left:4px solid #dbe3f0;
+    border-radius:14px; background:linear-gradient(135deg,#fff,#f8faff); box-shadow:var(--shadow-sm);
     transition:transform .16s,border-color .16s,box-shadow .16s;
 }
-.member-item:hover{
-    transform:translateY(-1px);
-    border-color:#ccd7e8;
-    box-shadow:0 8px 20px rgba(15,23,42,.07);
-}
-.member-item.extra-member{
-    border-left-color:var(--signal);
-    background:linear-gradient(135deg,#fbffe9,#f7fbe9);
-}
-.member-item label.member-name{
-    font-size:13.5px;
-}
-.member-item input[type="checkbox"]{
-    width:19px;height:19px;
-    accent-color:var(--steel);
-}
-.member-item input[type="text"]{
-    border-radius:10px;
-    border:1px solid #d5deeb;
-    min-height:36px;
-}
-.add-extra-row{
-    margin-top:18px;
-    padding-top:18px;
-    border-top:1px solid #edf0f5;
-}
-.add-extra-row select{
-    min-height:44px;
-    border-radius:12px;
-    border:1px solid #d7deea;
-    background:#fff;
-}
+.member-item:hover{ transform:translateY(-1px); border-color:#ccd7e8; box-shadow:0 8px 20px rgba(15,23,42,.07); }
+.member-item.extra-member{ border-left-color:var(--signal); background:linear-gradient(135deg,#fbffe9,#f7fbe9); }
+.member-item label.member-name{ font-size:13.5px; }
+.member-item input[type="checkbox"]{ width:19px;height:19px; accent-color:var(--steel); }
+.member-item input[type="text"]{ border-radius:10px; border:1px solid #d5deeb; min-height:36px; }
+.add-extra-row{ margin-top:18px; padding-top:18px; border-top:1px solid #edf0f5; }
 
-#workContainer{
-    border:1px solid #dfe5ee;
-    border-radius:16px;
-    overflow:hidden;
-    box-shadow:inset 0 1px 0 #fff,0 5px 18px rgba(15,23,42,.035);
-}
-.work-item{
-    background:rgba(255,255,255,.95);
-    transition:background .15s;
-}
+#workContainer{ border:1px solid #dfe5ee; border-radius:16px; overflow:hidden; box-shadow:inset 0 1px 0 #fff,0 5px 18px rgba(15,23,42,.035); }
+.work-item{ background:rgba(255,255,255,.95); transition:background .15s; }
 .work-item:hover{background:#fbfcff}
 .work-item + .work-item{border-top:1px solid #e8edf4}
-.field-cell{
-    padding:13px 14px;
-    border-left:1px solid #e7ecf3;
-}
-.field-cell .cell-label{
-    color:#7890c8;
-    font-size:8.5px;
-    letter-spacing:1px;
-}
-.work-item .work-type-input{
-    font-size:14px;
-    font-weight:600;
-}
-.work-item input[type="number"],.work-item input[type="text"].work-comment{
-    font-size:13.5px;
-}
-.time-inputs select{
-    min-height:31px;
-    border-radius:7px;
-    border:1px solid #d5deeb;
-    background:#f8faff;
-}
-.work-item .btn-remove{
-    border:1px solid #f0b7c0;
-    color:var(--danger);
-    background:#fff7f8;
-    transition:.15s;
-}
-.work-item .btn-remove:hover{
-    background:var(--danger);
-    color:#fff;
-    transform:scale(1.05);
-}
+.field-cell{ padding:13px 14px; border-left:1px solid #e7ecf3; }
+.field-cell .cell-label{ color:#7890c8; font-size:8.5px; letter-spacing:1px; }
+.work-item .work-type-input{ font-size:14px; font-weight:600; }
+.work-item input[type="number"],.work-item input[type="text"].work-comment{ font-size:13.5px; }
+.time-inputs select{ min-height:31px; border-radius:7px; border:1px solid #d5deeb; background:#f8faff; }
+.work-item .btn-remove{ border:1px solid #f0b7c0; color:var(--danger); background:#fff7f8; transition:.15s; }
+.work-item .btn-remove:hover{ background:var(--danger); color:#fff; transform:scale(1.05); }
 
 .btn{
-    min-height:44px;
-    padding:10px 17px;
-    border-radius:12px;
-    border:1px solid #d2dbe8;
-    box-shadow:0 3px 10px rgba(15,23,42,.05);
-    transition:transform .16s,box-shadow .16s,background .16s,border-color .16s;
+    min-height:44px; padding:10px 17px; border-radius:12px; border:1px solid #d2dbe8;
+    box-shadow:0 3px 10px rgba(15,23,42,.05); transition:transform .16s,box-shadow .16s,background .16s,border-color .16s;
 }
-.btn:hover:not(:disabled){
-    transform:translateY(-1px);
-    box-shadow:0 8px 20px rgba(15,23,42,.10);
-}
-.btn-primary{
-    background:linear-gradient(135deg,#d5f957,#b9ea28);
-    color:#233000;
-    border-color:#9cc817;
-    box-shadow:0 8px 22px rgba(171,218,36,.22);
-}
-.btn-primary:hover:not(:disabled){
-    background:linear-gradient(135deg,#b9ea28,#9fd21a);
-    color:#1c2700;
-}
-.btn-success{
-    background:linear-gradient(135deg,#17b879,#0c9d66);
-    border-color:#0b925e;
-}
-.btn-danger{
-    background:#fff;
-    border-color:#f0b7c0;
-}
-.btn-ghost{
-    background:rgba(255,255,255,.72);
-    border-color:#d8e0eb;
-}
-.btn-outline{
-    border-color:#c9d5ff;
-    color:#3767ff;
-    background:#f6f8ff;
-    border-radius:10px;
-}
-.btn-outline:hover:not(:disabled){
-    background:#3767ff;
-    border-color:#3767ff;
-    color:#fff;
-}
-.actions{
-    margin-top:24px;
-    padding-top:20px;
-    border-top:1px solid #edf0f5;
-}
-.status{
-    margin-top:16px;
-    border-radius:12px;
-    padding:13px 16px;
-    font-family:var(--font-body);
-    box-shadow:var(--shadow-sm);
-}
-.status.success{
-    background:linear-gradient(135deg,#effcf6,#e6f9f0);
-    color:#08734b;
-    border:1px solid #bcebd4;
-}
-.status.error{
-    background:linear-gradient(135deg,#fff5f6,#ffedef);
-    color:#a72d3b;
-    border:1px solid #f5c5cc;
-}
+.btn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 8px 20px rgba(15,23,42,.10); }
+.btn-primary{ background:linear-gradient(135deg,#d5f957,#b9ea28); color:#233000; border-color:#9cc817; box-shadow:0 8px 22px rgba(171,218,36,.22); }
+.btn-primary:hover:not(:disabled){ background:linear-gradient(135deg,#b9ea28,#9fd21a); color:#1c2700; }
+.btn-success{ background:linear-gradient(135deg,#17b879,#0c9d66); border-color:#0b925e; }
+.btn-danger{ background:#fff; border-color:#f0b7c0; }
+.btn-ghost{ background:rgba(255,255,255,.72); border-color:#d8e0eb; }
+.btn-outline{ border-color:#c9d5ff; color:#3767ff; background:#f6f8ff; border-radius:10px; }
+.btn-outline:hover:not(:disabled){ background:#3767ff; border-color:#3767ff; color:#fff; }
+.actions{ margin-top:24px; padding-top:20px; border-top:1px solid #edf0f5; }
+.status{ margin-top:16px; border-radius:12px; padding:13px 16px; font-family:var(--font-body); box-shadow:var(--shadow-sm); }
+.status.success{ background:linear-gradient(135deg,#effcf6,#e6f9f0); color:#08734b; border:1px solid #bcebd4; }
+.status.error{ background:linear-gradient(135deg,#fff5f6,#ffedef); color:#a72d3b; border:1px solid #f5c5cc; }
 
-.record-count{
-    border-radius:999px;
-    background:#0b1220;
-    color:#d8f866;
-    padding:8px 14px;
-    box-shadow:0 5px 15px rgba(11,18,32,.12);
-}
-table.records-table{
-    border:1px solid #dfe5ee;
-    border-radius:16px;
-    overflow:hidden;
-    box-shadow:var(--shadow-sm);
-}
-table.records-table th{
-    background:linear-gradient(135deg,#0b1220,#182338);
-    color:#d7f75d;
-    padding:13px 12px;
-    font-size:9px;
-    letter-spacing:.9px;
-}
-table.records-table td{
-    padding:12px;
-    border-bottom:1px solid #e9edf3;
-}
+.record-count{ border-radius:999px; background:#0b1220; color:#d8f866; padding:8px 14px; box-shadow:0 5px 15px rgba(11,18,32,.12); }
+table.records-table{ border:1px solid #dfe5ee; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-sm); }
+table.records-table th{ background:linear-gradient(135deg,#0b1220,#182338); color:#d7f75d; padding:13px 12px; font-size:9px; letter-spacing:.9px; }
+table.records-table td{ padding:12px; border-bottom:1px solid #e9edf3; }
 table.records-table tbody tr:nth-child(even){background:#fafbfe}
-table.records-table tbody tr:hover{
-    background:#f0f4ff;
-}
-#noRecordsHint{
-    border:1px dashed #cdd7e6;
-    border-radius:14px;
-    background:linear-gradient(135deg,#fbfcff,#f5f8fd);
-    padding:30px;
-}
-h2.section-title{
-    color:#64748b;
-    letter-spacing:1.2px;
-}
+table.records-table tbody tr:hover{ background:#f0f4ff; }
+#noRecordsHint{ border:1px dashed #cdd7e6; border-radius:14px; background:linear-gradient(135deg,#fbfcff,#f5f8fd); padding:30px; }
+h2.section-title{ color:#64748b; letter-spacing:1.2px; }
 
 @media (max-width:900px){
     .topbar .status{display:none}
@@ -666,19 +411,10 @@ h2.section-title{
     .cell-remove{grid-column:2;align-items:flex-end}
 }
 @media (max-width:720px){
-    .topbar{
-        height:auto;
-        min-height:72px;
-        padding:12px 14px;
-    }
+    .topbar{ height:auto; min-height:72px; padding:12px 14px; }
     .topbar .titles h1{font-size:15px}
-    .topbar .quota{margin-left:auto;font-size:9px}
     .wrap{padding:20px 10px 0}
-    .panel{
-        border-radius:18px;
-        padding:18px 14px;
-        margin-bottom:16px;
-    }
+    .panel{ border-radius:18px; padding:18px 14px; margin-bottom:16px; }
     .panel-head h2{font-size:17px}
     .members-list{grid-template-columns:1fr}
     .work-item{display:flex;flex-direction:column}
@@ -690,149 +426,40 @@ h2.section-title{
 }
 </style>
 
-
 <style>
-/* 2026 UX polish: centered work times + searchable extra-member picker */
-.cell-time {
-    text-align: center !important;
-    align-items: center !important;
-}
-.cell-time .cell-label {
-    width: 100%;
-    text-align: center;
-}
-.time-inputs {
-    width: 100% !important;
-    justify-content: center !important;
-}
-.add-extra-row {
-    position: relative;
-    align-items: flex-start !important;
-}
-.extra-member-picker {
-    position: relative;
-    flex: 1;
-    min-width: 280px;
-}
-.extra-member-input-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-.extra-search-icon {
-    position: absolute;
-    left: 13px;
-    z-index: 2;
-    font-size: 21px;
-    line-height: 1;
-    color: var(--steel);
-    pointer-events: none;
-    transform: translateY(-1px);
-}
+.cell-time { text-align: center !important; align-items: center !important; }
+.cell-time .cell-label { width: 100%; text-align: center; }
+.time-inputs { width: 100% !important; justify-content: center !important; }
+.add-extra-row { position: relative; align-items: flex-start !important; }
+.extra-member-picker { position: relative; flex: 1; min-width: 280px; }
+.extra-member-input-wrap { position: relative; display: flex; align-items: center; }
+.extra-search-icon { position: absolute; left: 13px; z-index: 2; font-size: 21px; line-height: 1; color: var(--steel); pointer-events: none; transform: translateY(-1px); }
 .extra-member-input {
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 42px 10px 40px !important;
-    border: 1.5px solid var(--line-strong) !important;
-    border-radius: 12px !important;
-    background: var(--surface) !important;
-    color: var(--ink) !important;
-    font-family: var(--font-body) !important;
-    font-size: 14px !important;
-    outline: none;
-    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    width: 100%; min-height: 44px; padding: 10px 42px 10px 40px !important;
+    border: 1.5px solid var(--line-strong) !important; border-radius: 12px !important;
+    background: var(--surface) !important; color: var(--ink) !important;
+    font-family: var(--font-body) !important; font-size: 14px !important; outline: none; transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
-.extra-member-input:focus {
-    border-color: var(--steel) !important;
-    box-shadow: 0 0 0 4px var(--steel-soft);
-    background: #fff !important;
-}
-.extra-clear {
-    position: absolute;
-    right: 9px;
-    width: 28px;
-    height: 28px;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--ink-faint);
-    font-size: 22px;
-    line-height: 1;
-    cursor: pointer;
-}
+.extra-member-input:focus { border-color: var(--steel) !important; box-shadow: 0 0 0 4px var(--steel-soft); background: #fff !important; }
+.extra-clear { position: absolute; right: 9px; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: var(--ink-faint); font-size: 22px; line-height: 1; cursor: pointer; }
 .extra-clear:hover { background: var(--steel-soft); color: var(--ink); }
 .extra-member-results {
-    display: none;
-    position: absolute;
-    z-index: 50;
-    top: calc(100% + 7px);
-    left: 0;
-    right: 0;
-    max-height: 330px;
-    overflow-y: auto;
-    padding: 7px;
-    border: 1px solid var(--line-strong);
-    border-radius: 14px;
-    background: rgba(255,255,255,.98);
-    box-shadow: 0 18px 50px rgba(20,33,61,.16);
-    backdrop-filter: blur(16px);
+    display: none; position: absolute; z-index: 50; top: calc(100% + 7px); left: 0; right: 0;
+    max-height: 330px; overflow-y: auto; padding: 7px; border: 1px solid var(--line-strong);
+    border-radius: 14px; background: rgba(255,255,255,.98); box-shadow: 0 18px 50px rgba(20,33,61,.16); backdrop-filter: blur(16px);
 }
 .extra-member-results.open { display: block; }
-.extra-result {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 10px 11px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    text-align: left;
-    cursor: pointer;
-    color: var(--ink);
-}
+.extra-result { width: 100%; display: flex; align-items: center; gap: 11px; padding: 10px 11px; border: 0; border-radius: 10px; background: transparent; text-align: left; cursor: pointer; color: var(--ink); }
 .extra-result:hover, .extra-result.active { background: var(--steel-soft); }
-.extra-avatar {
-    flex: 0 0 34px;
-    width: 34px;
-    height: 34px;
-    display: grid;
-    place-items: center;
-    border-radius: 10px;
-    background: var(--ink);
-    color: var(--signal);
-    font-family: var(--font-mono);
-    font-weight: 800;
-}
+.extra-avatar { flex: 0 0 34px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: var(--ink); color: var(--signal); font-family: var(--font-mono); font-weight: 800; }
 .extra-result-main { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .extra-result-main strong { font-size: 13.5px; }
 .extra-result-main small { color: var(--ink-soft); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .extra-result-arrow { color: var(--ink-faint); font-family: var(--font-mono); font-size: 16px; }
-.extra-results-head {
-    display:flex; align-items:center; justify-content:space-between;
-    padding:7px 10px 8px; margin-bottom:3px;
-    color:#7b879a; font-size:10px; font-weight:800;
-    letter-spacing:.7px; text-transform:uppercase;
-    border-bottom:1px solid #edf1f6;
-}
-.extra-results-head strong {
-    min-width:24px; height:22px; padding:0 7px;
-    display:inline-flex; align-items:center; justify-content:center;
-    border-radius:999px; background:#eef3ff; color:#3567ff;
-    font-family:var(--font-mono); font-size:10px;
-}
+.extra-results-head { display:flex; align-items:center; justify-content:space-between; padding:7px 10px 8px; margin-bottom:3px; color:#7b879a; font-size:10px; font-weight:800; letter-spacing:.7px; text-transform:uppercase; border-bottom:1px solid #edf1f6; }
+.extra-results-head strong { min-width:24px; height:22px; padding:0 7px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:#eef3ff; color:#3567ff; font-family:var(--font-mono); font-size:10px; }
 .extra-no-results { padding: 16px 13px; color: var(--ink-soft); font-size: 13px; text-align: center; }
-.extra-member-selected {
-    align-items: center;
-    gap: 8px;
-    margin-top: 7px;
-    padding: 7px 10px;
-    border: 1px solid #A9E0C6;
-    border-radius: 10px;
-    background: var(--success-soft);
-    color: #106043;
-    font-size: 12px;
-}
+.extra-member-selected { align-items: center; gap: 8px; margin-top: 7px; padding: 7px 10px; border: 1px solid #A9E0C6; border-radius: 10px; background: var(--success-soft); color: #106043; font-size: 12px; }
 .extra-member-selected span { font-family: var(--font-mono); font-weight: 800; }
 .extra-member-selected small { color: #39775f; margin-left: auto; }
 @media (max-width:720px) {
@@ -842,29 +469,12 @@ h2.section-title{
     .extra-member-selected small { margin-left: 0; width: 100%; }
 }
 
-/* FIX: searchable employee dropdown must escape the members panel clipping */
-.members-section {
-    overflow: visible !important;
-    z-index: 30 !important;
-}
-.members-section .add-extra-row {
-    position: relative;
-    z-index: 40;
-}
-.extra-member-picker {
-    z-index: 50;
-}
-.extra-member-results {
-    z-index: 9999 !important;
-    min-height: 0;
-}
-.extra-member-results.open {
-    display: block !important;
-}
-.extra-member-input::placeholder {
-    color: #8b97aa;
-}
-
+.members-section { overflow: visible !important; z-index: 30 !important; }
+.members-section .add-extra-row { position: relative; z-index: 40; }
+.extra-member-picker { z-index: 50; }
+.extra-member-results { z-index: 9999 !important; min-height: 0; }
+.extra-member-results.open { display: block !important; }
+.extra-member-input::placeholder { color: #8b97aa; }
 </style>
 
 </head>
@@ -877,7 +487,6 @@ h2.section-title{
         <p>Brigade-Ops / Report-Gen</p>
     </div>
     <div class="status"><span class="dot"></span>მზადაა</div>
-    <span class="quota">MAX 20 ID</span>
 </div>
 
 <div class="wrap">
@@ -976,14 +585,24 @@ h2.section-title{
             <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveRecord()">💾 შენახვა</button>
             <button type="button" class="btn btn-success" id="generateBtn" onclick="generateExcel()">📥 Excel-ის გენერირება</button>
             <button type="button" class="btn btn-ghost" onclick="clearForm()">🔄 ფორმის გასუფთავება</button>
-            <button type="button" class="btn btn-danger" onclick="clearAllRecords()">🗑️ ყველა ჩანაწერის წაშლა</button>
-            <span class="record-count" id="recordCounter">ჩანაწერები: 0/20</span>
+            <span class="record-count" id="recordCounter">ჩანაწერები: 0</span>
         </div>
     </form>
 
     <div id="statusMessage" class="status"></div>
 
     <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები</h2>
+    
+    <!-- თარიღით ფილტრაცია -->
+    <div class="filter-box">
+        <label>თარიღის ფილტრი (ჩამოსატვირთად):</label>
+        <label>საიდან:</label>
+        <input type="date" id="filterStartDate" onchange="renderRecordsTable()">
+        <label>დამდე:</label>
+        <input type="date" id="filterEndDate" onchange="renderRecordsTable()">
+        <button type="button" class="btn btn-ghost btn-small" onclick="resetFilter()">ფილტრის გასუფთავება</button>
+    </div>
+
     <div id="recordsListWrap">
         <p class="empty-hint" id="noRecordsHint">ჯერ არცერთი ჩანაწერი არ არის შენახული</p>
         <table class="records-table" id="recordsTable" style="display:none;">
@@ -997,7 +616,6 @@ h2.section-title{
         </table>
     </div>
 
-    <!-- Footer Branding -->
     <footer class="mt-12 pt-6 border-t border-slate-200 dark:border-slate-800 text-center text-xs space-x-2">
         <span class="text-slate-400">Designed &amp; Engineered by</span>
         <span class="text-sky-400 font-semibold italic">Zaza Lomidze</span>
@@ -1010,9 +628,9 @@ h2.section-title{
     const STORAGE_KEY = 'brigadeReportRecords_v1';
     let workCounter = 0;
     let savedRecords = [];
-    let allMembersCache = [];   // მთელი როსტერი ყველა ბრიგადიდან
-    let currentMembers = [];    // მიმდინარე ფორმის წევრები: {name, position, personal_id, city, brigade, absent, note, extra, homeBrigade}
-    let editingIndex = null;    // თუ null არაა, saveRecord() ანახლებს ამ ინდექსის ჩანაწერს
+    let allMembersCache = [];
+    let currentMembers = [];
+    let editingIndex = null;
 
     window.onload = function () {
         document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
@@ -1024,7 +642,6 @@ h2.section-title{
         renderMemberList();
     };
 
-    // ------------------ ერთჯერადი საწყისი ჩატვირთვები ------------------
     function loadBrigades() {
         fetch('/get_brigades')
             .then(res => res.json())
@@ -1065,7 +682,6 @@ h2.section-title{
             .catch(() => showStatus('თანამშრომელთა სრული სიის ჩატვირთვა ვერ მოხერხდა', 'error'));
     }
 
-    // ------------------ სხვა ბრიგადის თანამშრომლის სწრაფი ძებნა ------------------
     let selectedExtraMemberId = '';
     let extraSearchResults = [];
     let extraSearchIndex = -1;
@@ -1189,8 +805,6 @@ h2.section-title{
         return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
     }
 
-
-    // ------------------ ბრიგადის არჩევა -> ქალაქები ------------------
     document.getElementById('brigadeSelect').addEventListener('change', function () {
         const citySelect = document.getElementById('citySelect');
         citySelect.innerHTML = '<option value="">-- აირჩიეთ რეგიონი --</option>';
@@ -1215,7 +829,6 @@ h2.section-title{
             .catch(() => showStatus('ქალაქების ჩატვირთვა ვერ მოხერხდა', 'error'));
     });
 
-    // ------------------ რეგიონის არჩევა -> წევრები ------------------
     document.getElementById('citySelect').addEventListener('change', function () {
         const brigade = document.getElementById('brigadeSelect').value;
         const city = this.value;
@@ -1233,7 +846,6 @@ h2.section-title{
             .catch(() => showStatus('წევრების ჩატვირთვა ვერ მოხერხდა', 'error'));
     });
 
-    // ------------------ წევრების სია (currentMembers მასივზე დაფუძნებული) ------------------
     function renderMemberList() {
         const container = document.getElementById('membersContainer');
         container.innerHTML = '';
@@ -1298,7 +910,6 @@ h2.section-title{
         renderMemberList();
     }
 
-    // ------------------ დროის dropdown-ების დახმარე ფუნქციები ------------------
     function buildTimeOptions(count, selected) {
         let html = '<option value="">--</option>';
         for (let i = 0; i < count; i++) {
@@ -1308,7 +919,6 @@ h2.section-title{
         return html;
     }
 
-    // ------------------ სამუშაოს დამატება ------------------
     function addWork(workType = '', start = '', end = '', quantity = '', comment = '') {
         const container = document.getElementById('workContainer');
         const div = document.createElement('div');
@@ -1367,7 +977,6 @@ h2.section-title{
         if (el) el.remove();
     }
 
-    // ------------------ ჩანაწერის შენახვა / განახლება ------------------
     function saveRecord() {
         clearInvalidMarks();
         const id = document.getElementById('idInput').value.trim();
@@ -1437,12 +1046,8 @@ h2.section-title{
             editingIndex = null;
             document.getElementById('saveBtn').textContent = '💾 შენახვა';
         } else {
-            if (savedRecords.length >= 20) {
-                showStatus('მაქსიმუმ 20 ჩანაწერის შენახვა შეიძლება.', 'error');
-                return;
-            }
             savedRecords.push(record);
-            showStatus(`✅ ჩანაწერი ID ${id} წარმატებით შეინახა! (${savedRecords.length}/20)`, 'success');
+            showStatus(`✅ ჩანაწერი ID ${id} წარმატებით შეინახა!`, 'success');
         }
 
         persistToStorage();
@@ -1516,20 +1121,34 @@ h2.section-title{
         updateRecordCounter();
     }
 
+    function getFilteredRecords() {
+        const start = document.getElementById('filterStartDate').value;
+        const end = document.getElementById('filterEndDate').value;
+        return savedRecords.filter(rec => {
+            if (start && rec.date < start) return false;
+            if (end && rec.date > end) return false;
+            return true;
+        });
+    }
+
     function renderRecordsTable() {
         const tbody = document.getElementById('recordsTbody');
         const table = document.getElementById('recordsTable');
         const hint = document.getElementById('noRecordsHint');
         tbody.innerHTML = '';
-        if (!savedRecords.length) {
+        
+        const filtered = getFilteredRecords();
+
+        if (!filtered.length) {
             table.style.display = 'none';
             hint.style.display = 'block';
             return;
         }
         hint.style.display = 'none';
         table.style.display = 'table';
-        savedRecords.forEach((rec, idx) => {
+        filtered.forEach((rec, idx) => {
             const activeCount = rec.members.filter(m => !(m.absent || (m.note || '').trim())).length;
+            const originalIndex = savedRecords.indexOf(rec);
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${rec.id}</td>
@@ -1540,18 +1159,24 @@ h2.section-title{
                 <td>${activeCount}/${rec.members.length}</td>
                 <td>${rec.works.length}</td>
                 <td>
-                    <button type="button" class="btn btn-outline btn-small" onclick="editRecord(${idx})">✏️ რედაქტირება</button>
-                    <button type="button" class="btn btn-danger btn-small" onclick="removeRecord(${idx})">🗑️ წაშლა</button>
+                    <button type="button" class="btn btn-outline btn-small" onclick="editRecord(${originalIndex})">✏️ რედაქტირება</button>
+                    <button type="button" class="btn btn-danger btn-small" onclick="removeRecord(${originalIndex})">🗑️ წაშლა</button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // ------------------ Excel-ის გენერირება ------------------
+    function resetFilter() {
+        document.getElementById('filterStartDate').value = '';
+        document.getElementById('filterEndDate').value = '';
+        renderRecordsTable();
+    }
+
     function generateExcel() {
-        if (!savedRecords.length) {
-            showStatus('ჯერ არ არის შენახული ჩანაწერები. გთხოვთ შეინახოთ მინიმუმ ერთი.', 'error');
+        const recordsToExport = getFilteredRecords();
+        if (!recordsToExport.length) {
+            showStatus('არჩეულ პერიოდში შენახული ჩანაწერები ვერ მოიძებნა.', 'error');
             return;
         }
         const btn = document.getElementById('generateBtn');
@@ -1562,7 +1187,7 @@ h2.section-title{
         fetch('/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ records: savedRecords }),
+            body: JSON.stringify({ records: recordsToExport }),
         })
         .then(response => {
             if (!response.ok) return response.json().then(err => { throw new Error(err.error || 'შეცდომა'); });
@@ -1586,7 +1211,6 @@ h2.section-title{
         });
     }
 
-    // ------------------ localStorage შენახვა/აღდგენა ------------------
     function persistToStorage() {
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(savedRecords)); } catch (e) { /* ignore */ }
     }
@@ -1601,9 +1225,8 @@ h2.section-title{
         } catch (e) { /* ignore */ }
     }
 
-    // ------------------ დამხმარე ფუნქციები ------------------
     function updateRecordCounter() {
-        document.getElementById('recordCounter').textContent = `ჩანაწერები: ${savedRecords.length}/20`;
+        document.getElementById('recordCounter').textContent = `ჩანაწერები: ${savedRecords.length}`;
     }
 
     function clearInvalidMarks() {
@@ -1636,23 +1259,6 @@ h2.section-title{
 
         if (!keepStatus) document.getElementById('statusMessage').style.display = 'none';
         document.getElementById('idInput').focus();
-    }
-
-    function clearAllRecords() {
-        if (!savedRecords.length) {
-            showStatus('შენახული ჩანაწერები ისედაც არ არის.', 'error');
-            return;
-        }
-        if (!confirm(`ნამდვილად გსურთ ყველა შენახული ჩანაწერის წაშლა? (${savedRecords.length} ჩანაწერი დაიკარგება, ეს მოქმედება შეუქცევადია)`)) {
-            return;
-        }
-        savedRecords = [];
-        editingIndex = null;
-        document.getElementById('saveBtn').textContent = '💾 შენახვა';
-        persistToStorage();
-        renderRecordsTable();
-        updateRecordCounter();
-        showStatus('🗑️ ყველა ჩანაწერი წაიშალა.', 'success');
     }
 </script>
 </body>
