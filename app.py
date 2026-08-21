@@ -11,6 +11,7 @@ app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
+RECORDS_PATH = os.path.join(BASE_DIR, "data_records.json")
 
 HEADERS = [
     "ქალაქი (ლოკაცია)", "სახელი გვარი", "პირადი #", "ბრიგადის ნომერი", "თარიღი", "ID",
@@ -33,6 +34,21 @@ NO_RECORD_TEXT = "არ არის ჩანაწერი"
 def load_config():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def load_saved_records():
+    if not os.path.exists(RECORDS_PATH):
+        return []
+    try:
+        with open(RECORDS_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+def save_all_records(records):
+    with open(RECORDS_PATH, "w", encoding="utf-8") as f:
+        json.dump(records, f, ensure_ascii=False, indent=2)
 
 
 def generate_excel_from_records(records):
@@ -77,11 +93,9 @@ def generate_excel_from_records(records):
             else:
                 active_members.append(entry)
 
-        # ------------------ იერარქიული სორტირება ------------------
-        # ბრიგადირი / სარემონტო ბრიგადის უფროსი ექცევა სიაში პირველ ადგილზე
+        # იერარქიული სორტირება: ბრიგადირი/უფროსი პირველ ადგილზე
         active_members.sort(key=lambda x: 0 if x.get("position") in LEADER_POSITIONS else 1)
         absent_members.sort(key=lambda x: 0 if x.get("position") in LEADER_POSITIONS else 1)
-        # ------------------------------------------------------------
 
         worker_count = sum(1 for m in active_members if m["position"] not in LEADER_POSITIONS)
 
@@ -222,6 +236,65 @@ def get_all_members():
 def get_work_types():
     config = load_config()
     return jsonify(config.get("work_types", []))
+
+
+# ---------- სერვერული ბაზის API-ები ----------
+
+@app.route("/api/records", methods=["GET"])
+def api_get_records():
+    records = load_saved_records()
+    has_old = False
+    now = datetime.now()
+
+    for r in records:
+        try:
+            r_date = datetime.strptime(r["date"], "%Y-%m-%d")
+            if (now - r_date).days >= 365:
+                has_old = True
+                break
+        except Exception:
+            continue
+
+    return jsonify({
+        "records": records,
+        "has_old_records": has_old
+    })
+
+
+@app.route("/api/records/save", methods=["POST"])
+def api_save_record():
+    data = request.get_json(silent=True)
+    if not data or "id" not in data:
+        return jsonify({"error": "მონაცემები არასწორია"}), 400
+
+    records = load_saved_records()
+    records.append(data)
+    save_all_records(records)
+    return jsonify({"success": True})
+
+
+@app.route("/api/records/update/<path:record_id>", methods=["PUT"])
+def api_update_record(record_id):
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"error": "მონაცემები არასწორია"}), 400
+
+    records = load_saved_records()
+    idx = next((i for i, r in enumerate(records) if str(r.get("id")) == str(record_id)), None)
+    if idx is not None:
+        records[idx] = data
+        save_all_records(records)
+        return jsonify({"success": True})
+    else:
+        return jsonify({"error": "ჩანაწერი ვერ მოიძებნა"}), 404
+
+
+@app.route("/api/records/delete/<path:record_id>", methods=["DELETE"])
+def api_delete_record(record_id):
+    records = load_saved_records()
+    records = [r for r in records if str(r.get("id")) != str(record_id)]
+    save_all_records(records)
+    return jsonify({"success": True})
 
 
 @app.route("/generate", methods=["POST"])
