@@ -2,7 +2,7 @@
 <html lang="ka">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>სამუშაოს ანგარიშის გენერატორი</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +42,7 @@
             --font-mono: 'JetBrains Mono', monospace;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: var(--font-body);
             color: var(--ink);
@@ -112,13 +112,12 @@
         .form-group input, .form-group select, .form-group textarea {
             padding: 11px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
             font-size: 14px; font-family: var(--font-body); background: var(--surface-solid); color: var(--ink);
-            width: 100%; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); min-height: 44px;
+            width: 100%; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); min-height: 48px;
         }
         #idInput, #coefficientInput { font-family: var(--font-mono); font-weight: 600; }
         .form-group input:focus, .form-group select:focus {
             border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-glow); transform: translateY(-1px);
         }
-        .form-group input.invalid, .form-group select.invalid { border-color: var(--danger); background: var(--danger-soft); }
 
         .members-section { z-index: 40 !important; overflow: visible !important; }
         .works-section { z-index: 10 !important; }
@@ -129,23 +128,30 @@
             background: var(--surface-solid); border: 1px solid var(--line); border-left: 4px solid var(--line-strong);
             border-radius: var(--radius-md); box-shadow: var(--shadow-subtle); transition: all 0.2s ease;
         }
-        .member-item:hover { transform: translateY(-1px); border-color: var(--line-strong); box-shadow: var(--shadow-card); }
         .member-item.extra-member { border-left-color: var(--signal); background: var(--signal-dim); }
         .member-item label.member-name { font-weight: 700; font-size: 13.5px; flex: 1; line-height: 1.3; }
         .member-item .position-tag { font-size: 11px; color: var(--ink-faint); font-weight: 400; display: block; }
-        .member-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
-        .member-item input[type="text"] { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line-strong); font-size: 13px; }
+        .member-item input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer; }
+        .member-item input[type="text"] { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-strong); font-size: 13px; }
+        
+        .btn-remove-member {
+            border: none; background: #fee2e2; color: #ef4444; width: 28px; height: 28px;
+            border-radius: 50%; font-size: 12px; font-weight: bold; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease; flex-shrink: 0;
+        }
+        .btn-remove-member:hover { background: #ef4444; color: #ffffff; transform: scale(1.1); }
 
         .add-extra-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); position: relative; z-index: 50; }
-        .extra-member-picker { position: relative; flex: 1; min-width: 280px; }
+        .extra-member-picker { position: relative; flex: 1; min-width: 260px; }
         .extra-member-input {
-            width: 100%; min-height: 44px; padding: 10px 40px 10px 40px;
+            width: 100%; min-height: 48px; padding: 10px 40px 10px 40px;
             border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
             background: var(--surface-solid); font-size: 14px; outline: none; transition: all .2s ease;
         }
         .extra-member-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
-        .extra-search-icon { position: absolute; left: 13px; top: 10px; font-size: 20px; color: var(--ink-faint); pointer-events: none; }
-        .extra-clear { position: absolute; right: 10px; top: 8px; width: 28px; height: 28px; border: 0; background: transparent; font-size: 20px; color: var(--ink-faint); cursor: pointer; }
+        .extra-search-icon { position: absolute; left: 13px; top: 12px; font-size: 20px; color: var(--ink-faint); pointer-events: none; }
+        .extra-clear { position: absolute; right: 10px; top: 10px; width: 28px; height: 28px; border: 0; background: transparent; font-size: 20px; color: var(--ink-faint); cursor: pointer; }
         
         .extra-member-results {
             display: none; position: absolute; z-index: 9999 !important; top: calc(100% + 6px); left: 0; right: 0;
@@ -153,7 +159,7 @@
             border-radius: var(--radius-md); background: #ffffff; box-shadow: 0 20px 50px rgba(15,23,42,0.2); backdrop-filter: blur(16px);
         }
         .extra-member-results.open { display: block !important; }
-        .extra-result { width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 10px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; transition: background 0.15s; }
+        .extra-result { width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 12px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; transition: background 0.15s; }
         .extra-result:hover, .extra-result.active { background: var(--steel-soft); }
 
         #workContainer { border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-subtle); }
@@ -167,14 +173,15 @@
         .cell-time { min-width: 130px; text-align: center; align-items: center; }
         .cell-qty { width: 110px; }
         .cell-comment { flex: 1.4; min-width: 160px; }
-        .work-item input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; }
+        .work-item input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; min-height: 38px; }
         .time-inputs { display: flex; align-items: center; gap: 4px; }
-        .time-inputs select { padding: 4px; border: 1px solid var(--line-strong); border-radius: 6px; background: #fff; font-family: var(--font-mono); font-size: 13px; }
+        .time-inputs select { padding: 6px; border: 1px solid var(--line-strong); border-radius: 6px; background: #fff; font-family: var(--font-mono); font-size: 14px; min-height: 40px; }
 
         .btn {
-            padding: 10px 18px; border-radius: var(--radius-sm); font-weight: 700; font-size: 13.5px;
+            padding: 12px 20px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px;
             font-family: var(--font-body); cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-strong); background: var(--surface-solid); color: var(--ink);
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line-strong); background: var(--surface-solid); color: var(--ink);
+            min-height: 48px;
         }
         .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.12); }
         .btn:active:not(:disabled) { transform: translateY(0); }
@@ -184,7 +191,6 @@
         .btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
         .btn-ghost { background: transparent; border-color: var(--line-strong); color: var(--ink-soft); }
         .btn-outline { border-color: #c9d5ff; color: var(--primary); background: #f4f7ff; }
-        .btn-outline:hover:not(:disabled) { background: var(--primary); color: #fff; }
 
         .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); align-items: center; }
         .record-count { border-radius: 999px; background: var(--ink); color: var(--signal); padding: 8px 16px; font-size: 12.5px; font-family: var(--font-mono); font-weight: 700; margin-left: auto; }
@@ -211,14 +217,15 @@
             font-weight: 700 !important; font-size: 13.5px !important; color: var(--ink) !important; outline: none !important;
             box-shadow: var(--shadow-glow) !important;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            min-height: 44px;
         }
-        .filter-search-id:focus { box-shadow: 0 0 30px 2px rgba(37, 99, 235, 0.5) !important; transform: translateY(-1px); }
 
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius-lg); }
         table.records-table {
             width: 100% !important; border-collapse: separate !important; border-spacing: 0 !important;
             border-radius: var(--radius-lg) !important; overflow: hidden !important;
             border: 1px solid var(--line) !important; box-shadow: var(--shadow-card) !important;
-            background: var(--surface-solid) !important;
+            background: var(--surface-solid) !important; min-width: 650px;
         }
         table.records-table th {
             background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
@@ -226,10 +233,8 @@
             font-weight: 800 !important; letter-spacing: 1.2px !important; padding: 16px 14px !important;
             text-transform: uppercase; border-bottom: none !important;
         }
-        table.records-table tbody tr { transition: all 0.2s ease !important; }
         table.records-table tbody tr:hover { background-color: #f1f5f9 !important; }
         table.records-table td { padding: 14px 16px !important; border-bottom: 1px solid var(--line) !important; font-size: 13.5px !important; text-align: center; }
-        table.records-table tr:last-child td { border-bottom: none !important; }
 
         .status {
             border-radius: var(--radius-md) !important; padding: 14px 20px !important; font-size: 13.5px !important; font-weight: 600 !important;
@@ -249,15 +254,23 @@
         h2.section-title { font-size: 12px; font-weight: 800; margin: 36px 0 16px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-soft); }
 
         @media (max-width:720px) {
-            .topbar { height: auto; padding: 12px 16px; }
+            .topbar { height: auto; padding: 14px 16px; }
             .topbar .status { display: none; }
-            .wrap { padding: 20px 12px 0; }
-            .panel { padding: 20px 16px; }
+            .wrap { padding: 16px 10px 0; }
+            .panel { padding: 18px 14px; border-radius: 16px; }
+            .form-grid { grid-template-columns: 1fr; gap: 14px; }
+            .add-extra-row { flex-direction: column; align-items: stretch; }
+            .extra-member-picker { width: 100%; min-width: 100%; }
             .work-item { flex-direction: column; }
-            .field-cell { border-left: none; border-top: 1px solid var(--line); }
-            table.records-table { display: block; overflow-x: auto; }
-            .actions { flex-direction: column; align-items: stretch; }
-            .record-count { margin-left: 0; text-align: center; }
+            .field-cell { border-left: none; border-top: 1px solid var(--line); padding: 10px 12px; }
+            .field-cell:first-child { border-top: none; }
+            .actions { flex-direction: column; align-items: stretch; gap: 10px; }
+            .actions .btn { width: 100%; }
+            .record-count { margin-left: 0; text-align: center; width: 100%; }
+            .filter-box { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px !important; }
+            .filter-box div { width: 100%; flex-direction: column; align-items: flex-start !important; }
+            .filter-box input[type="date"], .filter-search-id { width: 100%; }
+            .filter-box .btn { width: 100%; margin-left: 0 !important; }
         }
     </style>
 </head>
@@ -365,7 +378,6 @@
 
     <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები</h2>
     
-    <!-- ნაგულისხმევად დამალული warning ბანერი -->
     <div id="cleanupAlert" class="status warning" style="display: none;">
         ⚠️ <strong>ყურადღება!</strong> ბაზაში მოიძებნა 1 წელზე (365 დღეზე) ძველი ჩანაწერები. სისტემის ოპტიმიზაციისთვის გთხოვთ გადაამოწმოთ და წაშალოთ ვადაგასული მონაცემები.
     </div>
@@ -378,9 +390,9 @@
         
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <label>📅 თარიღი:</label>
-            <input type="date" id="filterStartDate" style="padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()">
+            <input type="date" id="filterStartDate" style="padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()">
             <span style="color: var(--ink-faint); font-weight: bold;">→</span>
-            <input type="date" id="filterEndDate" style="padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()">
+            <input type="date" id="filterEndDate" style="padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()">
         </div>
 
         <button type="button" class="btn btn-ghost" style="margin-left: auto; padding: 7px 12px; font-size: 12px;" onclick="resetFilter()">🔄 ფილტრის გასუფთავება</button>
@@ -388,15 +400,17 @@
 
     <div id="recordsListWrap">
         <p id="noRecordsHint">ჯერ არცერთი ჩანაწერი არ არის შენახული</p>
-        <table class="records-table" id="recordsTable" style="display:none;">
-            <thead>
-                <tr>
-                    <th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>თარიღი</th><th>მისამართი</th>
-                    <th>წევრები</th><th>სამუშაოები</th><th>მოქმედება</th>
-                </tr>
-            </thead>
-            <tbody id="recordsTbody"></tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="records-table" id="recordsTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>თარიღი</th><th>მისამართი</th>
+                        <th>წევრები</th><th>სამუშაოები</th><th>მოქმედება</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsTbody"></tbody>
+            </table>
+        </div>
     </div>
 
     <footer style="margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); text-align: center; font-size: 12px; color: var(--ink-faint);">
@@ -573,6 +587,7 @@
             });
     });
 
+    // განახლებული renderMemberList: თითოეულ წევრს აქვს წაშლის წითელი ღილაკი ✖
     function renderMemberList() {
         const container = document.getElementById('membersContainer');
         container.innerHTML = '';
@@ -591,12 +606,18 @@
                 </label>
                 <input type="checkbox" id="absent_${idx}" ${m.absent ? 'checked' : ''} onchange="updateMemberField(${idx}, 'absent', this.checked)">
                 <label for="absent_${idx}" style="font-size: 11px; font-weight: 700; color: var(--ink-soft);">არ გამოცხ.</label>
-                <input type="text" placeholder="შენიშვნა" value="${m.note || ''}" oninput="updateMemberField(${idx}, 'note', this.value)" style="width: 110px;">
-                ${m.extra ? `<button type="button" style="border:none; background:transparent; color:var(--danger); cursor:pointer;" onclick="removeExtraMember(${idx})">✖</button>` : ''}
+                <input type="text" placeholder="შენიშვნა" value="${m.note || ''}" oninput="updateMemberField(${idx}, 'note', this.value)" style="width: 100px;">
+                <button type="button" class="btn-remove-member" title="წაშლა" onclick="removeMember(${idx})">✖</button>
             `;
             container.appendChild(div);
         });
         document.getElementById('memberCount').textContent = `${currentMembers.length} წევრი`;
+    }
+
+    // ფორმიდან წევრის წაშლის ფუნქცია (როგორც არსებულის, ისე დამატებულის)
+    function removeMember(idx) {
+        currentMembers.splice(idx, 1);
+        renderMemberList();
     }
 
     function updateMemberField(idx, field, value) {
@@ -613,11 +634,6 @@
         });
         renderMemberList();
         clearExtraMemberSearch();
-    }
-
-    function removeExtraMember(idx) {
-        currentMembers.splice(idx, 1);
-        renderMemberList();
     }
 
     function buildTimeOptions(count, selected) {
@@ -666,7 +682,7 @@
                 <input type="text" class="work-comment" placeholder="სურვილისამებრ" value="${comment}">
             </div>
             <div class="field-cell" style="justify-content:center;">
-                <button type="button" class="btn btn-danger" style="padding:4px 8px; border-radius:50%; font-size:11px;" onclick="removeWork('work_${workCounter}')">✖</button>
+                <button type="button" class="btn btn-danger" style="padding:4px 8px; border-radius:50%; font-size:11px; min-height:auto;" onclick="removeWork('work_${workCounter}')">✖</button>
             </div>
         `;
         container.appendChild(div);
@@ -861,8 +877,8 @@
                 <td>${activeCount}/${rec.members.length}</td>
                 <td>${rec.works.length}</td>
                 <td>
-                    <button type="button" class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="editRecord('${recDbId}')">✏️</button>
-                    <button type="button" class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="removeRecord('${recDbId}')">🗑️</button>
+                    <button type="button" class="btn btn-outline" style="padding:6px 10px; font-size:12px; min-height:auto;" onclick="editRecord('${recDbId}')">✏️</button>
+                    <button type="button" class="btn btn-danger" style="padding:6px 10px; font-size:12px; min-height:auto;" onclick="removeRecord('${recDbId}')">🗑️</button>
                 </td>
             `;
             tbody.appendChild(tr);
