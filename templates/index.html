@@ -360,9 +360,18 @@
             <div id="workContainer"></div>
             <button type="button" class="btn btn-success" style="margin-top: 16px;" onclick="addWork()">➕ სამუშაოს დამატება</button>
 
+            <!-- ზოგადი კომენტარი ჩამოსაშლელი სიით და ხელით ჩაწერით -->
             <div class="form-group" style="margin-top: 22px;">
                 <label>ზოგადი კომენტარი</label>
-                <input type="text" id="overallComment" placeholder="სურვილისამებრ">
+                <input list="overallCommentsList" id="overallComment" placeholder="-- აირჩიეთ ან ჩაწერეთ --">
+                <datalist id="overallCommentsList">
+                    <option value="საბონუსე">
+                    <option value="დღიური">
+                    <option value="შვებულება">
+                    <option value="ბიულეტენი">
+                    <option value="სავარაუდო ბიულეტენი">
+                    <option value="უხელფასო შვებულება">
+                </datalist>
             </div>
         </section>
 
@@ -587,7 +596,6 @@
             });
     });
 
-    // განახლებული renderMemberList: თითოეულ წევრს აქვს წაშლის წითელი ღილაკი ✖
     function renderMemberList() {
         const container = document.getElementById('membersContainer');
         container.innerHTML = '';
@@ -614,7 +622,6 @@
         document.getElementById('memberCount').textContent = `${currentMembers.length} წევრი`;
     }
 
-    // ფორმიდან წევრის წაშლის ფუნქცია (როგორც არსებულის, ისე დამატებულის)
     function removeMember(idx) {
         currentMembers.splice(idx, 1);
         renderMemberList();
