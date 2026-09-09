@@ -331,6 +331,14 @@
             </div>
         </section>
 
+        <!-- შენიშვნის საერთო Datalist სიის შაბლონი -->
+        <datalist id="memberNotesList">
+            <option value="შვებულება">
+            <option value="ბიულეტენი">
+            <option value="სავარაუდო ბიულეტენი">
+            <option value="უხელფასო შვებულება">
+        </datalist>
+
         <section class="panel members-section">
             <div class="panel-head">
                 <span class="panel-eyebrow">// 02</span>
@@ -360,17 +368,13 @@
             <div id="workContainer"></div>
             <button type="button" class="btn btn-success" style="margin-top: 16px;" onclick="addWork()">➕ სამუშაოს დამატება</button>
 
-            <!-- ზოგადი კომენტარი ჩამოსაშლელი სიით და ხელით ჩაწერით -->
+            <!-- ზოგადი კომენტარი: მხოლოდ საბონუსე / დღიური + ხელით ჩაწერა -->
             <div class="form-group" style="margin-top: 22px;">
                 <label>ზოგადი კომენტარი</label>
                 <input list="overallCommentsList" id="overallComment" placeholder="-- აირჩიეთ ან ჩაწერეთ --">
                 <datalist id="overallCommentsList">
                     <option value="საბონუსე">
                     <option value="დღიური">
-                    <option value="შვებულება">
-                    <option value="ბიულეტინი">
-                    <option value="სავარაუდო ბიულეტინი">
-                    <option value="უხელფასო შვებულება">
                 </datalist>
             </div>
         </section>
@@ -614,7 +618,7 @@
                 </label>
                 <input type="checkbox" id="absent_${idx}" ${m.absent ? 'checked' : ''} onchange="updateMemberField(${idx}, 'absent', this.checked)">
                 <label for="absent_${idx}" style="font-size: 11px; font-weight: 700; color: var(--ink-soft);">არ გამოცხ.</label>
-                <input type="text" placeholder="შენიშვნა" value="${m.note || ''}" oninput="updateMemberField(${idx}, 'note', this.value)" style="width: 100px;">
+                <input list="memberNotesList" placeholder="შენიშვნა" value="${m.note || ''}" oninput="updateMemberField(${idx}, 'note', this.value)" style="width: 120px;">
                 <button type="button" class="btn-remove-member" title="წაშლა" onclick="removeMember(${idx})">✖</button>
             `;
             container.appendChild(div);
