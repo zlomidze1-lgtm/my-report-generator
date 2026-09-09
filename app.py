@@ -63,7 +63,6 @@ def init_db():
         print("DB Init Error:", e)
 
 
-# აპლიკაციის სტარტზე იქმნება ბაზა (თუ არ არსებობს)
 try:
     init_db()
 except Exception as e:
@@ -112,7 +111,6 @@ def generate_excel_from_records(records):
             else:
                 active_members.append(entry)
 
-        # იერარქიული სორტირება: ბრიგადირი პირველ ადგილზე
         active_members.sort(key=lambda x: 0 if x.get("position") in LEADER_POSITIONS else 1)
         absent_members.sort(key=lambda x: 0 if x.get("position") in LEADER_POSITIONS else 1)
 
@@ -177,12 +175,12 @@ def generate_excel_from_records(records):
             row[COL["member_count"] - 1] = 0
             row[COL["start"] - 1] = ""
             row[COL["end"] - 1] = ""
+            row[COL["comment"] - 1] = member["note"]  # P სვეტში ("კომენტარი") იწერება შენიშვნის ტექსტი
             row[COL["note"] - 1] = member["note"]
             row[COL["position"] - 1] = member["position"]
             ws.append(row)
             row_num += 1
 
-    # დინამიკური Autofit ლოგიკა სვეტების სიგანისთვის
     for col in ws.columns:
         max_len = 0
         col_letter = get_column_letter(col[0].column)
@@ -203,8 +201,6 @@ def generate_excel_from_records(records):
     output.seek(0)
     return output
 
-
-# ---------- ძირითადი MARŞRUTები ----------
 
 @app.route("/")
 def index():
@@ -264,8 +260,6 @@ def get_work_types():
     config = load_config()
     return jsonify(config.get("work_types", []))
 
-
-# ---------- POSTGRES API-ები ----------
 
 @app.route("/api/records", methods=["GET"])
 def api_get_records():
