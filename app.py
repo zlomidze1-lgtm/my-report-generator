@@ -175,8 +175,8 @@ def generate_excel_from_records(records):
             row[COL["member_count"] - 1] = 0
             row[COL["start"] - 1] = ""
             row[COL["end"] - 1] = ""
-            row[COL["comment"] - 1] = member["note"]  # P სვეტში ("კომენტარი") იწერება შენიშვნის ტექსტი
-            row[COL["note"] - 1] = member["note"]
+            row[COL["comment"] - 1] = member["note"]  # P სვეტი ("კომენტარი") ივსება
+            row[COL["note"] - 1] = ""                 # Q სვეტი ("შენიშვნა") რჩება სრულიად ცარიელი
             row[COL["position"] - 1] = member["position"]
             ws.append(row)
             row_num += 1
