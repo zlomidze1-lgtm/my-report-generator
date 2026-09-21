@@ -175,8 +175,8 @@ def generate_excel_from_records(records):
             row[COL["member_count"] - 1] = 0
             row[COL["start"] - 1] = ""
             row[COL["end"] - 1] = ""
-            row[COL["comment"] - 1] = member["note"]  # P სვეტი ("კომენტარი") ივსება
-            row[COL["note"] - 1] = ""                 # Q სვეტი ("შენიშვნა") რჩება სრულიად ცარიელი
+            row[COL["comment"] - 1] = member["note"]
+            row[COL["note"] - 1] = ""
             row[COL["position"] - 1] = member["position"]
             ws.append(row)
             row_num += 1
@@ -200,6 +200,15 @@ def generate_excel_from_records(records):
     wb.save(output)
     output.seek(0)
     return output
+
+
+# --- ლოგოს მიწოდება პირდაპირ root მისამართიდან ---
+@app.route('/logo.png')
+def serve_logo():
+    logo_path = os.path.join(BASE_DIR, 'logo.png')
+    if os.path.exists(logo_path):
+        return send_file(logo_path, mimetype='image/png')
+    return '', 404
 
 
 @app.route("/")
