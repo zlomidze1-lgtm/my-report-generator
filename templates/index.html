@@ -1,994 +1,1333 @@
 <!DOCTYPE html>
 <html lang="ka">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>სამუშაოს ანგარიშის გენერატორი</title>
-    
-    <!-- Favicon ლოგოს ჩანართში გამოსაჩენად -->
-    <link rel="icon" type="image/x-icon" href="/logo.png">
-    <link rel="icon" type="image/png" href="/logo.png">
-    <link rel="shortcut icon" href="/logo.png">
-    <link rel="apple-touch-icon" href="/logo.png">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-            --ink: #0f172a;
-            --ink-soft: #475569;
-            --ink-faint: #94a3b8;
-            --paper: #f8fafc;
-            --surface: rgba(255, 255, 255, 0.85);
-            --surface-solid: #ffffff;
-            --line: rgba(226, 232, 240, 0.8);
-            --line-strong: #cbd5e1;
-            --primary: #2563eb;
-            --primary-glow: rgba(37, 99, 235, 0.35);
-            --signal: #c7f33b;
-            --signal-ink: #1a2e00;
-            --signal-dim: #f7fbe9;
-            --steel: #3767ff;
-            --steel-soft: #eef2ff;
-            --success: #10b981;
-            --success-soft: #ecfdf5;
-            --danger: #ef4444;
-            --danger-soft: #fef2f2;
-            --warning: #f59e0b;
-            --warning-soft: #fffbeb;
-            --r: 16px;
-            --radius-lg: 20px;
-            --radius-md: 14px;
-            --radius-sm: 10px;
-            --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.03);
-            --shadow-card: 0 12px 32px -4px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
-            --shadow-glow: 0 0 25px -5px var(--primary-glow);
-            --font-body: 'Noto Sans Georgian', 'Plus Jakarta Sans', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>სამუშაოს ანგარიშის გენერატორი</title>
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: var(--font-body);
-            color: var(--ink);
-            background:
-                radial-gradient(circle at 8% 8%, rgba(55,103,255,.08), transparent 28%),
-                radial-gradient(circle at 92% 10%, rgba(199,243,59,.12), transparent 25%),
-                linear-gradient(180deg,#f8faff 0%,#f2f5fa 55%,#eef2f7 100%);
-            min-height: 100vh;
-            line-height: 1.45;
-            padding-bottom: 80px;
-        }
+  <link rel="icon" type="image/x-icon" href="/logo.png" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="shortcut icon" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
 
-        .topbar {
-            position: sticky; top: 0; z-index: 100; height: 74px;
-            padding: 0 clamp(18px,4vw,52px); display: flex; align-items: center; gap: 15px;
-            background: rgba(15, 23, 42, 0.92);
-            backdrop-filter: blur(20px) saturate(150%);
-            -webkit-backdrop-filter: blur(20px) saturate(150%);
-            border-bottom: 1px solid rgba(255,255,255,.1);
-            box-shadow: 0 10px 30px rgba(4,10,22,.15);
-        }
-        .topbar::after {
-            content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--signal), #6b8cff, transparent); opacity: .9;
-        }
-        .topbar .mark {
-            width: 44px; height: 44px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; position: relative;
-            overflow: hidden; background: #ffffff; padding: 2px;
-            box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
-        }
-        .topbar .mark img {
-            width: 100%; height: 100%; object-fit: contain; border-radius: 10px;
-        }
-        .topbar .titles h1 { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.2px; }
-        .topbar .titles p { font-family: var(--font-mono); font-size: 9.5px; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; }
-        
-        .topbar .status {
-            margin-left: auto; display: flex; align-items: center; gap: 10px;
-            color: #f8fafc; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 6px 16px; border-radius: 999px; font-family: var(--font-mono); font-size: 11px;
-            letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        .topbar .status .dot {
-            width: 8px; height: 8px; border-radius: 50%; background: #10b981;
-            box-shadow: 0 0 10px #10b981; animation: pulse 2s infinite;
-        }
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
+  <style>
+    :root {
+      --ink: #0f172a;
+      --ink-soft: #475569;
+      --ink-faint: #94a3b8;
+      --paper: #f8fafc;
+      --surface: rgba(255, 255, 255, 0.85);
+      --surface-solid: #ffffff;
+      --line: rgba(226, 232, 240, 0.8);
+      --line-strong: #cbd5e1;
+      --primary: #2563eb;
+      --primary-glow: rgba(37, 99, 235, 0.35);
+      --signal: #c7f33b;
+      --signal-ink: #1a2e00;
+      --signal-dim: #f7fbe9;
+      --steel: #3767ff;
+      --steel-soft: #eef2ff;
+      --success: #10b981;
+      --success-soft: #ecfdf5;
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      --warning: #f59e0b;
+      --warning-soft: #fffbeb;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.03);
+      --shadow-card: 0 12px 32px -4px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+      --shadow-glow: 0 0 25px -5px var(--primary-glow);
+      --font-body: 'Noto Sans Georgian', 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
 
-        .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 22px 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-        .panel {
-            background: var(--surface); border: 1px solid var(--line);
-            border-radius: var(--radius-lg); padding: 28px; margin-bottom: 22px;
-            box-shadow: var(--shadow-card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            transition: transform .2s ease, box-shadow .2s ease;
-            position: relative;
-        }
-        .panel:hover { transform: translateY(-1px); box-shadow: var(--shadow-card), 0 20px 40px rgba(15,23,42,0.06); }
-        .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
-        .panel-eyebrow {
-            font-family: var(--font-mono); font-size: 10px; font-weight: 800; color: var(--primary);
-            letter-spacing: 1.2px; background: var(--steel-soft); padding: 5px 10px; border-radius: 999px;
-        }
-        .panel-head h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
+    body {
+      font-family: var(--font-body);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(55,103,255,.08), transparent 28%),
+        radial-gradient(circle at 92% 10%, rgba(199,243,59,.12), transparent 25%),
+        linear-gradient(180deg,#f8faff 0%,#f2f5fa 55%,#eef2f7 100%);
+      min-height: 100vh;
+      line-height: 1.45;
+      padding-bottom: 80px;
+    }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
-        .form-grid + .form-grid { margin-top: 18px; }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label {
-            font-family: var(--font-mono); font-weight: 700; font-size: 10px; color: var(--ink-soft);
-            margin-bottom: 7px; letter-spacing: 0.9px; text-transform: uppercase;
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            padding: 11px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
-            font-size: 14px; font-family: var(--font-body); background: var(--surface-solid); color: var(--ink);
-            width: 100%; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); min-height: 48px;
-        }
-        #idInput, #coefficientInput { font-family: var(--font-mono); font-weight: 600; }
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-glow); transform: translateY(-1px);
-        }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 74px;
+      padding: 0 clamp(18px,4vw,52px);
+      display: flex; align-items: center; gap: 15px;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 10px 30px rgba(4,10,22,.15);
+    }
 
-        .members-section { z-index: 40 !important; overflow: visible !important; }
-        .works-section { z-index: 10 !important; }
+    .topbar::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--signal), #6b8cff, transparent);
+      opacity: .9;
+    }
 
-        .members-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
-        .member-item {
-            display: flex; align-items: center; gap: 10px; padding: 12px 14px;
-            background: var(--surface-solid); border: 1px solid var(--line); border-left: 4px solid var(--line-strong);
-            border-radius: var(--radius-md); box-shadow: var(--shadow-subtle); transition: all 0.2s ease;
-        }
-        .member-item.extra-member { border-left-color: var(--signal); background: var(--signal-dim); }
-        .member-item label.member-name { font-weight: 700; font-size: 13.5px; flex: 1; line-height: 1.3; }
-        .member-item .position-tag { font-size: 11px; color: var(--ink-faint); font-weight: 400; display: block; }
-        .member-item input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer; }
-        .member-item input[type="text"] { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-strong); font-size: 13px; }
-        
-        .btn-remove-member {
-            border: none; background: #fee2e2; color: #ef4444; width: 28px; height: 28px;
-            border-radius: 50%; font-size: 12px; font-weight: bold; cursor: pointer;
-            display: inline-flex; align-items: center; justify-content: center;
-            transition: all 0.2s ease; flex-shrink: 0;
-        }
-        .btn-remove-member:hover { background: #ef4444; color: #ffffff; transform: scale(1.1); }
+    .topbar .mark {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; background: #ffffff; padding: 2px;
+      box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+    }
 
-        .add-extra-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); position: relative; z-index: 50; }
-        .extra-member-picker { position: relative; flex: 1; min-width: 260px; }
-        .extra-member-input {
-            width: 100%; min-height: 48px; padding: 10px 40px 10px 40px;
-            border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
-            background: var(--surface-solid); font-size: 14px; outline: none; transition: all .2s ease;
-        }
-        .extra-member-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
-        .extra-search-icon { position: absolute; left: 13px; top: 12px; font-size: 20px; color: var(--ink-faint); pointer-events: none; }
-        .extra-clear { position: absolute; right: 10px; top: 10px; width: 28px; height: 28px; border: 0; background: transparent; font-size: 20px; color: var(--ink-faint); cursor: pointer; }
-        
-        .extra-member-results {
-            display: none; position: absolute; z-index: 9999 !important; top: calc(100% + 6px); left: 0; right: 0;
-            max-height: 280px; overflow-y: auto; padding: 8px; border: 1px solid var(--line-strong);
-            border-radius: var(--radius-md); background: #ffffff; box-shadow: 0 20px 50px rgba(15,23,42,0.2); backdrop-filter: blur(16px);
-        }
-        .extra-member-results.open { display: block !important; }
-        .extra-result { width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 12px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; transition: background 0.15s; }
-        .extra-result:hover, .extra-result.active { background: var(--steel-soft); }
+    .topbar .mark img {
+      width: 100%; height: 100%; object-fit: contain; border-radius: 10px;
+    }
 
-        #workContainer { border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-subtle); }
-        .work-item { display: flex; flex-wrap: wrap; align-items: stretch; background: var(--surface-solid); transition: background .15s; }
-        .work-item:hover { background: #f8fafc; }
-        .work-item + .work-item { border-top: 1px solid var(--line); }
-        .field-cell { display: flex; flex-direction: column; justify-content: center; padding: 12px 14px; border-left: 1px solid var(--line); }
-        .field-cell:first-child { border-left: none; }
-        .field-cell .cell-label { font-family: var(--font-mono); font-size: 9px; color: var(--primary); font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
-        .cell-type { flex: 2; min-width: 210px; }
-        .cell-time { min-width: 130px; text-align: center; align-items: center; }
-        .cell-qty { width: 110px; }
-        .cell-comment { flex: 1.4; min-width: 160px; }
-        .work-item input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; min-height: 38px; }
-        .time-inputs { display: flex; align-items: center; gap: 4px; }
-        .time-inputs select { padding: 6px; border: 1px solid var(--line-strong); border-radius: 6px; background: #fff; font-family: var(--font-mono); font-size: 14px; min-height: 40px; }
+    .topbar .titles h1 { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.2px; }
+    .topbar .titles p {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: #94a3b8;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
 
-        .btn {
-            padding: 12px 20px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px;
-            font-family: var(--font-body); cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line-strong); background: var(--surface-solid); color: var(--ink);
-            min-height: 48px;
-        }
-        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.12); }
-        .btn:active:not(:disabled) { transform: translateY(0); }
-        .btn-primary { background: linear-gradient(135deg,#c7f33b,#a8dc1f); color: var(--signal-ink); border-color: #a8dc1f; }
-        .btn-success { background: linear-gradient(135deg,#10b981,#059669); color: #fff; border-color: #059669; }
-        .btn-danger { background: #fff; color: var(--danger); border-color: #fecaca; }
-        .btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
-        .btn-ghost { background: transparent; border-color: var(--line-strong); color: var(--ink-soft); }
-        .btn-outline { border-color: #c9d5ff; color: var(--primary); background: #f4f7ff; }
+    .topbar-status {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #f8fafc;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 16px; border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
 
-        .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); align-items: center; }
-        .record-count { border-radius: 999px; background: var(--ink); color: var(--signal); padding: 8px 16px; font-size: 12.5px; font-family: var(--font-mono); font-weight: 700; margin-left: auto; }
+    .topbar-status .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #10b981;
+      box-shadow: 0 0 10px #10b981; animation: pulse 2s infinite;
+    }
 
-        .filter-box {
-            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-            background: var(--surface) !important;
-            backdrop-filter: blur(20px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.9) !important;
-            border-radius: var(--radius-lg) !important;
-            padding: 18px 24px !important;
-            box-shadow: var(--shadow-card) !important;
-            margin-bottom: 24px !important;
-        }
-        .filter-box label { font-family: var(--font-mono); font-size: 11px !important; font-weight: 800 !important; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-soft); }
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
 
-        .filter-search-id {
-            border: 1.5px solid var(--primary) !important;
-            background: var(--surface-solid) !important;
-            border-radius: var(--radius-sm) !important;
-            padding: 9px 14px !important;
-            font-family: var(--font-mono) !important;
-            font-weight: 700 !important; font-size: 13.5px !important; color: var(--ink) !important; outline: none !important;
-            box-shadow: var(--shadow-glow) !important;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            min-height: 44px;
-        }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 22px 0; }
 
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius-lg); }
-        table.records-table {
-            width: 100% !important; border-collapse: separate !important; border-spacing: 0 !important;
-            border-radius: var(--radius-lg) !important; overflow: hidden !important;
-            border: 1px solid var(--line) !important; box-shadow: var(--shadow-card) !important;
-            background: var(--surface-solid) !important; min-width: 650px;
-        }
-        table.records-table th {
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
-            color: var(--signal) !important; font-family: var(--font-mono); font-size: 10.5px !important;
-            font-weight: 800 !important; letter-spacing: 1.2px !important; padding: 16px 14px !important;
-            text-transform: uppercase; border-bottom: none !important;
-        }
-        table.records-table tbody tr:hover { background-color: #f1f5f9 !important; }
-        table.records-table td { padding: 14px 16px !important; border-bottom: 1px solid var(--line) !important; font-size: 13.5px !important; text-align: center; }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: transform .2s ease, box-shadow .2s ease;
+      position: relative;
+    }
 
-        .status {
-            border-radius: var(--radius-md) !important; padding: 14px 20px !important; font-size: 13.5px !important; font-weight: 600 !important;
-            box-shadow: var(--shadow-subtle) !important; animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            display: none; margin-top: 16px;
-        }
-        .status.success { background: var(--success-soft) !important; color: #065f46 !important; border: 1px solid #a7f3d0 !important; display: block; }
-        .status.error { background: var(--danger-soft) !important; color: #991b1b !important; border: 1px solid #fecaca !important; display: block; }
-        .status.warning { background: var(--warning-soft) !important; color: #92400e !important; border: 1px solid #fde68a !important; display: block; }
+    .panel:hover { transform: translateY(-1px); box-shadow: var(--shadow-card), 0 20px 40px rgba(15,23,42,0.06); }
+    .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+    .panel-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: 1.2px;
+      background: var(--steel-soft);
+      padding: 5px 10px;
+      border-radius: 999px;
+    }
 
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-8px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
+    .panel-head h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
 
-        #noRecordsHint { text-align: center; padding: 36px; border: 1.5px dashed var(--line-strong); border-radius: var(--radius-lg); font-family: var(--font-mono); font-size: 13px; color: var(--ink-faint); }
-        h2.section-title { font-size: 12px; font-weight: 800; margin: 36px 0 16px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-soft); }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .form-grid + .form-grid { margin-top: 18px; }
 
-        @media (max-width:720px) {
-            .topbar { height: auto; padding: 14px 16px; }
-            .topbar .status { display: none; }
-            .wrap { padding: 16px 10px 0; }
-            .panel { padding: 18px 14px; border-radius: 16px; }
-            .form-grid { grid-template-columns: 1fr; gap: 14px; }
-            .add-extra-row { flex-direction: column; align-items: stretch; }
-            .extra-member-picker { width: 100%; min-width: 100%; }
-            .work-item { flex-direction: column; }
-            .field-cell { border-left: none; border-top: 1px solid var(--line); padding: 10px 12px; }
-            .field-cell:first-child { border-top: none; }
-            .actions { flex-direction: column; align-items: stretch; gap: 10px; }
-            .actions .btn { width: 100%; }
-            .record-count { margin-left: 0; text-align: center; width: 100%; }
-            .filter-box { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px !important; }
-            .filter-box div { width: 100%; flex-direction: column; align-items: flex-start !important; }
-            .filter-box input[type="date"], .filter-search-id { width: 100%; }
-            .filter-box .btn { width: 100%; margin-left: 0 !important; }
-        }
-    </style>
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 10px;
+      color: var(--ink-soft);
+      margin-bottom: 7px;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 11px 14px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: var(--font-body);
+      background: var(--surface-solid);
+      color: var(--ink);
+      width: 100%;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      min-height: 48px;
+    }
+
+    #idInput, #coefficientInput { font-family: var(--font-mono); font-weight: 600; }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 4px var(--primary-glow);
+      transform: translateY(-1px);
+    }
+
+    .members-section { z-index: 40 !important; overflow: visible !important; }
+    .works-section { z-index: 10 !important; }
+
+    .members-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
+    .member-item {
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      background: var(--surface-solid); border: 1px solid var(--line); border-left: 4px solid var(--line-strong);
+      border-radius: var(--radius-md); box-shadow: var(--shadow-subtle); transition: all 0.2s ease;
+    }
+
+    .member-item.extra-member { border-left-color: var(--signal); background: var(--signal-dim); }
+    .member-item label.member-name { font-weight: 700; font-size: 13.5px; flex: 1; line-height: 1.3; }
+    .member-item .position-tag { font-size: 11px; color: var(--ink-faint); font-weight: 400; display: block; }
+    .member-item input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer; }
+    .member-item input[type="text"] { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-strong); font-size: 13px; }
+
+    .btn-remove-member {
+      border: none; background: #fee2e2; color: #ef4444; width: 28px; height: 28px;
+      border-radius: 50%; font-size: 12px; font-weight: bold; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all 0.2s ease; flex-shrink: 0;
+    }
+
+    .btn-remove-member:hover { background: #ef4444; color: #ffffff; transform: scale(1.1); }
+
+    .add-extra-row {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+      margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line);
+      position: relative; z-index: 50;
+    }
+
+    .extra-member-picker { position: relative; flex: 1; min-width: 260px; }
+    .extra-member-input {
+      width: 100%; min-height: 48px; padding: 10px 40px 10px 40px;
+      border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+      background: var(--surface-solid); font-size: 14px; outline: none; transition: all .2s ease;
+    }
+    .extra-member-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
+    .extra-search-icon { position: absolute; left: 13px; top: 12px; font-size: 20px; color: var(--ink-faint); pointer-events: none; }
+    .extra-clear {
+      position: absolute; right: 10px; top: 10px; width: 28px; height: 28px;
+      border: 0; background: transparent; font-size: 20px; color: var(--ink-faint); cursor: pointer;
+    }
+
+    .extra-member-results {
+      display: none;
+      position: absolute;
+      z-index: 9999 !important;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      max-height: 280px; overflow-y: auto;
+      padding: 8px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      box-shadow: 0 20px 50px rgba(15,23,42,0.2);
+      backdrop-filter: blur(16px);
+    }
+
+    .extra-member-results.open { display: block !important; }
+    .extra-result {
+      width: 100%;
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 12px; border: 0; border-radius: 8px; background: transparent;
+      text-align: left; cursor: pointer; transition: background 0.15s;
+    }
+
+    .extra-result:hover, .extra-result.active { background: var(--steel-soft); }
+
+    #workContainer {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-subtle);
+    }
+
+    .work-item {
+      display: flex; flex-wrap: wrap; align-items: stretch;
+      background: var(--surface-solid);
+      transition: background .15s;
+    }
+
+    .work-item:hover { background: #f8fafc; }
+    .work-item + .work-item { border-top: 1px solid var(--line); }
+
+    .field-cell {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 12px 14px; border-left: 1px solid var(--line);
+    }
+
+    .field-cell:first-child { border-left: none; }
+    .field-cell .cell-label {
+      font-family: var(--font-mono);
+      font-size: 9px; color: var(--primary);
+      font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px;
+    }
+
+    .cell-type { flex: 2; min-width: 210px; }
+    .cell-time { min-width: 130px; text-align: center; align-items: center; }
+    .cell-qty { width: 110px; }
+    .cell-comment { flex: 1.4; min-width: 160px; }
+
+    .work-item input {
+      border: none; background: transparent; outline: none;
+      width: 100%; font-size: 14px; min-height: 38px;
+    }
+
+    .time-inputs { display: flex; align-items: center; gap: 4px; }
+    .time-inputs select {
+      padding: 6px; border: 1px solid var(--line-strong); border-radius: 6px;
+      background: #fff; font-family: var(--font-mono); font-size: 14px; min-height: 40px;
+    }
+
+    .btn {
+      padding: 12px 20px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px;
+      font-family: var(--font-body); cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border: 1px solid var(--line-strong); background: var(--surface-solid); color: var(--ink);
+      min-height: 48px;
+    }
+
+    .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.12); }
+    .btn:active:not(:disabled) { transform: translateY(0); }
+    .btn-primary { background: linear-gradient(135deg,#c7f33b,#a8dc1f); color: var(--signal-ink); border-color: #a8dc1f; }
+    .btn-success { background: linear-gradient(135deg,#10b981,#059669); color: #fff; border-color: #059669; }
+    .btn-danger { background: #fff; color: var(--danger); border-color: #fecaca; }
+    .btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
+    .btn-ghost { background: transparent; border-color: var(--line-strong); color: var(--ink-soft); }
+    .btn-outline { border-color: #c9d5ff; color: var(--primary); background: #f4f7ff; }
+
+    .actions {
+      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px;
+      padding-top: 20px; border-top: 1px solid var(--line); align-items: center;
+    }
+
+    .record-count {
+      border-radius: 999px; background: var(--ink); color: var(--signal);
+      padding: 8px 16px; font-size: 12.5px; font-family: var(--font-mono); font-weight: 700; margin-left: auto;
+    }
+
+    .filter-box {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      background: var(--surface) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.9) !important;
+      border-radius: var(--radius-lg) !important;
+      padding: 18px 24px !important;
+      box-shadow: var(--shadow-card) !important;
+      margin-bottom: 24px !important;
+    }
+
+    .filter-box label { font-family: var(--font-mono); font-size: 11px !important; font-weight: 800 !important; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-soft); }
+
+    .filter-search-id {
+      border: 1.5px solid var(--primary) !important;
+      background: var(--surface-solid) !important;
+      border-radius: var(--radius-sm) !important;
+      padding: 9px 14px !important;
+      font-family: var(--font-mono) !important;
+      font-weight: 700 !important;
+      font-size: 13.5px !important;
+      color: var(--ink) !important;
+      outline: none !important;
+      box-shadow: var(--shadow-glow) !important;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      min-height: 44px;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: var(--radius-lg);
+    }
+
+    table.records-table {
+      width: 100% !important;
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+      border-radius: var(--radius-lg) !important;
+      overflow: hidden !important;
+      border: 1px solid var(--line) !important;
+      box-shadow: var(--shadow-card) !important;
+      background: var(--surface-solid) !important;
+      min-width: 650px;
+    }
+
+    table.records-table th {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+      color: var(--signal) !important;
+      font-family: var(--font-mono);
+      font-size: 10.5px !important;
+      font-weight: 800 !important;
+      letter-spacing: 1.2px !important;
+      padding: 16px 14px !important;
+      text-transform: uppercase;
+      border-bottom: none !important;
+    }
+
+    table.records-table tbody tr:hover { background-color: #f1f5f9 !important; }
+    table.records-table td {
+      padding: 14px 16px !important;
+      border-bottom: 1px solid var(--line) !important;
+      font-size: 13.5px !important;
+      text-align: center;
+    }
+
+    .toast-status {
+      border-radius: var(--radius-md) !important;
+      padding: 14px 20px !important;
+      font-size: 13.5px !important;
+      font-weight: 600 !important;
+      box-shadow: var(--shadow-subtle) !important;
+      animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      display: none;
+      margin-top: 16px;
+    }
+
+    .toast-status.success {
+      background: var(--success-soft) !important;
+      color: #065f46 !important;
+      border: 1px solid #a7f3d0 !important;
+      display: block;
+    }
+
+    .toast-status.error {
+      background: var(--danger-soft) !important;
+      color: #991b1b !important;
+      border: 1px solid #fecaca !important;
+      display: block;
+    }
+
+    .toast-status.warning {
+      background: var(--warning-soft) !important;
+      color: #92400e !important;
+      border: 1px solid #fde68a !important;
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    #noRecordsHint {
+      text-align: center;
+      padding: 36px;
+      border: 1.5px dashed var(--line-strong);
+      border-radius: var(--radius-lg);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--ink-faint);
+    }
+
+    h2.section-title {
+      font-size: 12px; font-weight: 800; margin: 36px 0 16px;
+      font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-soft);
+    }
+
+    @media (max-width:720px) {
+      .topbar { height: auto; padding: 14px 16px; }
+      .topbar-status { display: none; }
+      .wrap { padding: 16px 10px 0; }
+      .panel { padding: 18px 14px; border-radius: 16px; }
+      .form-grid { grid-template-columns: 1fr; gap: 14px; }
+      .add-extra-row { flex-direction: column; align-items: stretch; }
+      .extra-member-picker { width: 100%; min-width: 100%; }
+      .work-item { flex-direction: column; }
+      .field-cell { border-left: none; border-top: 1px solid var(--line); padding: 10px 12px; }
+      .field-cell:first-child { border-top: none; }
+      .actions { flex-direction: column; align-items: stretch; gap: 10px; }
+      .actions .btn { width: 100%; }
+      .record-count { margin-left: 0; text-align: center; width: 100%; }
+      .filter-box { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px !important; }
+      .filter-box div { width: 100%; flex-direction: column; align-items: flex-start !important; }
+      .filter-box input[type="date"], .filter-search-id { width: 100%; }
+      .filter-box .btn { width: 100%; margin-left: 0 !important; }
+    }
+  </style>
 </head>
 <body>
-
-<div class="topbar">
+  <div class="topbar">
     <div class="mark">
-        <img src="/logo.png" alt="Logo">
+      <img src="/logo.png" alt="Logo" />
     </div>
     <div class="titles">
-        <h1>სამუშაოს ანგარიშის გენერატორი</h1>
-        <p>Brigade-Ops / Enterprise v2.0</p>
+      <h1>სამუშაოს ანგარიშის გენერატორი</h1>
+      <p>Brigade-Ops / Enterprise v2.0</p>
     </div>
-    <!-- განახლებული პროფესიონალური სტატუსის ბლოკი -->
-    <div class="status">
-        <span class="dot"></span>
-        <span>LIVE SYSTEM &bull; ONLINE</span>
+    <div class="topbar-status">
+      <span class="dot"></span>
+      <span>LIVE SYSTEM &bull; ONLINE</span>
     </div>
-</div>
+  </div>
 
-<div class="wrap">
+  <div class="wrap">
     <form id="mainForm" autocomplete="off">
-
-        <section class="panel">
-            <div class="panel-head">
-                <span class="panel-eyebrow">// 01</span>
-                <h2>ძირითადი ინფორმაცია</h2>
-            </div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>ID *</label>
-                    <input type="text" id="idInput" placeholder="მაგ: 123456" required>
-                </div>
-                <div class="form-group">
-                    <label>ბრიგადის ნომერი *</label>
-                    <select id="brigadeSelect" required>
-                        <option value="">-- აირჩიეთ --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>რეგიონი (ქალაქი) *</label>
-                    <select id="citySelect" required>
-                        <option value="">-- აირჩიეთ ბრიგადა --</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>თარიღი *</label>
-                    <input type="date" id="dateInput" required>
-                </div>
-                <div class="form-group">
-                    <label>მისამართი *</label>
-                    <input type="text" id="addressInput" placeholder="მაგ: ლეონიძის 12" required>
-                </div>
-                <div class="form-group">
-                    <label>ობიექტის დასახელება</label>
-                    <input type="text" id="objectNameInput" placeholder="მაგ: ATS-Batumi-01">
-                </div>
-                <div class="form-group">
-                    <label>ქალაქი კოეფიციენტი (გადაადგილება)</label>
-                    <input type="text" id="coefficientInput" placeholder="მაგ: 1.2">
-                </div>
-            </div>
-        </section>
-
-        <!-- შენიშვნის საერთო Datalist სიის შაბლონი -->
-        <datalist id="memberNotesList">
-            <option value="შვებულება">
-            <option value="ბიულეტენი">
-            <option value="სავარაუდო ბიულეტენი">
-            <option value="უხელფასო შვებულება">
-        </datalist>
-
-        <section class="panel members-section">
-            <div class="panel-head">
-                <span class="panel-eyebrow">// 02</span>
-                <h2>ბრიგადის წევრები</h2>
-                <span class="record-count" id="memberCount" style="padding: 4px 12px; font-size: 11px;">0 წევრი</span>
-            </div>
-            <div id="membersContainer" class="members-list">
-                <p style="color: var(--ink-faint); font-size: 13.5px;">აირჩიეთ ბრიგადა და რეგიონი</p>
-            </div>
-            <div class="add-extra-row">
-                <div class="extra-member-picker">
-                    <span class="extra-search-icon">⌕</span>
-                    <input type="text" id="extraMemberInput" class="extra-member-input" placeholder="ჩაწერეთ თანამშრომლის სახელი ან პირადი #..." oninput="searchExtraMembers(this.value)" onkeydown="handleExtraMemberKeydown(event)">
-                    <button type="button" class="extra-clear" onclick="clearExtraMemberSearch()">×</button>
-                    <div id="extraMemberResults" class="extra-member-results"></div>
-                </div>
-                <button type="button" class="btn btn-outline" id="extraMemberAddBtn" onclick="addExtraMember()" disabled>➕ დამატება</button>
-            </div>
-        </section>
-
-        <section class="panel works-section">
-            <div class="panel-head">
-                <span class="panel-eyebrow">// 03</span>
-                <h2>სამუშაოები</h2>
-            </div>
-            <datalist id="workTypesList"></datalist>
-            <div id="workContainer"></div>
-            <button type="button" class="btn btn-success" style="margin-top: 16px;" onclick="addWork()">➕ სამუშაოს დამატება</button>
-
-            <!-- ზოგადი კომენტარი: მხოლოდ საბონუსე / დღიური + ხელით ჩაწერა -->
-            <div class="form-group" style="margin-top: 22px;">
-                <label>ზოგადი კომენტარი</label>
-                <input list="overallCommentsList" id="overallComment" placeholder="-- აირჩიეთ ან ჩაწერეთ --">
-                <datalist id="overallCommentsList">
-                    <option value="საბონუსე">
-                    <option value="დღიური">
-                </datalist>
-            </div>
-        </section>
-
-        <div class="actions">
-            <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveRecord()">💾 შენახვა</button>
-            <button type="button" class="btn btn-success" id="generateBtn" onclick="generateExcel()">📥 Excel-ის გენერირება</button>
-            <button type="button" class="btn btn-ghost" onclick="clearForm()">🔄 გასუფთავება</button>
-            <span class="record-count" id="recordCounter">ჩანაწერები: 0</span>
+      <section class="panel">
+        <div class="panel-head">
+          <span class="panel-eyebrow">// 01</span>
+          <h2>ძირითადი ინფორმაცია</h2>
         </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>ID *</label>
+            <input type="text" id="idInput" placeholder="მაგ: 123456" required />
+          </div>
+          <div class="form-group">
+            <label>ბრიგადის ნომერი *</label>
+            <select id="brigadeSelect" required>
+              <option value="">-- აირჩიეთ --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>რეგიონი (ქალაქი) *</label>
+            <select id="citySelect" required>
+              <option value="">-- აირჩიეთ ბრიგადა --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>თარიღი *</label>
+            <input type="date" id="dateInput" required />
+          </div>
+          <div class="form-group">
+            <label>მისამართი *</label>
+            <input type="text" id="addressInput" placeholder="მაგ: ლეონიძის 12" required />
+          </div>
+          <div class="form-group">
+            <label>ობიექტის დასახელება</label>
+            <input type="text" id="objectNameInput" placeholder="მაგ: ATS-Batumi-01" />
+          </div>
+          <div class="form-group">
+            <label>ქალაქი კოეფიციენტი (გადაადგილება)</label>
+            <input type="text" id="coefficientInput" placeholder="მაგ: 1.2" />
+          </div>
+        </div>
+      </section>
+
+      <datalist id="memberNotesList">
+        <option value="შვებულება"></option>
+        <option value="ბიულეტენი"></option>
+        <option value="სავარაუდო ბიულეტენი"></option>
+        <option value="უხელფასო შვებულება"></option>
+      </datalist>
+
+      <section class="panel members-section">
+        <div class="panel-head">
+          <span class="panel-eyebrow">// 02</span>
+          <h2>ბრიგადის წევრები</h2>
+          <span class="record-count" id="memberCount" style="padding: 4px 12px; font-size: 11px;">0 წევრი</span>
+        </div>
+
+        <div id="membersContainer" class="members-list">
+          <p style="color: var(--ink-faint); font-size: 13.5px;">აირჩიეთ ბრიგადა და რეგიონი</p>
+        </div>
+
+        <div class="add-extra-row">
+          <div class="extra-member-picker">
+            <span class="extra-search-icon">⌕</span>
+            <input
+              type="text"
+              id="extraMemberInput"
+              class="extra-member-input"
+              placeholder="ჩაწერეთ თანამშრომლის სახელი ან პირადი #..."
+              oninput="searchExtraMembers(this.value)"
+              onkeydown="handleExtraMemberKeydown(event)"
+            />
+            <button type="button" class="extra-clear" onclick="clearExtraMemberSearch()">×</button>
+            <div id="extraMemberResults" class="extra-member-results"></div>
+          </div>
+          <button type="button" class="btn btn-outline" id="extraMemberAddBtn" onclick="addExtraMember()" disabled>➕ დამატება</button>
+        </div>
+      </section>
+
+      <section class="panel works-section">
+        <div class="panel-head">
+          <span class="panel-eyebrow">// 03</span>
+          <h2>სამუშაოები</h2>
+        </div>
+
+        <datalist id="workTypesList"></datalist>
+
+        <div id="workContainer"></div>
+        <button type="button" class="btn btn-success" style="margin-top: 16px;" onclick="addWork()">➕ სამუშაოს დამატება</button>
+
+        <div class="form-group" style="margin-top: 22px;">
+          <label>ზოგადი კომენტარი</label>
+          <input list="overallCommentsList" id="overallComment" placeholder="-- აირჩიეთ ან ჩაწერეთ --" />
+          <datalist id="overallCommentsList">
+            <option value="საბონუსე"></option>
+            <option value="დღიური"></option>
+          </datalist>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveRecord()">💾 შენახვა</button>
+        <button type="button" class="btn btn-success" id="generateBtn" onclick="generateExcel()">📥 Excel-ის გენერირება</button>
+        <button type="button" class="btn btn-ghost" onclick="clearForm()">🔄 გასუფთავება</button>
+        <span class="record-count" id="recordCounter">ჩანაწერები: 0</span>
+      </div>
     </form>
 
-    <div id="statusMessage" class="status"></div>
+    <div id="statusMessage" class="toast-status"></div>
 
     <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები</h2>
-    
-    <div id="cleanupAlert" class="status warning" style="display: none;">
-        ⚠️ <strong>ყურადღება!</strong> ბაზაში მოიძებნა 1 წელზე (365 დღეზე) ძველი ჩანაწერები. სისტემის ოპტიმიზაციისთვის გთხოვთ გადაამოწმოთ და წაშალოთ ვადაგასული მონაცემები.
+
+    <div id="cleanupAlert" class="toast-status warning" style="display: none;">
+      ⚠️ <strong>ყურადღება!</strong> ბაზაში მოიძებნა 1 წელზე (365 დღეზე) ძველი ჩანაწერები. სისტემის ოპტიმიზაციისთვის გთხოვთ გადაამოწმოთ და წაშალოთ ვადაგასული მონაცემები.
     </div>
 
     <div class="filter-box">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <label>🔎 ID ძებნა:</label>
-            <input type="text" id="filterSearchId" class="filter-search-id" placeholder="ჩაწერეთ ID..." oninput="renderRecordsTable()">
-        </div>
-        
-        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <label>📅 თარიღი:</label>
-            <input type="date" id="filterStartDate" style="padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()">
-            <span style="color: var(--ink-faint); font-weight: bold;">→</span>
-            <input type="date" id="filterEndDate" style="padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()">
-        </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <label>🔎 ID ძებნა:</label>
+        <input type="text" id="filterSearchId" class="filter-search-id" placeholder="ჩაწერეთ ID..." oninput="renderRecordsTable()" />
+      </div>
 
-        <button type="button" class="btn btn-ghost" style="margin-left: auto; padding: 7px 12px; font-size: 12px;" onclick="resetFilter()">🔄 ფილტრის გასუფთავება</button>
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <label>📅 თარიღი:</label>
+        <input type="date" id="filterStartDate" style="padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()" />
+        <span style="color: var(--ink-faint); font-weight: bold;">→</span>
+        <input type="date" id="filterEndDate" style="padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()" />
+      </div>
+
+      <button type="button" class="btn btn-ghost" style="margin-left: auto; padding: 7px 12px; font-size: 12px;" onclick="resetFilter()">🔄 ფილტრის გასუფთავება</button>
     </div>
 
     <div id="recordsListWrap">
-        <p id="noRecordsHint">ჯერ არცერთი ჩანაწერი არ არის შენახული</p>
-        <div class="table-responsive">
-            <table class="records-table" id="recordsTable" style="display:none;">
-                <thead>
-                    <tr>
-                        <th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>თარიღი</th><th>მისამართი</th>
-                        <th>წევრები</th><th>სამუშაოები</th><th>მოქმედება</th>
-                    </tr>
-                </thead>
-                <tbody id="recordsTbody"></tbody>
-            </table>
-        </div>
+      <p id="noRecordsHint">ჯერ არცერთი ჩანაწერი არ არის შენახული</p>
+      <div class="table-responsive">
+        <table class="records-table" id="recordsTable" style="display:none;">
+          <thead>
+            <tr>
+              <th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>თარიღი</th><th>მისამართი</th>
+              <th>წევრები</th><th>სამუშაოები</th><th>მოქმედება</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTbody"></tbody>
+        </table>
+      </div>
     </div>
 
     <footer style="margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); text-align: center; font-size: 12px; color: var(--ink-faint);">
-        <span>Engineered by </span><strong style="color: var(--ink);">Zaza Lomidze</strong> &nbsp;|&nbsp; Enterprise Operations System
+      <span>Engineered by </span><strong style="color: var(--ink);">Zaza Lomidze</strong> &nbsp;|&nbsp; Enterprise Operations System
     </footer>
-</div>
+  </div>
 
-<script>
+  <script>
     let workCounter = 0;
     let savedRecords = [];
     let allMembersCache = [];
     let currentMembers = [];
     let editingRecordId = null;
 
-    window.onload = function () {
-        document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
-        loadBrigades();
-        loadWorkTypes();
-        loadAllMembers();
-        fetchServerRecords();
-        addWork();
-        renderMemberList();
-    };
-
-    function fetchServerRecords() {
-        fetch('/api/records')
-            .then(res => res.json())
-            .then(data => {
-                savedRecords = data.records || [];
-                renderRecordsTable();
-                updateRecordCounter();
-                
-                const alertBox = document.getElementById('cleanupAlert');
-                if (data.has_old_records) {
-                    alertBox.style.display = 'block';
-                } else {
-                    alertBox.style.display = 'none';
-                }
-            })
-            .catch(() => showStatus('სერვერიდან მონაცემების წამოღება ვერ მოხერხდა', 'error'));
-    }
-
-    function loadBrigades() {
-        fetch('/get_brigades')
-            .then(res => res.json())
-            .then(brigades => {
-                const sel = document.getElementById('brigadeSelect');
-                brigades.forEach(b => {
-                    const opt = document.createElement('option');
-                    opt.value = b;
-                    opt.textContent = b;
-                    sel.appendChild(opt);
-                });
-            })
-            .catch(() => showStatus('ბრიგადების ჩატვირთვა ვერ მოხერხდა', 'error'));
-    }
-
-    function loadWorkTypes() {
-        fetch('/get_work_types')
-            .then(res => res.json())
-            .then(types => {
-                const datalist = document.getElementById('workTypesList');
-                datalist.innerHTML = '';
-                types.forEach(t => {
-                    const opt = document.createElement('option');
-                    opt.value = t;
-                    datalist.appendChild(opt);
-                });
-            })
-            .catch(() => showStatus('სამუშაო ტიპების ჩატვირთვა ვერ მოხერხდა', 'error'));
-    }
-
-    function loadAllMembers() {
-        fetch('/get_all_members')
-            .then(res => res.json())
-            .then(members => {
-                allMembersCache = members;
-            })
-            .catch(() => showStatus('თანამშრომელთა სრული სიის ჩატვირთვა ვერ მოხერხდა', 'error'));
-    }
-
     let selectedExtraMemberId = '';
     let extraSearchResults = [];
 
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, ch => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[ch]));
+
+    const safeAttr = (value) => escapeHtml(value ?? '');
+
+    const jsonFetch = async (url, options = {}) => {
+      const res = await fetch(url, options);
+      let payload = {};
+      try {
+        payload = await res.json();
+      } catch (_) {
+        payload = {};
+      }
+      if (!res.ok) {
+        throw new Error(payload.error || payload.message || 'Request failed');
+      }
+      return payload;
+    };
+
+    function showStatus(msg, type = 'success') {
+      const status = document.getElementById('statusMessage');
+      status.textContent = msg;
+      status.className = `toast-status ${type}`;
+      status.style.display = 'block';
+    }
+
+    window.onload = function () {
+      document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+      loadBrigades();
+      loadWorkTypes();
+      loadAllMembers();
+      fetchServerRecords();
+      addWork();
+      renderMemberList();
+    };
+
+    function fetchServerRecords() {
+      jsonFetch('/api/records')
+        .then(data => {
+          savedRecords = Array.isArray(data.records) ? data.records : [];
+          renderRecordsTable();
+          updateRecordCounter();
+
+          const alertBox = document.getElementById('cleanupAlert');
+          if (data.has_old_records) {
+            alertBox.style.display = 'block';
+          } else {
+            alertBox.style.display = 'none';
+          }
+        })
+        .catch(() => showStatus('სერვერიდან მონაცემების წამოღება ვერ მოხერხდა', 'error'));
+    }
+
+    function loadBrigades() {
+      jsonFetch('/get_brigades')
+        .then(brigades => {
+          const sel = document.getElementById('brigadeSelect');
+          sel.innerHTML = '<option value="">-- აირჩიეთ --</option>';
+          (brigades || []).forEach(b => {
+            const opt = document.createElement('option');
+            opt.value = b;
+            opt.textContent = b;
+            sel.appendChild(opt);
+          });
+        })
+        .catch(() => showStatus('ბრიგადების ჩატვირთვა ვერ მოხერხდა', 'error'));
+    }
+
+    function loadWorkTypes() {
+      jsonFetch('/get_work_types')
+        .then(types => {
+          const datalist = document.getElementById('workTypesList');
+          datalist.innerHTML = '';
+          (types || []).forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            datalist.appendChild(opt);
+          });
+        })
+        .catch(() => showStatus('სამუშაო ტიპების ჩატვირთვა ვერ მოხერხდა', 'error'));
+    }
+
+    function loadAllMembers() {
+      jsonFetch('/get_all_members')
+        .then(members => {
+          allMembersCache = Array.isArray(members) ? members : [];
+        })
+        .catch(() => showStatus('თანამშრომელთა სრული სიის ჩატვირთვა ვერ მოხერხდა', 'error'));
+    }
+
     function searchExtraMembers(query) {
-        const resultsBox = document.getElementById('extraMemberResults');
-        const addBtn = document.getElementById('extraMemberAddBtn');
-        selectedExtraMemberId = '';
-        addBtn.disabled = true;
+      const resultsBox = document.getElementById('extraMemberResults');
+      const addBtn = document.getElementById('extraMemberAddBtn');
+      selectedExtraMemberId = '';
+      addBtn.disabled = true;
 
-        const q = (query || '').trim().toLocaleLowerCase('ka-GE');
-        if (!q) {
-            resultsBox.innerHTML = '';
-            resultsBox.classList.remove('open');
-            return;
-        }
+      const q = (query || '').trim().toLocaleLowerCase('ka-GE');
+      if (!q) {
+        resultsBox.innerHTML = '';
+        resultsBox.classList.remove('open');
+        return;
+      }
 
-        const currentBrigade = document.getElementById('brigadeSelect').value;
-        extraSearchResults = allMembersCache
-            .filter(m => !currentBrigade || String(m.brigade) !== String(currentBrigade))
-            .filter(m => {
-                const haystack = [m.name, m.personal_id, m.brigade, m.city, m.position]
-                    .filter(Boolean).join(' ').toLocaleLowerCase('ka-GE');
-                return haystack.includes(q);
-            })
-            .slice(0, 8);
+      const currentBrigade = document.getElementById('brigadeSelect').value;
+      const alreadySelected = new Set(
+        currentMembers
+          .map(m => String(m.personal_id ?? '').trim())
+          .filter(Boolean)
+      );
 
-        if (!extraSearchResults.length) {
-            resultsBox.innerHTML = '<div style="padding:10px; color:var(--ink-faint); font-size:12px; text-align:center;">ვერ მოიძებნა</div>';
-            resultsBox.classList.add('open');
-            return;
-        }
+      extraSearchResults = allMembersCache
+        .filter(m => !currentBrigade || String(m.brigade) !== String(currentBrigade))
+        .filter(m => !alreadySelected.has(String(m.personal_id ?? '')))
+        .filter(m => {
+          const haystack = [m.name, m.personal_id, m.brigade, m.city, m.position]
+            .filter(Boolean)
+            .join(' ')
+            .toLocaleLowerCase('ka-GE');
+          return haystack.includes(q);
+        })
+        .slice(0, 8);
 
-        resultsBox.innerHTML = extraSearchResults.map((m, i) => `
-            <button type="button" class="extra-result" onclick="selectExtraMember(${i})">
-                <div style="font-weight:700; font-size:13px; color:var(--ink);">${escapeHtml(m.name)}</div>
-                <div style="font-size:11px; color:var(--ink-soft);">${escapeHtml(m.position || '')} · ბრიგადა ${escapeHtml(m.brigade)}</div>
-            </button>
-        `).join('');
+      if (!extraSearchResults.length) {
+        resultsBox.innerHTML = '<div style="padding:10px; color:var(--ink-faint); font-size:12px; text-align:center;">ვერ მოიძებნა</div>';
         resultsBox.classList.add('open');
+        return;
+      }
+
+      resultsBox.innerHTML = extraSearchResults.map((m, i) => `
+        <button type="button" class="extra-result" onclick="selectExtraMember(${i})">
+          <div style="font-weight:700; font-size:13px; color:var(--ink);">${safeAttr(m.name)}</div>
+          <div style="font-size:11px; color:var(--ink-soft);">${safeAttr(m.position || '')} · ბრიგადა ${safeAttr(m.brigade)}</div>
+        </button>
+      `).join('');
+      resultsBox.classList.add('open');
     }
 
     function selectExtraMember(index) {
-        const member = extraSearchResults[index];
-        if (!member) return;
-        selectedExtraMemberId = String(member.personal_id);
-        document.getElementById('extraMemberInput').value = member.name;
-        document.getElementById('extraMemberResults').classList.remove('open');
-        document.getElementById('extraMemberAddBtn').disabled = false;
+      const member = extraSearchResults[index];
+      if (!member) return;
+
+      selectedExtraMemberId = String(member.personal_id);
+      document.getElementById('extraMemberInput').value = member.name;
+      document.getElementById('extraMemberResults').classList.remove('open');
+      document.getElementById('extraMemberAddBtn').disabled = false;
     }
 
     function clearExtraMemberSearch() {
-        document.getElementById('extraMemberInput').value = '';
-        document.getElementById('extraMemberResults').classList.remove('open');
-        document.getElementById('extraMemberAddBtn').disabled = true;
-        selectedExtraMemberId = '';
+      document.getElementById('extraMemberInput').value = '';
+      document.getElementById('extraMemberResults').classList.remove('open');
+      document.getElementById('extraMemberAddBtn').disabled = true;
+      selectedExtraMemberId = '';
     }
 
-    function escapeHtml(value) {
-        return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+    function handleExtraMemberKeydown(event) {
+      if (event.key === 'Enter' && selectedExtraMemberId) {
+        event.preventDefault();
+        addExtraMember();
+      }
     }
 
     document.getElementById('brigadeSelect').addEventListener('change', function () {
-        const citySelect = document.getElementById('citySelect');
-        citySelect.innerHTML = '<option value="">-- აირჩიეთ რეგიონი --</option>';
-        currentMembers = [];
-        renderMemberList();
-        if (!this.value) return;
+      const citySelect = document.getElementById('citySelect');
+      citySelect.innerHTML = '<option value="">-- აირჩიეთ რეგიონი --</option>';
+      currentMembers = [];
+      renderMemberList();
+      clearExtraMemberSearch();
 
-        fetch(`/get_brigade_cities?brigade=${encodeURIComponent(this.value)}`)
-            .then(res => res.json())
-            .then(cities => {
-                cities.forEach(city => {
-                    const opt = document.createElement('option');
-                    opt.value = city; opt.textContent = city;
-                    citySelect.appendChild(opt);
-                });
-                if (cities.length === 1) {
-                    citySelect.value = cities[0];
-                    citySelect.dispatchEvent(new Event('change'));
-                }
-            });
+      if (!this.value) return;
+
+      jsonFetch(`/get_brigade_cities?brigade=${encodeURIComponent(this.value)}`)
+        .then(cities => {
+          const list = cities || [];
+          list.forEach(city => {
+            const opt = document.createElement('option');
+            opt.value = city;
+            opt.textContent = city;
+            citySelect.appendChild(opt);
+          });
+
+          if (list.length === 1) {
+            citySelect.value = list[0];
+            citySelect.dispatchEvent(new Event('change'));
+          }
+        })
+        .catch(() => showStatus('რეგიონების ჩატვირთვა ვერ მოხერხდა', 'error'));
     });
 
     document.getElementById('citySelect').addEventListener('change', function () {
-        const brigade = document.getElementById('brigadeSelect').value;
-        const city = this.value;
-        if (!brigade || !city) { currentMembers = []; renderMemberList(); return; }
-        fetch(`/get_brigade_members?brigade=${encodeURIComponent(brigade)}&city=${encodeURIComponent(city)}`)
-            .then(res => res.json())
-            .then(members => {
-                currentMembers = members.map(m => ({ ...m, absent: false, note: '', extra: false, homeBrigade: null }));
-                renderMemberList();
-            });
+      const brigade = document.getElementById('brigadeSelect').value;
+      const city = this.value;
+
+      if (!brigade || !city) {
+        currentMembers = [];
+        renderMemberList();
+        return;
+      }
+
+      jsonFetch(`/get_brigade_members?brigade=${encodeURIComponent(brigade)}&city=${encodeURIComponent(city)}`)
+        .then(members => {
+          currentMembers = (members || []).map(m => ({
+            ...m,
+            absent: false,
+            note: '',
+            extra: false,
+            homeBrigade: null
+          }));
+          renderMemberList();
+        })
+        .catch(() => showStatus('ბრიგადის წევრების ჩატვირთვა ვერ მოხერხდა', 'error'));
     });
 
     function renderMemberList() {
-        const container = document.getElementById('membersContainer');
-        container.innerHTML = '';
-        if (!currentMembers.length) {
-            container.innerHTML = '<p style="color: var(--ink-faint); font-size: 13.5px;">აირჩიეთ ბრიგადა და რეგიონი</p>';
-            document.getElementById('memberCount').textContent = '0 წევრი';
-            return;
-        }
-        currentMembers.forEach((m, idx) => {
-            const div = document.createElement('div');
-            div.className = 'member-item' + (m.extra ? ' extra-member' : '');
-            div.innerHTML = `
-                <label class="member-name">
-                    ${m.name}
-                    <span class="position-tag">${m.position} ${m.extra ? `(ბრიგადა ${m.homeBrigade})` : ''}</span>
-                </label>
-                <input type="checkbox" id="absent_${idx}" ${m.absent ? 'checked' : ''} onchange="updateMemberField(${idx}, 'absent', this.checked)">
-                <label for="absent_${idx}" style="font-size: 11px; font-weight: 700; color: var(--ink-soft);">არ გამოცხ.</label>
-                <input list="memberNotesList" placeholder="შენიშვნა" value="${m.note || ''}" oninput="updateMemberField(${idx}, 'note', this.value)" style="width: 120px;">
-                <button type="button" class="btn-remove-member" title="წაშლა" onclick="removeMember(${idx})">✖</button>
-            `;
-            container.appendChild(div);
-        });
-        document.getElementById('memberCount').textContent = `${currentMembers.length} წევრი`;
+      const container = document.getElementById('membersContainer');
+      container.innerHTML = '';
+
+      if (!currentMembers.length) {
+        container.innerHTML = '<p style="color: var(--ink-faint); font-size: 13.5px;">აირჩიეთ ბრიგადა და რეგიონი</p>';
+        document.getElementById('memberCount').textContent = '0 წევრი';
+        return;
+      }
+
+      currentMembers.forEach((m, idx) => {
+        const div = document.createElement('div');
+        div.className = 'member-item' + (m.extra ? ' extra-member' : '');
+
+        div.innerHTML = `
+          <label class="member-name">
+            ${safeAttr(m.name)}
+            <span class="position-tag">${safeAttr(m.position || '')} ${m.extra ? `(ბრიგადა ${safeAttr(m.homeBrigade || '')})` : ''}</span>
+          </label>
+          <input type="checkbox" id="absent_${idx}" ${m.absent ? 'checked' : ''} onchange="updateMemberField(${idx}, 'absent', this.checked)" />
+          <label for="absent_${idx}" style="font-size: 11px; font-weight: 700; color: var(--ink-soft);">არ გამოცხ.</label>
+          <input list="memberNotesList" placeholder="შენიშვნა" value="${safeAttr(m.note || '')}" oninput="updateMemberField(${idx}, 'note', this.value)" style="width: 120px;">
+          <button type="button" class="btn-remove-member" title="წაშლა" onclick="removeMember(${idx})">✖</button>
+        `;
+
+        container.appendChild(div);
+      });
+
+      document.getElementById('memberCount').textContent = `${currentMembers.length} წევრი`;
     }
 
     function removeMember(idx) {
-        currentMembers.splice(idx, 1);
-        renderMemberList();
+      currentMembers.splice(idx, 1);
+      renderMemberList();
     }
 
     function updateMemberField(idx, field, value) {
-        if (currentMembers[idx]) currentMembers[idx][field] = value;
+      if (currentMembers[idx]) currentMembers[idx][field] = value;
     }
 
     function addExtraMember() {
-        if (!selectedExtraMemberId) return;
-        const source = allMembersCache.find(m => String(m.personal_id) === String(selectedExtraMemberId));
-        if (!source) return;
-        currentMembers.push({
-            name: source.name, position: source.position, personal_id: source.personal_id,
-            city: source.city, absent: false, note: '', extra: true, homeBrigade: source.brigade,
-        });
-        renderMemberList();
-        clearExtraMemberSearch();
+      if (!selectedExtraMemberId) return;
+
+      const source = allMembersCache.find(m => String(m.personal_id) === String(selectedExtraMemberId));
+      if (!source) return;
+
+      if (currentMembers.some(m => String(m.personal_id) === String(source.personal_id))) {
+        showStatus('ეს თანამშრომელი უკვე დამატებულია.', 'warning');
+        return;
+      }
+
+      currentMembers.push({
+        name: source.name,
+        position: source.position,
+        personal_id: source.personal_id,
+        city: source.city,
+        absent: false,
+        note: '',
+        extra: true,
+        homeBrigade: source.brigade
+      });
+
+      renderMemberList();
+      clearExtraMemberSearch();
     }
 
     function buildTimeOptions(count, selected) {
-        let html = '<option value="">--</option>';
-        for (let i = 0; i < count; i++) {
-            const val = String(i).padStart(2, '0');
-            html += `<option value="${val}"${val === selected ? ' selected' : ''}>${val}</option>`;
-        }
-        return html;
+      let html = '<option value="">--</option>';
+      for (let i = 0; i < count; i++) {
+        const val = String(i).padStart(2, '0');
+        html += `<option value="${val}"${val === selected ? ' selected' : ''}>${val}</option>`;
+      }
+      return html;
     }
 
     function addWork(workType = '', start = '', end = '', quantity = '', comment = '') {
-        const container = document.getElementById('workContainer');
-        const div = document.createElement('div');
-        div.className = 'work-item';
-        div.id = `work_${workCounter}`;
+      const container = document.getElementById('workContainer');
+      const div = document.createElement('div');
+      div.className = 'work-item';
+      div.id = `work_${workCounter}`;
 
-        const [startH, startM] = (start || '').split(':');
-        const [endH, endM] = (end || '').split(':');
+      const [startH, startM] = (start || '').split(':');
+      const [endH, endM] = (end || '').split(':');
 
-        div.innerHTML = `
-            <div class="field-cell cell-type">
-                <span class="cell-label">სამუშაოს ტიპი</span>
-                <input list="workTypesList" class="work-type-input" placeholder="-- აირჩიეთ ან ჩაწერეთ --" value="${workType}">
-            </div>
-            <div class="field-cell cell-time">
-                <span class="cell-label">დაწყება</span>
-                <div class="time-inputs">
-                    <select class="work-start-h">${buildTimeOptions(24, startH)}</select><span>:</span>
-                    <select class="work-start-m">${buildTimeOptions(60, startM)}</select>
-                </div>
-            </div>
-            <div class="field-cell cell-time">
-                <span class="cell-label">დასრულება</span>
-                <div class="time-inputs">
-                    <select class="work-end-h">${buildTimeOptions(24, endH)}</select><span>:</span>
-                    <select class="work-end-m">${buildTimeOptions(60, endM)}</select>
-                </div>
-            </div>
-            <div class="field-cell cell-qty">
-                <span class="cell-label">რაოდენობა</span>
-                <input type="number" class="work-qty" placeholder="0" value="${quantity}">
-            </div>
-            <div class="field-cell cell-comment">
-                <span class="cell-label">კომენტარი</span>
-                <input type="text" class="work-comment" placeholder="სურვილისამებრ" value="${comment}">
-            </div>
-            <div class="field-cell" style="justify-content:center;">
-                <button type="button" class="btn btn-danger" style="padding:4px 8px; border-radius:50%; font-size:11px; min-height:auto;" onclick="removeWork('work_${workCounter}')">✖</button>
-            </div>
-        `;
-        container.appendChild(div);
-        workCounter++;
+      div.innerHTML = `
+        <div class="field-cell cell-type">
+          <span class="cell-label">სამუშაოს ტიპი</span>
+          <input list="workTypesList" class="work-type-input" placeholder="-- აირჩიეთ ან ჩაწერეთ --" value="${safeAttr(workType)}">
+        </div>
+        <div class="field-cell cell-time">
+          <span class="cell-label">დაწყება</span>
+          <div class="time-inputs">
+            <select class="work-start-h">${buildTimeOptions(24, startH || '')}</select><span>:</span>
+            <select class="work-start-m">${buildTimeOptions(60, startM || '')}</select>
+          </div>
+        </div>
+        <div class="field-cell cell-time">
+          <span class="cell-label">დასრულება</span>
+          <div class="time-inputs">
+            <select class="work-end-h">${buildTimeOptions(24, endH || '')}</select><span>:</span>
+            <select class="work-end-m">${buildTimeOptions(60, endM || '')}</select>
+          </div>
+        </div>
+        <div class="field-cell cell-qty">
+          <span class="cell-label">რაოდენობა</span>
+          <input type="number" class="work-qty" placeholder="0" value="${safeAttr(quantity)}">
+        </div>
+        <div class="field-cell cell-comment">
+          <span class="cell-label">კომენტარი</span>
+          <input type="text" class="work-comment" placeholder="სურვილისამებრ" value="${safeAttr(comment)}">
+        </div>
+        <div class="field-cell" style="justify-content:center;">
+          <button type="button" class="btn btn-danger" style="padding:4px 8px; border-radius:50%; font-size:11px; min-height:auto;" onclick="removeWork('work_${workCounter}')">✖</button>
+        </div>
+      `;
+
+      container.appendChild(div);
+      workCounter++;
     }
 
     function readTimeValue(div, prefix) {
-        const h = div.querySelector(`.${prefix}-h`).value;
-        const m = div.querySelector(`.${prefix}-m`).value;
-        return (h && m) ? `${h}:${m}` : '';
+      const h = div.querySelector(`.${prefix}-h`)?.value;
+      const m = div.querySelector(`.${prefix}-m`)?.value;
+
+      if (!h && !m) return '';
+      if (!h || !m) return '';
+
+      return `${h}:${m}`;
+    }
+
+    function isValidTimeRange(start, end) {
+      if (!start || !end) return true;
+      const [sh, sm] = start.split(':').map(Number);
+      const [eh, em] = end.split(':').map(Number);
+
+      if ([sh, sm, eh, em].some(v => Number.isNaN(v))) return false;
+      const startMin = sh * 60 + sm;
+      const endMin = eh * 60 + em;
+      return endMin >= startMin;
     }
 
     function removeWork(id) {
-        const el = document.getElementById(id);
-        if (el) el.remove();
+      const el = document.getElementById(id);
+      if (el) el.remove();
     }
 
     function saveRecord() {
-        const inputId = document.getElementById('idInput').value.trim();
-        const brigade = document.getElementById('brigadeSelect').value;
-        const city = document.getElementById('citySelect').value;
-        const date = document.getElementById('dateInput').value;
-        const address = document.getElementById('addressInput').value.trim();
+      const inputId = document.getElementById('idInput').value.trim();
+      const brigade = document.getElementById('brigadeSelect').value;
+      const city = document.getElementById('citySelect').value;
+      const date = document.getElementById('dateInput').value;
+      const address = document.getElementById('addressInput').value.trim();
 
-        if (!inputId || !brigade || !city || !date || !address) {
-            showStatus('გთხოვთ შეავსოთ ID, ბრიგადა, რეგიონი, თარიღი და მისამართი.', 'error');
-            return;
+      if (!inputId || !brigade || !city || !date || !address) {
+        showStatus('გთხოვთ შეავსოთ ID, ბრიგადა, რეგიონი, თარიღი და მისამართი.', 'error');
+        return;
+      }
+
+      const works = [];
+      let invalidWorkFound = false;
+
+      document.querySelectorAll('.work-item').forEach(div => {
+        const workType = div.querySelector('.work-type-input').value.trim();
+        const quantity = div.querySelector('.work-qty').value.trim();
+
+        if (!workType) return;
+
+        const start = readTimeValue(div, 'work-start');
+        const end = readTimeValue(div, 'work-end');
+
+        if (!isValidTimeRange(start, end)) {
+          invalidWorkFound = true;
+          return;
         }
 
-        const works = [];
-        document.querySelectorAll('.work-item').forEach(div => {
-            const workType = div.querySelector('.work-type-input').value.trim();
-            const quantity = div.querySelector('.work-qty').value.trim();
-            if (workType) {
-                works.push({
-                    work_type: workType,
-                    start: readTimeValue(div, 'work-start'),
-                    end: readTimeValue(div, 'work-end'),
-                    quantity: quantity,
-                    comment: div.querySelector('.work-comment').value.trim(),
-                });
-            }
+        works.push({
+          work_type: workType,
+          start,
+          end,
+          quantity,
+          comment: div.querySelector('.work-comment').value.trim()
         });
+      });
 
-        if (!works.length) {
-            showStatus('დაამატეთ მინიმუმ ერთი სამუშაო.', 'error');
-            return;
+      if (invalidWorkFound) {
+        showStatus('სამუშაოს დაწყების და დასრულების დრო არასწორია. გადაამოწმეთ საათები.', 'error');
+        return;
+      }
+
+      if (!works.length) {
+        showStatus('დაამატეთ მინიმუმ ერთი სამუშაო.', 'error');
+        return;
+      }
+
+      const existingRecords = savedRecords.filter(r => String(r.id) === String(inputId));
+
+      if (existingRecords.length > 0 && !editingRecordId) {
+        const userChoice = confirm(`⚠️ ID "${inputId}" უკვე შეყვანილია ბაზაში!\n\nგსურთ დაამატოთ ახალი ჩანაწერი ამავე ID-ით?`);
+        if (!userChoice) {
+          showStatus('შენახვა გაუქმებულია.', 'warning');
+          return;
         }
+      }
 
-        const existingRecords = savedRecords.filter(r => String(r.id) === String(inputId));
-        
-        if (existingRecords.length > 0 && !editingRecordId) {
-            const userChoice = confirm(`⚠️ ID "${inputId}" უკვე შეყვანილია ბაზაში!\n\nგსურთ დაამატოთ ახალი ჩანაწერი ამავე ID-ით?`);
-            if (!userChoice) {
-                showStatus('შენახვა გაუქმებულია.', 'warning');
-                return;
-            }
-        }
+      const recordDbId = editingRecordId || `${inputId}_${Date.now()}`;
 
-        const recordDbId = editingRecordId || `${inputId}_${Date.now()}`;
+      const record = {
+        id: inputId,
+        db_id: recordDbId,
+        brigade,
+        city,
+        date,
+        address,
+        object_name: document.getElementById('objectNameInput').value.trim(),
+        coefficient: document.getElementById('coefficientInput').value.trim(),
+        overall_comment: document.getElementById('overallComment').value.trim(),
+        members: currentMembers.map(m => ({
+          name: m.name,
+          position: m.position,
+          personal_id: m.personal_id,
+          absent: !!m.absent,
+          note: (m.note || '').trim(),
+          extra: !!m.extra,
+          home_brigade: m.homeBrigade || null
+        })),
+        works
+      };
 
-        const record = {
-            id: inputId,
-            db_id: recordDbId,
-            brigade, city, date, address,
-            object_name: document.getElementById('objectNameInput').value.trim(),
-            coefficient: document.getElementById('coefficientInput').value.trim(),
-            overall_comment: document.getElementById('overallComment').value.trim(),
-            members: currentMembers.map(m => ({
-                name: m.name, position: m.position, personal_id: m.personal_id,
-                absent: !!m.absent, note: (m.note || '').trim(), extra: !!m.extra, home_brigade: m.homeBrigade || null
-            })),
-            works,
-        };
-
-        fetch('/api/records/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(record)
-        })
-        .then(res => res.json())
+      jsonFetch('/api/records/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
+      })
         .then(data => {
-            if (data.success) {
-                showStatus(`✨ ჩანაწერი ID ${inputId} წარმატებით შეინახა ბაზაში!`, 'success');
-                editingRecordId = null;
-                document.getElementById('saveBtn').textContent = '💾 შენახვა';
-                fetchServerRecords();
-                clearForm(true);
-            } else {
-                showStatus(`❌ შეცდომა: ${data.error}`, 'error');
-            }
+          if (data.success) {
+            showStatus(`✨ ჩანაწერი ID ${inputId} წარმატებით შეინახა ბაზაში!`, 'success');
+            editingRecordId = null;
+            document.getElementById('saveBtn').textContent = '💾 შენახვა';
+            fetchServerRecords();
+            clearForm(true);
+          } else {
+            showStatus(`❌ შეცდომა: ${data.error}`, 'error');
+          }
         })
-        .catch(err => showStatus(`❌ სერვერთან კავშირის შეცდომა: ${err}`, 'error'));
+        .catch(err => showStatus(`❌ სერვერთან კავშირის შეცდომა: ${err.message || err}`, 'error'));
     }
 
     function editRecord(recordDbId) {
-        const rec = savedRecords.find(r => String(r.db_id || r.id) === String(recordDbId));
-        if (!rec) return;
+      const rec = savedRecords.find(r => String(r.db_id || r.id) === String(recordDbId));
+      if (!rec) return;
 
-        editingRecordId = rec.db_id || rec.id;
-        document.getElementById('idInput').value = rec.id;
-        document.getElementById('brigadeSelect').value = rec.brigade;
+      editingRecordId = rec.db_id || rec.id;
 
-        fetch(`/get_brigade_cities?brigade=${encodeURIComponent(rec.brigade)}`)
-            .then(res => res.json())
-            .then(cities => {
-                const citySelect = document.getElementById('citySelect');
-                citySelect.innerHTML = '<option value="">-- აირჩიეთ რეგიონი --</option>';
-                cities.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; citySelect.appendChild(opt); });
-                citySelect.value = rec.city;
-                return fetch(`/get_brigade_members?brigade=${encodeURIComponent(rec.brigade)}&city=${encodeURIComponent(rec.city)}`);
-            })
-            .then(res => res.json())
-            .then(members => {
-                const presetMap = {};
-                rec.members.forEach(m => { presetMap[m.personal_id] = m; });
-                currentMembers = members.map(m => {
-                    const preset = presetMap[m.personal_id] || {};
-                    return { ...m, absent: !!preset.absent, note: preset.note || '', extra: false, homeBrigade: null };
-                });
-                rec.members.forEach(m => {
-                    if (m.extra && !currentMembers.some(cm => String(cm.personal_id) === String(m.personal_id))) {
-                        currentMembers.push({ name: m.name, position: m.position, personal_id: m.personal_id, absent: !!m.absent, note: m.note || '', extra: true, homeBrigade: m.home_brigade });
-                    }
-                });
-                renderMemberList();
-            });
+      document.getElementById('idInput').value = rec.id;
+      document.getElementById('brigadeSelect').value = rec.brigade;
 
-        document.getElementById('dateInput').value = rec.date;
-        document.getElementById('addressInput').value = rec.address;
-        document.getElementById('objectNameInput').value = rec.object_name || '';
-        document.getElementById('coefficientInput').value = rec.coefficient || '';
-        document.getElementById('overallComment').value = rec.overall_comment || '';
+      jsonFetch(`/get_brigade_cities?brigade=${encodeURIComponent(rec.brigade)}`)
+        .then(cities => {
+          const citySelect = document.getElementById('citySelect');
+          citySelect.innerHTML = '<option value="">-- აირჩიეთ რეგიონი --</option>';
+          (cities || []).forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            citySelect.appendChild(opt);
+          });
 
-        document.getElementById('workContainer').innerHTML = '';
-        workCounter = 0;
-        rec.works.forEach(w => addWork(w.work_type, w.start, w.end, w.quantity, w.comment));
+          citySelect.value = rec.city;
+          return jsonFetch(`/get_brigade_members?brigade=${encodeURIComponent(rec.brigade)}&city=${encodeURIComponent(rec.city)}`);
+        })
+        .then(members => {
+          const presetMap = {};
+          (rec.members || []).forEach(m => {
+            presetMap[String(m.personal_id)] = m;
+          });
 
-        document.getElementById('saveBtn').textContent = '💾 განახლების შენახვა';
-        showStatus(`ჩანაწერი ID ${rec.id} რედაქტირებისთვის ჩაიტვირთა.`, 'success');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+          currentMembers = (members || []).map(m => {
+            const preset = presetMap[String(m.personal_id)] || {};
+            return {
+              ...m,
+              absent: !!preset.absent,
+              note: preset.note || '',
+              extra: false,
+              homeBrigade: null
+            };
+          });
+
+          (rec.members || []).forEach(m => {
+            if (m.extra && !currentMembers.some(cm => String(cm.personal_id) === String(m.personal_id))) {
+              currentMembers.push({
+                name: m.name,
+                position: m.position,
+                personal_id: m.personal_id,
+                absent: !!m.absent,
+                note: m.note || '',
+                extra: true,
+                homeBrigade: m.home_brigade
+              });
+            }
+          });
+
+          renderMemberList();
+        })
+        .catch(() => showStatus('ჩანაწერის ჩატვირთვა ვერ მოხერხდა', 'error'));
+
+      document.getElementById('dateInput').value = rec.date || '';
+      document.getElementById('addressInput').value = rec.address || '';
+      document.getElementById('objectNameInput').value = rec.object_name || '';
+      document.getElementById('coefficientInput').value = rec.coefficient || '';
+      document.getElementById('overallComment').value = rec.overall_comment || '';
+
+      document.getElementById('workContainer').innerHTML = '';
+      workCounter = 0;
+      (rec.works || []).forEach(w => addWork(w.work_type || '', w.start || '', w.end || '', w.quantity || '', w.comment || ''));
+
+      document.getElementById('saveBtn').textContent = '💾 განახლების შენახვა';
+      showStatus(`ჩანაწერი ID ${rec.id} რედაქტირებისთვის ჩაიტვირთა.`, 'success');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function removeRecord(recordDbId) {
-        if (!confirm(`წავშალო ჩანაწერი?`)) return;
-        fetch(`/api/records/delete/${encodeURIComponent(recordDbId)}`, { method: 'DELETE' })
-            .then(res => res.json())
-            .then(() => {
-                showStatus(`ჩანაწერი წაიშალა.`, 'success');
-                fetchServerRecords();
-            });
+      if (!confirm('წავშალო ჩანაწერი?')) return;
+
+      jsonFetch(`/api/records/delete/${encodeURIComponent(recordDbId)}`, { method: 'DELETE' })
+        .then(() => {
+          showStatus('ჩანაწერი წაიშალა.', 'success');
+          fetchServerRecords();
+        })
+        .catch(() => showStatus('ჩანაწერის წაშლა ვერ მოხერხდა', 'error'));
     }
 
     function getFilteredRecords() {
-        const searchId = document.getElementById('filterSearchId').value.trim().toLocaleLowerCase();
-        const start = document.getElementById('filterStartDate').value;
-        const end = document.getElementById('filterEndDate').value;
+      const searchId = document.getElementById('filterSearchId').value.trim().toLocaleLowerCase('ka-GE');
+      const start = document.getElementById('filterStartDate').value;
+      const end = document.getElementById('filterEndDate').value;
 
-        return savedRecords.filter(rec => {
-            if (searchId && !String(rec.id).toLocaleLowerCase().includes(searchId)) return false;
-            if (start && rec.date < start) return false;
-            if (end && rec.date > end) return false;
-            return true;
-        });
+      return savedRecords.filter(rec => {
+        if (searchId && !String(rec.id).toLocaleLowerCase('ka-GE').includes(searchId)) return false;
+        if (start && rec.date < start) return false;
+        if (end && rec.date > end) return false;
+        return true;
+      });
     }
 
     function renderRecordsTable() {
-        const tbody = document.getElementById('recordsTbody');
-        const table = document.getElementById('recordsTable');
-        const hint = document.getElementById('noRecordsHint');
-        tbody.innerHTML = '';
+      const tbody = document.getElementById('recordsTbody');
+      const table = document.getElementById('recordsTable');
+      const hint = document.getElementById('noRecordsHint');
 
-        const filtered = getFilteredRecords();
-        if (!filtered.length) {
-            table.style.display = 'none';
-            hint.style.display = 'block';
-            return;
-        }
-        hint.style.display = 'none';
-        table.style.display = 'table';
+      tbody.innerHTML = '';
 
-        filtered.forEach(rec => {
-            const activeCount = rec.members.filter(m => !(m.absent || (m.note || '').trim())).length;
-            const recDbId = rec.db_id || rec.id;
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td style="font-family:var(--font-mono); font-weight:700;">${rec.id}</td>
-                <td>${rec.brigade}</td>
-                <td>${rec.city}</td>
-                <td>${rec.date}</td>
-                <td>${rec.address}</td>
-                <td>${activeCount}/${rec.members.length}</td>
-                <td>${rec.works.length}</td>
-                <td>
-                    <button type="button" class="btn btn-outline" style="padding:6px 10px; font-size:12px; min-height:auto;" onclick="editRecord('${recDbId}')">✏️</button>
-                    <button type="button" class="btn btn-danger" style="padding:6px 10px; font-size:12px; min-height:auto;" onclick="removeRecord('${recDbId}')">🗑️</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
+      const filtered = getFilteredRecords();
+      if (!filtered.length) {
+        table.style.display = 'none';
+        hint.style.display = 'block';
+        return;
+      }
+
+      hint.style.display = 'none';
+      table.style.display = 'table';
+
+      filtered.forEach(rec => {
+        const members = Array.isArray(rec.members) ? rec.members : [];
+        const activeCount = members.filter(m => !(m.absent || (m.note || '').trim())).length;
+        const recDbId = rec.db_id || rec.id;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-family:var(--font-mono); font-weight:700;">${safeAttr(rec.id)}</td>
+          <td>${safeAttr(rec.brigade)}</td>
+          <td>${safeAttr(rec.city)}</td>
+          <td>${safeAttr(rec.date)}</td>
+          <td>${safeAttr(rec.address)}</td>
+          <td>${activeCount}/${members.length}</td>
+          <td>${(rec.works || []).length}</td>
+          <td>
+            <button type="button" class="btn btn-outline" style="padding:6px 10px; font-size:12px; min-height:auto;" onclick="editRecord('${recDbId}')">✏️</button>
+            <button type="button" class="btn btn-danger" style="padding:6px 10px; font-size:12px; min-height:auto;" onclick="removeRecord('${recDbId}')">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
     function resetFilter() {
-        document.getElementById('filterSearchId').value = '';
-        document.getElementById('filterStartDate').value = '';
-        document.getElementById('filterEndDate').value = '';
-        renderRecordsTable();
+      document.getElementById('filterSearchId').value = '';
+      document.getElementById('filterStartDate').value = '';
+      document.getElementById('filterEndDate').value = '';
+      renderRecordsTable();
     }
 
     function generateExcel() {
-        const recordsToExport = getFilteredRecords();
-        if (!recordsToExport.length) {
-            showStatus('ჩანაწერები ვერ მოიძებნა.', 'error');
-            return;
-        }
-        const btn = document.getElementById('generateBtn');
-        btn.disabled = true;
-        btn.textContent = '⏳ გენერირდება...';
+      const recordsToExport = getFilteredRecords();
+      if (!recordsToExport.length) {
+        showStatus('ჩანაწერები ვერ მოიძებნა.', 'error');
+        return;
+      }
 
-        fetch('/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ records: recordsToExport }),
-        })
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ გენერირდება...';
+
+      fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ records: recordsToExport })
+      })
         .then(res => res.blob())
         .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `ანგარიში_${new Date().toISOString().slice(0, 10)}.xlsx`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            showStatus('✅ Excel ფაილი ჩამოიტვირთა!', 'success');
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `ანგარიში_${new Date().toISOString().slice(0, 10)}.xlsx`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          showStatus('✅ Excel ფაილი ჩამოიტვირთა!', 'success');
         })
-        .catch(err => showStatus('❌ შეცდომა გენერირებისას', 'error'))
+        .catch(err => showStatus(`❌ შეცდომა გენერირებისას: ${err.message || err}`, 'error'))
         .finally(() => {
-            btn.disabled = false;
-            btn.textContent = '📥 Excel-ის გენერირება';
+          btn.disabled = false;
+          btn.textContent = '📥 Excel-ის გენერირება';
         });
     }
 
     function updateRecordCounter() {
-        document.getElementById('recordCounter').textContent = `ჩანაწერები: ${savedRecords.length}`;
-    }
-
-    function showStatus(msg, type = 'success') {
-        const status = document.getElementById('statusMessage');
-        status.textContent = msg;
-        status.className = `status ${type}`;
-        status.style.display = 'block';
+      document.getElementById('recordCounter').textContent = `ჩანაწერები: ${savedRecords.length}`;
     }
 
     function clearForm(keepStatus = false) {
-        document.getElementById('idInput').value = '';
-        document.getElementById('objectNameInput').value = '';
-        document.getElementById('coefficientInput').value = '';
-        document.getElementById('overallComment').value = '';
-        document.getElementById('workContainer').innerHTML = '';
-        workCounter = 0;
-        addWork();
-        document.getElementById('brigadeSelect').value = '';
-        document.getElementById('citySelect').innerHTML = '<option value="">-- აირჩიეთ ბრიგადა --</option>';
-        currentMembers = [];
-        renderMemberList();
-        document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
-        document.getElementById('addressInput').value = '';
-        if (!keepStatus) document.getElementById('statusMessage').style.display = 'none';
-        document.getElementById('idInput').focus();
+      document.getElementById('idInput').value = '';
+      document.getElementById('objectNameInput').value = '';
+      document.getElementById('coefficientInput').value = '';
+      document.getElementById('overallComment').value = '';
+      document.getElementById('workContainer').innerHTML = '';
+      workCounter = 0;
+      addWork();
+
+      document.getElementById('brigadeSelect').value = '';
+      document.getElementById('citySelect').innerHTML = '<option value="">-- აირჩიეთ ბრიგადა --</option>';
+
+      currentMembers = [];
+      renderMemberList();
+
+      document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+      document.getElementById('addressInput').value = '';
+
+      if (!keepStatus) {
+        document.getElementById('statusMessage').style.display = 'none';
+      }
+
+      document.getElementById('idInput').focus();
     }
-</script>
+  </script>
 </body>
 </html>
