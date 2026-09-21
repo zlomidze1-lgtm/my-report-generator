@@ -202,9 +202,17 @@ def generate_excel_from_records(records):
     return output
 
 
-# --- ლოგოს მიწოდება პირდაპირ root მისამართიდან ---
+# --- ლოგოსა და Favicon-ის მიწოდება ---
 @app.route('/logo.png')
 def serve_logo():
+    logo_path = os.path.join(BASE_DIR, 'logo.png')
+    if os.path.exists(logo_path):
+        return send_file(logo_path, mimetype='image/png')
+    return '', 404
+
+
+@app.route('/favicon.ico')
+def serve_favicon():
     logo_path = os.path.join(BASE_DIR, 'logo.png')
     if os.path.exists(logo_path):
         return send_file(logo_path, mimetype='image/png')
