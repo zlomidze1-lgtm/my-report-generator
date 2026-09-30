@@ -2,35 +2,32 @@
 <html lang="ka">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
   <title>სამუშაოს ანგარიშის გენერატორი</title>
 
-  <link rel="icon" type="image/x-icon" href="/logo.png" />
   <link rel="icon" type="image/png" href="/logo.png" />
-  <link rel="shortcut icon" href="/logo.png" />
   <link rel="apple-touch-icon" href="/logo.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     :root {
       --ink: #0f172a;
       --ink-soft: #475569;
       --ink-faint: #94a3b8;
-      --paper: #f8fafc;
-      --surface: rgba(255, 255, 255, 0.85);
+      --surface: rgba(255, 255, 255, 0.88);
       --surface-solid: #ffffff;
-      --line: rgba(226, 232, 240, 0.8);
+      --surface-muted: #f8fafc;
+      --line: #e2e8f0;
       --line-strong: #cbd5e1;
       --primary: #2563eb;
-      --primary-glow: rgba(37, 99, 235, 0.35);
+      --primary-glow: rgba(37, 99, 235, 0.22);
       --signal: #c7f33b;
       --signal-ink: #1a2e00;
       --signal-dim: #f7fbe9;
-      --steel: #3767ff;
       --steel-soft: #eef2ff;
       --success: #10b981;
       --success-soft: #ecfdf5;
@@ -41,14 +38,15 @@
       --radius-lg: 20px;
       --radius-md: 14px;
       --radius-sm: 10px;
-      --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.03);
+      --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
       --shadow-card: 0 12px 32px -4px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
-      --shadow-glow: 0 0 25px -5px var(--primary-glow);
-      --font-body: 'Noto Sans Georgian', 'Plus Jakarta Sans', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'Noto Sans Georgian', 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    img { display: block; max-width: 100%; }
 
     body {
       font-family: var(--font-body);
@@ -57,443 +55,419 @@
         radial-gradient(circle at 8% 8%, rgba(55,103,255,.08), transparent 28%),
         radial-gradient(circle at 92% 10%, rgba(199,243,59,.12), transparent 25%),
         linear-gradient(180deg,#f8faff 0%,#f2f5fa 55%,#eef2f7 100%);
+      background-attachment: fixed;
       min-height: 100vh;
       line-height: 1.45;
       padding-bottom: 80px;
     }
 
+    :focus-visible { outline: 3px solid var(--primary-glow); outline-offset: 2px; }
+
+    /* ---------- Top bar ---------- */
     .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      height: 74px;
-      padding: 0 clamp(18px,4vw,52px);
-      display: flex; align-items: center; gap: 15px;
-      background: rgba(15, 23, 42, 0.92);
+      position: sticky; top: 0; z-index: 100;
+      min-height: 70px;
+      padding: 10px clamp(16px,4vw,52px);
+      display: flex; align-items: center; gap: 14px;
+      background: rgba(15, 23, 42, 0.94);
       backdrop-filter: blur(20px) saturate(150%);
       -webkit-backdrop-filter: blur(20px) saturate(150%);
-      border-bottom: 1px solid rgba(255,255,255,.1);
       box-shadow: 0 10px 30px rgba(4,10,22,.15);
     }
-
     .topbar::after {
-      content: "";
-      position: absolute;
-      left: 0; right: 0; bottom: 0; height: 2px;
+      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
       background: linear-gradient(90deg, transparent, var(--signal), #6b8cff, transparent);
-      opacity: .9;
     }
-
     .topbar .mark {
-      width: 44px; height: 44px; border-radius: 12px;
+      width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden; background: #ffffff; padding: 2px;
-      box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+      overflow: hidden; background: #fff; padding: 2px;
     }
+    .topbar .mark img { width: 100%; height: 100%; object-fit: contain; border-radius: 10px; }
+    .topbar .titles h1 { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -0.2px; line-height: 1.25; }
+    .topbar .titles p { font-family: var(--font-mono); font-size: 9.5px; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; }
 
-    .topbar .mark img {
-      width: 100%; height: 100%; object-fit: contain; border-radius: 10px;
+    .nav-tabs { display: flex; gap: 4px; margin-left: auto; background: rgba(255,255,255,.06); padding: 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); }
+    .nav-tab {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 9px;
+      color: #cbd5e1; font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap;
+      transition: background .15s, color .15s;
     }
-
-    .topbar .titles h1 { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.2px; }
-    .topbar .titles p {
-      font-family: var(--font-mono);
-      font-size: 9.5px;
-      color: #94a3b8;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
+    .nav-tab:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .nav-tab.active { background: var(--signal); color: var(--signal-ink); }
 
     .topbar-status {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #f8fafc;
-      background: rgba(30, 41, 59, 0.85);
+      display: flex; align-items: center; gap: 10px;
+      color: #f8fafc; background: rgba(30, 41, 59, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 6px 16px; border-radius: 999px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 0.5px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      padding: 6px 14px; border-radius: 999px;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px;
     }
-
-    .topbar-status .dot {
-      width: 8px; height: 8px; border-radius: 50%; background: #10b981;
-      box-shadow: 0 0 10px #10b981; animation: pulse 2s infinite;
-    }
-
+    .topbar-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
+    .topbar-status.offline .dot { background: var(--danger); animation: none; }
     @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+      0% { box-shadow: 0 0 0 0 rgba(16,185,129,.7); }
+      70% { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+      100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
     }
 
-    .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 22px 0; }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 22px 0; }
 
+    /* ---------- Edit banner ---------- */
+    .edit-banner {
+      display: none; align-items: center; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 18px; padding: 14px 18px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border: 1px solid #fde68a; color: #92400e;
+      font-weight: 600; font-size: 14px;
+    }
+    .edit-banner.show { display: flex; }
+    .edit-banner strong { font-family: var(--font-mono); }
+    .edit-banner .btn { margin-left: auto; min-height: 38px; padding: 8px 14px; font-size: 13px; }
+
+    /* ---------- Panels ---------- */
     .panel {
       background: var(--surface);
-      border: 1px solid var(--line);
+      border: 1px solid rgba(226,232,240,.8);
       border-radius: var(--radius-lg);
-      padding: 28px;
-      margin-bottom: 22px;
+      padding: 26px;
+      margin-bottom: 20px;
       box-shadow: var(--shadow-card);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      transition: transform .2s ease, box-shadow .2s ease;
       position: relative;
     }
-
-    .panel:hover { transform: translateY(-1px); box-shadow: var(--shadow-card), 0 20px 40px rgba(15,23,42,0.06); }
-    .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+    .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     .panel-eyebrow {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 800;
-      color: var(--primary);
-      letter-spacing: 1.2px;
-      background: var(--steel-soft);
-      padding: 5px 10px;
-      border-radius: 999px;
+      font-family: var(--font-mono); font-size: 10px; font-weight: 800;
+      color: var(--primary); letter-spacing: 1.2px;
+      background: var(--steel-soft); padding: 5px 10px; border-radius: 999px;
     }
+    .panel-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+    .panel-head .pill { margin-left: auto; }
 
-    .panel-head h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .form-grid + .form-grid { margin-top: 16px; }
 
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
-    .form-grid + .form-grid { margin-top: 18px; }
-
-    .form-group { display: flex; flex-direction: column; }
+    .form-group { display: flex; flex-direction: column; min-width: 0; }
     .form-group label {
-      font-family: var(--font-mono);
-      font-weight: 700;
-      font-size: 10px;
-      color: var(--ink-soft);
-      margin-bottom: 7px;
-      letter-spacing: 0.9px;
-      text-transform: uppercase;
+      font-family: var(--font-mono); font-weight: 700; font-size: 10px;
+      color: var(--ink-soft); margin-bottom: 7px; letter-spacing: 0.9px; text-transform: uppercase;
     }
-
-    .form-group input, .form-group select, .form-group textarea {
+    .form-group label .req { color: var(--danger); }
+    .form-group input, .form-group select {
       padding: 11px 14px;
       border: 1px solid var(--line-strong);
       border-radius: var(--radius-sm);
       font-size: 14px;
-      font-family: var(--font-body);
       background: var(--surface-solid);
-      color: var(--ink);
       width: 100%;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       min-height: 48px;
+      transition: border-color .15s, box-shadow .15s;
     }
-
     #idInput, #coefficientInput { font-family: var(--font-mono); font-weight: 600; }
-
     .form-group input:focus, .form-group select:focus {
-      border-color: var(--primary);
-      outline: none;
-      box-shadow: 0 0 0 4px var(--primary-glow);
-      transform: translateY(-1px);
+      border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-glow);
     }
+    .form-group .is-invalid, .is-invalid { border-color: var(--danger) !important; box-shadow: 0 0 0 4px rgba(239,68,68,.15) !important; }
 
-    .members-section { z-index: 40 !important; overflow: visible !important; }
-    .works-section { z-index: 10 !important; }
+    /* ---------- Members ---------- */
+    .members-section { z-index: 40; }
+    .works-section { z-index: 10; }
 
-    .members-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
+    .members-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .members-toolbar .btn { min-height: 34px; padding: 6px 12px; font-size: 12px; }
+
+    .members-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 10px; }
+    .members-empty { color: var(--ink-faint); font-size: 13.5px; grid-column: 1 / -1; }
+
     .member-item {
-      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
-      background: var(--surface-solid); border: 1px solid var(--line); border-left: 4px solid var(--line-strong);
-      border-radius: var(--radius-md); box-shadow: var(--shadow-subtle); transition: all 0.2s ease;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: 11px 12px 11px 14px;
+      background: var(--surface-solid); border: 1px solid var(--line); border-left: 4px solid var(--success);
+      border-radius: var(--radius-md); box-shadow: var(--shadow-subtle);
+      transition: border-color .15s, background .15s, opacity .15s;
     }
-
-    .member-item.extra-member { border-left-color: var(--signal); background: var(--signal-dim); }
-    .member-item label.member-name { font-weight: 700; font-size: 13.5px; flex: 1; line-height: 1.3; }
-    .member-item .position-tag { font-size: 11px; color: var(--ink-faint); font-weight: 400; display: block; }
-    .member-item input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer; }
-    .member-item input[type="text"] { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-strong); font-size: 13px; }
+    .member-item.extra-member { border-left-color: #84cc16; background: var(--signal-dim); }
+    .member-item.is-absent { border-left-color: var(--danger); background: #fffafa; }
+    .member-item.is-absent .member-name { color: var(--ink-soft); text-decoration: line-through; text-decoration-color: rgba(239,68,68,.5); }
+    .member-item .member-name { font-weight: 700; font-size: 13.5px; flex: 1 1 140px; line-height: 1.3; min-width: 0; }
+    .member-item .position-tag { font-size: 11px; color: var(--ink-faint); font-weight: 500; display: block; text-decoration: none; }
+    .member-item .extra-badge {
+      display: inline-block; margin-top: 3px; font-family: var(--font-mono); font-size: 9.5px; font-weight: 800;
+      color: #3f6212; background: #ecfccb; border-radius: 999px; padding: 2px 8px; letter-spacing: .4px;
+    }
+    .absent-toggle { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11px; font-weight: 700; color: var(--ink-soft); white-space: nowrap; }
+    .absent-toggle input { width: 20px; height: 20px; accent-color: var(--danger); cursor: pointer; }
+    .member-note {
+      width: 130px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-strong);
+      font-size: 13px; background: #fff; min-height: 36px;
+    }
+    .member-note:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
 
     .btn-remove-member {
-      border: none; background: #fee2e2; color: #ef4444; width: 28px; height: 28px;
+      border: none; background: #fee2e2; color: var(--danger); width: 28px; height: 28px;
       border-radius: 50%; font-size: 12px; font-weight: bold; cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center;
-      transition: all 0.2s ease; flex-shrink: 0;
+      transition: background .15s, color .15s; flex-shrink: 0;
     }
-
-    .btn-remove-member:hover { background: #ef4444; color: #ffffff; transform: scale(1.1); }
+    .btn-remove-member:hover { background: var(--danger); color: #fff; }
 
     .add-extra-row {
       display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
       margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line);
       position: relative; z-index: 50;
     }
-
+    .add-extra-row .hint { width: 100%; font-size: 12px; color: var(--ink-faint); margin-top: -4px; }
     .extra-member-picker { position: relative; flex: 1; min-width: 260px; }
     .extra-member-input {
-      width: 100%; min-height: 48px; padding: 10px 40px 10px 40px;
+      width: 100%; min-height: 48px; padding: 10px 40px;
       border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
-      background: var(--surface-solid); font-size: 14px; outline: none; transition: all .2s ease;
+      background: var(--surface-solid); font-size: 14px; outline: none; transition: border-color .15s, box-shadow .15s;
     }
     .extra-member-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
-    .extra-search-icon { position: absolute; left: 13px; top: 12px; font-size: 20px; color: var(--ink-faint); pointer-events: none; }
+    .extra-search-icon { position: absolute; left: 13px; top: 11px; font-size: 20px; color: var(--ink-faint); pointer-events: none; }
     .extra-clear {
-      position: absolute; right: 10px; top: 10px; width: 28px; height: 28px;
-      border: 0; background: transparent; font-size: 20px; color: var(--ink-faint); cursor: pointer;
+      position: absolute; right: 8px; top: 10px; width: 28px; height: 28px; border-radius: 50%;
+      border: 0; background: transparent; font-size: 20px; line-height: 1; color: var(--ink-faint); cursor: pointer;
     }
+    .extra-clear:hover { background: var(--surface-muted); color: var(--ink); }
 
     .extra-member-results {
-      display: none;
-      position: absolute;
-      z-index: 9999 !important;
-      top: calc(100% + 6px);
-      left: 0; right: 0;
-      max-height: 280px; overflow-y: auto;
-      padding: 8px;
-      border: 1px solid var(--line-strong);
-      border-radius: var(--radius-md);
-      background: #ffffff;
-      box-shadow: 0 20px 50px rgba(15,23,42,0.2);
-      backdrop-filter: blur(16px);
+      display: none; position: absolute; z-index: 9999;
+      top: calc(100% + 6px); left: 0; right: 0;
+      max-height: 300px; overflow-y: auto; padding: 6px;
+      border: 1px solid var(--line-strong); border-radius: var(--radius-md);
+      background: #fff; box-shadow: 0 20px 50px rgba(15,23,42,0.2);
     }
-
-    .extra-member-results.open { display: block !important; }
+    .extra-member-results.open { display: block; }
     .extra-result {
-      width: 100%;
-      display: flex; flex-direction: column; gap: 2px;
-      padding: 12px; border: 0; border-radius: 8px; background: transparent;
-      text-align: left; cursor: pointer; transition: background 0.15s;
+      width: 100%; display: flex; flex-direction: column; gap: 2px;
+      padding: 10px 12px; border: 0; border-radius: 8px; background: transparent;
+      text-align: left; cursor: pointer;
     }
-
     .extra-result:hover, .extra-result.active { background: var(--steel-soft); }
+    .extra-result .r-name { font-weight: 700; font-size: 13px; }
+    .extra-result .r-meta { font-size: 11px; color: var(--ink-soft); }
+    .extra-empty { padding: 12px; color: var(--ink-faint); font-size: 12px; text-align: center; }
 
-    #workContainer {
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      box-shadow: var(--shadow-subtle);
-    }
-
-    .work-item {
-      display: flex; flex-wrap: wrap; align-items: stretch;
-      background: var(--surface-solid);
-      transition: background .15s;
-    }
-
-    .work-item:hover { background: #f8fafc; }
+    /* ---------- Works ---------- */
+    #workContainer { border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-subtle); }
+    .work-item { display: flex; flex-wrap: wrap; align-items: stretch; background: var(--surface-solid); transition: background .15s; }
+    .work-item:hover { background: #fbfcfe; }
     .work-item + .work-item { border-top: 1px solid var(--line); }
+    .work-item.invalid { background: var(--danger-soft); box-shadow: inset 4px 0 0 var(--danger); }
 
-    .field-cell {
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 12px 14px; border-left: 1px solid var(--line);
-    }
-
+    .field-cell { display: flex; flex-direction: column; justify-content: center; padding: 10px 14px; border-left: 1px solid var(--line); }
     .field-cell:first-child { border-left: none; }
     .field-cell .cell-label {
-      font-family: var(--font-mono);
-      font-size: 9px; color: var(--primary);
+      font-family: var(--font-mono); font-size: 9px; color: var(--primary);
       font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px;
     }
-
+    .cell-num { width: 44px; align-items: center; font-family: var(--font-mono); font-weight: 800; color: var(--ink-faint); font-size: 13px; }
     .cell-type { flex: 2; min-width: 210px; }
-    .cell-time { min-width: 130px; text-align: center; align-items: center; }
+    .cell-time { min-width: 128px; align-items: center; }
+    .cell-dur { width: 112px; align-items: center; }
+    .cell-dur .dur { white-space: nowrap; flex-direction: column; justify-content: center; }
+    .cell-dur .dur { font-family: var(--font-mono); font-weight: 700; font-size: 13px; color: var(--ink-soft); min-height: 38px; display: flex; align-items: center; }
     .cell-qty { width: 110px; }
     .cell-comment { flex: 1.4; min-width: 160px; }
+    .cell-actions { justify-content: center; align-items: center; width: 60px; }
 
-    .work-item input {
-      border: none; background: transparent; outline: none;
-      width: 100%; font-size: 14px; min-height: 38px;
-    }
+    .work-item input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; min-height: 38px; }
+    .work-item input:focus { box-shadow: inset 0 -2px 0 var(--primary); }
 
     .time-inputs { display: flex; align-items: center; gap: 4px; }
     .time-inputs select {
       padding: 6px; border: 1px solid var(--line-strong); border-radius: 6px;
-      background: #fff; font-family: var(--font-mono); font-size: 14px; min-height: 40px;
+      background: #fff; font-family: var(--font-mono); font-size: 14px; min-height: 40px; cursor: pointer;
     }
+    .time-inputs select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
 
+    .btn-icon-danger {
+      width: 32px; height: 32px; border-radius: 50%; border: 1px solid #fecaca; background: #fff;
+      color: var(--danger); cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s;
+    }
+    .btn-icon-danger:hover { background: var(--danger); color: #fff; }
+
+    .works-footer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+    .works-total { margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
+    .works-total strong { color: var(--ink); }
+
+    /* ---------- Buttons ---------- */
     .btn {
       padding: 12px 20px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px;
-      font-family: var(--font-body); cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer; transition: transform .15s, box-shadow .15s, background .15s, color .15s;
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       border: 1px solid var(--line-strong); background: var(--surface-solid); color: var(--ink);
-      min-height: 48px;
+      min-height: 48px; white-space: nowrap;
     }
-
-    .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.12); }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px -4px rgba(15,23,42,.12); }
     .btn:active:not(:disabled) { transform: translateY(0); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
     .btn-primary { background: linear-gradient(135deg,#c7f33b,#a8dc1f); color: var(--signal-ink); border-color: #a8dc1f; }
     .btn-success { background: linear-gradient(135deg,#10b981,#059669); color: #fff; border-color: #059669; }
     .btn-danger { background: #fff; color: var(--danger); border-color: #fecaca; }
     .btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
-    .btn-ghost { background: transparent; border-color: var(--line-strong); color: var(--ink-soft); }
+    .btn-ghost { background: transparent; color: var(--ink-soft); }
     .btn-outline { border-color: #c9d5ff; color: var(--primary); background: #f4f7ff; }
+    .btn-sm { min-height: 34px; padding: 6px 10px; font-size: 12px; }
 
     .actions {
-      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px;
-      padding-top: 20px; border-top: 1px solid var(--line); align-items: center;
+      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px;
+      padding: 18px 0 0; align-items: center;
+    }
+    .kbd-hint { font-size: 11px; color: var(--ink-faint); font-family: var(--font-mono); }
+    kbd { font-family: var(--font-mono); font-size: 10px; background: #fff; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; }
+
+    .pill {
+      border-radius: 999px; background: var(--ink); color: var(--signal);
+      padding: 7px 14px; font-size: 12px; font-family: var(--font-mono); font-weight: 700; white-space: nowrap;
+    }
+    .pill.sm { padding: 4px 12px; font-size: 11px; }
+    .actions .pill { margin-left: auto; }
+
+    /* ---------- Toast ---------- */
+    .toast-status {
+      position: fixed; left: 50%; bottom: 24px; z-index: 1000;
+      transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+      max-width: min(560px, calc(100vw - 32px)); width: max-content;
+      border-radius: var(--radius-md); padding: 14px 18px 14px 20px;
+      font-size: 13.5px; font-weight: 600;
+      box-shadow: 0 20px 40px -8px rgba(15,23,42,.25);
+      transition: opacity .25s, transform .25s;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .toast-status.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+    .toast-status.success { background: var(--success-soft); color: #065f46; border: 1px solid #a7f3d0; }
+    .toast-status.error { background: var(--danger-soft); color: #991b1b; border: 1px solid #fecaca; }
+    .toast-status.warning { background: var(--warning-soft); color: #92400e; border: 1px solid #fde68a; }
+    .toast-close { border: 0; background: transparent; cursor: pointer; font-size: 18px; line-height: 1; opacity: .6; margin-left: auto; color: inherit; }
+    .toast-close:hover { opacity: 1; }
+
+    .inline-alert {
+      display: none; border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 16px;
+      font-size: 13.5px; font-weight: 500;
+      background: var(--warning-soft); color: #92400e; border: 1px solid #fde68a;
     }
 
-    .record-count {
-      border-radius: 999px; background: var(--ink); color: var(--signal);
-      padding: 8px 16px; font-size: 12.5px; font-family: var(--font-mono); font-weight: 700; margin-left: auto;
+    /* ---------- Records ---------- */
+    h2.section-title {
+      font-size: 12px; font-weight: 800; margin: 40px 0 16px; display: flex; align-items: center; gap: 12px;
+      font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-soft);
     }
+    h2.section-title .pill { text-transform: none; letter-spacing: 0; }
 
     .filter-box {
       display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-      background: var(--surface) !important;
-      backdrop-filter: blur(20px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.9) !important;
-      border-radius: var(--radius-lg) !important;
-      padding: 18px 24px !important;
-      box-shadow: var(--shadow-card) !important;
-      margin-bottom: 24px !important;
+      background: var(--surface); border: 1px solid rgba(226,232,240,.8);
+      border-radius: var(--radius-lg); padding: 16px 20px;
+      box-shadow: var(--shadow-card); margin-bottom: 18px;
     }
-
-    .filter-box label { font-family: var(--font-mono); font-size: 11px !important; font-weight: 800 !important; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-soft); }
-
-    .filter-search-id {
-      border: 1.5px solid var(--primary) !important;
-      background: var(--surface-solid) !important;
-      border-radius: var(--radius-sm) !important;
-      padding: 9px 14px !important;
-      font-family: var(--font-mono) !important;
-      font-weight: 700 !important;
-      font-size: 13.5px !important;
-      color: var(--ink) !important;
-      outline: none !important;
-      box-shadow: var(--shadow-glow) !important;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-      min-height: 44px;
+    .filter-box .f-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .filter-box label { font-family: var(--font-mono); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-soft); }
+    .filter-input {
+      border: 1px solid var(--line-strong); background: #fff; border-radius: var(--radius-sm);
+      padding: 9px 12px; font-size: 13.5px; min-height: 42px; outline: none;
     }
+    .filter-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+    #filterSearchId { font-family: var(--font-mono); font-weight: 600; min-width: 240px; }
+    .filter-box .btn { margin-left: auto; }
 
     .table-responsive {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      border-radius: var(--radius-lg);
+      width: 100%; overflow: auto; -webkit-overflow-scrolling: touch;
+      max-height: min(620px, 70vh); overscroll-behavior: contain;
+      border-radius: var(--radius-lg); border: 1px solid var(--line);
+      box-shadow: var(--shadow-card); background: #fff;
     }
-
-    table.records-table {
-      width: 100% !important;
-      border-collapse: separate !important;
-      border-spacing: 0 !important;
-      border-radius: var(--radius-lg) !important;
-      overflow: hidden !important;
-      border: 1px solid var(--line) !important;
-      box-shadow: var(--shadow-card) !important;
-      background: var(--surface-solid) !important;
-      min-width: 650px;
-    }
-
+    table.records-table { width: 100%; border-collapse: collapse; min-width: 760px; }
     table.records-table th {
-      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
-      color: var(--signal) !important;
-      font-family: var(--font-mono);
-      font-size: 10.5px !important;
-      font-weight: 800 !important;
-      letter-spacing: 1.2px !important;
-      padding: 16px 14px !important;
-      text-transform: uppercase;
-      border-bottom: none !important;
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      color: var(--signal); font-family: var(--font-mono);
+      font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px;
+      padding: 14px; text-transform: uppercase; text-align: center; white-space: nowrap;
+      position: sticky; top: 0; z-index: 2;
     }
-
-    table.records-table tbody tr:hover { background-color: #f1f5f9 !important; }
-    table.records-table td {
-      padding: 14px 16px !important;
-      border-bottom: 1px solid var(--line) !important;
-      font-size: 13.5px !important;
-      text-align: center;
-    }
-
-    .toast-status {
-      border-radius: var(--radius-md) !important;
-      padding: 14px 20px !important;
-      font-size: 13.5px !important;
-      font-weight: 600 !important;
-      box-shadow: var(--shadow-subtle) !important;
-      animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-      display: none;
-      margin-top: 16px;
-    }
-
-    .toast-status.success {
-      background: var(--success-soft) !important;
-      color: #065f46 !important;
-      border: 1px solid #a7f3d0 !important;
-      display: block;
-    }
-
-    .toast-status.error {
-      background: var(--danger-soft) !important;
-      color: #991b1b !important;
-      border: 1px solid #fecaca !important;
-      display: block;
-    }
-
-    .toast-status.warning {
-      background: var(--warning-soft) !important;
-      color: #92400e !important;
-      border: 1px solid #fde68a !important;
-      display: block;
-    }
-
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-8px) scale(0.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
+    table.records-table td { padding: 12px 14px; border-top: 1px solid var(--line); font-size: 13.5px; text-align: center; vertical-align: middle; }
+    table.records-table tbody tr { transition: background .12s; }
+    table.records-table tbody tr:hover { background: #f8fafc; }
+    table.records-table tbody tr.editing { background: #fffbeb; box-shadow: inset 4px 0 0 var(--warning); }
+    table.records-table td.addr { text-align: left; max-width: 260px; }
+    table.records-table td.addr small { display: block; color: var(--ink-faint); font-size: 11.5px; }
+    .row-actions { display: inline-flex; gap: 6px; }
+    .badge-att { font-family: var(--font-mono); font-weight: 700; }
+    .badge-att.partial { color: #b45309; }
 
     #noRecordsHint {
-      text-align: center;
-      padding: 36px;
-      border: 1.5px dashed var(--line-strong);
-      border-radius: var(--radius-lg);
-      font-family: var(--font-mono);
-      font-size: 13px;
-      color: var(--ink-faint);
+      text-align: center; padding: 36px; border: 1.5px dashed var(--line-strong);
+      border-radius: var(--radius-lg); font-family: var(--font-mono); font-size: 13px; color: var(--ink-faint);
     }
 
-    h2.section-title {
-      font-size: 12px; font-weight: 800; margin: 36px 0 16px;
-      font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-soft);
-    }
+    footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); text-align: center; font-size: 12px; color: var(--ink-faint); }
+    footer strong { color: var(--ink); }
 
-    @media (max-width:720px) {
-      .topbar { height: auto; padding: 14px 16px; }
+    /* ---------- Mobile ---------- */
+    @media (max-width: 720px) {
+      .topbar { padding: 12px 14px; }
+      .topbar .titles h1 { font-size: 15px; }
       .topbar-status { display: none; }
+      .topbar { flex-wrap: wrap; }
+      .nav-tabs { margin-left: 0; width: 100%; }
+      .nav-tab { flex: 1; justify-content: center; }
+      .area-sub { width: 100%; }
       .wrap { padding: 16px 10px 0; }
       .panel { padding: 18px 14px; border-radius: 16px; }
       .form-grid { grid-template-columns: 1fr; gap: 14px; }
+      .members-list { grid-template-columns: 1fr; }
+      .member-note { flex: 1 1 120px; }
       .add-extra-row { flex-direction: column; align-items: stretch; }
       .extra-member-picker { width: 100%; min-width: 100%; }
       .work-item { flex-direction: column; }
-      .field-cell { border-left: none; border-top: 1px solid var(--line); padding: 10px 12px; }
+      .field-cell { border-left: none; border-top: 1px solid var(--line); padding: 10px 12px; width: 100%; }
       .field-cell:first-child { border-top: none; }
+      .cell-num { flex-direction: row; justify-content: space-between; }
+      .cell-time, .cell-dur { align-items: flex-start; }
+      .cell-actions { align-items: flex-end; }
       .actions { flex-direction: column; align-items: stretch; gap: 10px; }
       .actions .btn { width: 100%; }
-      .record-count { margin-left: 0; text-align: center; width: 100%; }
-      .filter-box { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px !important; }
-      .filter-box div { width: 100%; flex-direction: column; align-items: flex-start !important; }
-      .filter-box input[type="date"], .filter-search-id { width: 100%; }
-      .filter-box .btn { width: 100%; margin-left: 0 !important; }
+      .actions .pill { margin-left: 0; text-align: center; }
+      .kbd-hint { display: none; }
+      .filter-box { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px; }
+      .filter-box .f-group { flex-direction: column; align-items: stretch; }
+      .filter-box .filter-input, #filterSearchId { width: 100%; min-width: 0; }
+      .filter-box .btn { width: 100%; margin-left: 0; }
+      .toast-status { bottom: 14px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="mark">
-      <img src="/logo.png" alt="Logo" />
-    </div>
+    <div class="mark"><img src="/logo.png" alt="Logo" /></div>
     <div class="titles">
       <h1>სამუშაოს ანგარიშის გენერატორი</h1>
-      <p>Brigade-Ops / Enterprise v2.0</p>
+      <p>Brigade-Ops / Enterprise v3.2</p>
     </div>
-    <div class="topbar-status">
+    <nav class="nav-tabs">
+      <a class="nav-tab active" href="/">📋 ანგარიში</a>
+      <a class="nav-tab" href="/admin">⚙️ ადმინ პანელი</a>
+    </nav>
+    <div class="topbar-status" id="netStatus">
       <span class="dot"></span>
-      <span>LIVE SYSTEM &bull; ONLINE</span>
+      <span id="netStatusText">LIVE SYSTEM &bull; ONLINE</span>
     </div>
   </div>
 
   <div class="wrap">
-    <form id="mainForm" autocomplete="off">
+    <div class="edit-banner" id="editBanner">
+      ✏️ <span>რედაქტირების რეჟიმი — ჩანაწერი ID <strong id="editBannerId"></strong></span>
+      <button type="button" class="btn btn-ghost" onclick="cancelEdit()">✖ რედაქტირების გაუქმება</button>
+    </div>
+
+    <form id="mainForm" autocomplete="off" onsubmit="event.preventDefault(); saveRecord();">
       <section class="panel">
         <div class="panel-head">
           <span class="panel-eyebrow">// 01</span>
@@ -502,17 +476,17 @@
 
         <div class="form-grid">
           <div class="form-group">
-            <label>ID *</label>
+            <label for="idInput">ID <span class="req">*</span></label>
             <input type="text" id="idInput" placeholder="მაგ: 123456" required />
           </div>
           <div class="form-group">
-            <label>ბრიგადის ნომერი *</label>
+            <label for="brigadeSelect">ბრიგადის ნომერი <span class="req">*</span></label>
             <select id="brigadeSelect" required>
               <option value="">-- აირჩიეთ --</option>
             </select>
           </div>
           <div class="form-group">
-            <label>რეგიონი (ქალაქი) *</label>
+            <label for="citySelect">რეგიონი (ქალაქი) <span class="req">*</span></label>
             <select id="citySelect" required>
               <option value="">-- აირჩიეთ ბრიგადა --</option>
             </select>
@@ -521,57 +495,84 @@
 
         <div class="form-grid">
           <div class="form-group">
-            <label>თარიღი *</label>
+            <label for="dateInput">თარიღი <span class="req">*</span></label>
             <input type="date" id="dateInput" required />
           </div>
           <div class="form-group">
-            <label>მისამართი *</label>
+            <label for="addressInput">მისამართი <span class="req">*</span></label>
             <input type="text" id="addressInput" placeholder="მაგ: ლეონიძის 12" required />
           </div>
           <div class="form-group">
-            <label>ობიექტის დასახელება</label>
-            <input type="text" id="objectNameInput" placeholder="მაგ: ATS-Batumi-01" />
+            <label for="objectNameInput">ობიექტის დასახელება</label>
+            <input type="text" id="objectNameInput" placeholder="ჩაწერეთ ობიექტის დასახელება" />
           </div>
           <div class="form-group">
-            <label>ქალაქი კოეფიციენტი (გადაადგილება)</label>
-            <input type="text" id="coefficientInput" placeholder="მაგ: 1.2" />
+            <label for="coefficientInput">ქალაქის კოეფიციენტი (გადაადგილება)</label>
+            <input type="text" id="coefficientInput" inputmode="decimal" placeholder="მაგ: 1.2" />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="carSelect">🚗 ავტომობილი</label>
+            <select id="carSelect">
+              <option value="">-- აირჩიეთ --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ganwesiInput">📄 განწესი</label>
+            <input type="text" id="ganwesiInput" placeholder="მაგ: 12/0699" />
+          </div>
+          <div class="form-group">
+            <label for="engineerSelect">👷 ინჟინერი საბონუსე სისტემაში</label>
+            <select id="engineerSelect">
+              <option value="">-- აირჩიეთ --</option>
+            </select>
           </div>
         </div>
       </section>
 
       <datalist id="memberNotesList">
         <option value="შვებულება"></option>
-        <option value="ბიულეტენი"></option>
-        <option value="სავარაუდო ბიულეტენი"></option>
+        <option value="ბიულეტინი"></option>
+        <option value="სავარაუდო ბიულეტინი"></option>
         <option value="უხელფასო შვებულება"></option>
+        <option value="არასაპატიო"></option>
+        <option value="საპატიო"></option>
       </datalist>
 
       <section class="panel members-section">
         <div class="panel-head">
           <span class="panel-eyebrow">// 02</span>
           <h2>ბრიგადის წევრები</h2>
-          <span class="record-count" id="memberCount" style="padding: 4px 12px; font-size: 11px;">0 წევრი</span>
+          <span class="pill sm" id="memberCount">0 წევრი</span>
         </div>
 
-        <div id="membersContainer" class="members-list">
-          <p style="color: var(--ink-faint); font-size: 13.5px;">აირჩიეთ ბრიგადა და რეგიონი</p>
+        <div class="members-toolbar" id="membersToolbar" style="display:none;">
+          <button type="button" class="btn btn-ghost" onclick="setAllAbsent(false)">✔ ყველა გამოცხადდა</button>
+          <button type="button" class="btn btn-ghost" onclick="reloadBrigadeMembers()">↻ ბრიგადის სიის თავიდან ჩატვირთვა</button>
         </div>
+
+        <div id="membersContainer" class="members-list"></div>
 
         <div class="add-extra-row">
-          <div class="extra-member-picker">
+          <div class="extra-member-picker" id="extraPicker">
             <span class="extra-search-icon">⌕</span>
             <input
               type="text"
               id="extraMemberInput"
               class="extra-member-input"
-              placeholder="ჩაწერეთ თანამშრომლის სახელი ან პირადი #..."
+              placeholder="სხვა ბრიგადიდან: სახელი ან პირადი #..."
+              role="combobox" aria-expanded="false" aria-controls="extraMemberResults"
               oninput="searchExtraMembers(this.value)"
               onkeydown="handleExtraMemberKeydown(event)"
+              onfocus="if (this.value) searchExtraMembers(this.value)"
             />
-            <button type="button" class="extra-clear" onclick="clearExtraMemberSearch()">×</button>
-            <div id="extraMemberResults" class="extra-member-results"></div>
+            <button type="button" class="extra-clear" title="გასუფთავება" onclick="clearExtraMemberSearch(true)">×</button>
+            <div id="extraMemberResults" class="extra-member-results" role="listbox"></div>
           </div>
           <button type="button" class="btn btn-outline" id="extraMemberAddBtn" onclick="addExtraMember()" disabled>➕ დამატება</button>
+          <div class="hint">↑ ↓ ისრებით აირჩიეთ, Enter — დამატება</div>
         </div>
       </section>
 
@@ -584,54 +585,71 @@
         <datalist id="workTypesList"></datalist>
 
         <div id="workContainer"></div>
-        <button type="button" class="btn btn-success" style="margin-top: 16px;" onclick="addWork()">➕ სამუშაოს დამატება</button>
+        <div class="works-footer">
+          <button type="button" class="btn btn-success" onclick="addWork(); focusLastWork();">➕ სამუშაოს დამატება</button>
+          <span class="works-total" id="worksTotal"></span>
+        </div>
 
-        <div class="form-group" style="margin-top: 22px;">
-          <label>ზოგადი კომენტარი</label>
-          <input list="overallCommentsList" id="overallComment" placeholder="-- აირჩიეთ ან ჩაწერეთ --" />
-          <datalist id="overallCommentsList">
-            <option value="საბონუსე"></option>
-            <option value="დღიური"></option>
-          </datalist>
+        <div class="form-grid" style="margin-top: 22px;">
+          <div class="form-group">
+            <label for="overallComment">ზოგადი კომენტარი</label>
+            <input list="overallCommentsList" id="overallComment" placeholder="-- აირჩიეთ ან ჩაწერეთ --" />
+            <datalist id="overallCommentsList">
+              <option value="საბონუსე"></option>
+              <option value="დღიური ანაზღაურება"></option>
+              <option value="ღამის სამუშაო"></option>
+            </datalist>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 16px;">
+          <label for="overallNote">შენიშვნა</label>
+          <input type="text" id="overallNote" placeholder="მაგ: მოცდენა მასალის გამო, სართულების დაბურღვა..." />
         </div>
       </section>
 
       <div class="actions">
         <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveRecord()">💾 შენახვა</button>
-        <button type="button" class="btn btn-success" id="generateBtn" onclick="generateExcel()">📥 Excel-ის გენერირება</button>
         <button type="button" class="btn btn-ghost" onclick="clearForm()">🔄 გასუფთავება</button>
-        <span class="record-count" id="recordCounter">ჩანაწერები: 0</span>
+        <span class="kbd-hint"><kbd>Ctrl</kbd> + <kbd>S</kbd> — შენახვა</span>
+        <span class="pill" id="recordCounter">ჩანაწერები: 0</span>
       </div>
     </form>
 
-    <div id="statusMessage" class="toast-status"></div>
-
-    <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები</h2>
-
-    <div id="cleanupAlert" class="toast-status warning" style="display: none;">
-      ⚠️ <strong>ყურადღება!</strong> ბაზაში მოიძებნა 1 წელზე (365 დღეზე) ძველი ჩანაწერები. სისტემის ოპტიმიზაციისთვის გთხოვთ გადაამოწმოთ და წაშალოთ ვადაგასული მონაცემები.
-    </div>
+    <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები <span class="pill sm" id="filteredCounter" style="display:none;"></span></h2>
 
     <div class="filter-box">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <label>🔎 ID ძებნა:</label>
-        <input type="text" id="filterSearchId" class="filter-search-id" placeholder="ჩაწერეთ ID..." oninput="renderRecordsTable()" />
+      <div class="f-group">
+        <label for="filterSearchId">🔎 ძებნა:</label>
+        <input type="search" id="filterSearchId" class="filter-input" placeholder="ID, მისამართი, ბრიგადა..." oninput="renderRecordsTable()" />
       </div>
 
-      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <div class="f-group">
         <label>📅 თარიღი:</label>
-        <input type="date" id="filterStartDate" style="padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()" />
+        <input type="date" id="filterStartDate" class="filter-input" onchange="renderRecordsTable()" />
         <span style="color: var(--ink-faint); font-weight: bold;">→</span>
-        <input type="date" id="filterEndDate" style="padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line-strong);" onchange="renderRecordsTable()" />
+        <input type="date" id="filterEndDate" class="filter-input" onchange="renderRecordsTable()" />
       </div>
 
-      <button type="button" class="btn btn-ghost" style="margin-left: auto; padding: 7px 12px; font-size: 12px;" onclick="resetFilter()">🔄 ფილტრის გასუფთავება</button>
+      <div class="f-group">
+        <label for="filterArea">📍 ლოკაცია:</label>
+        <select id="filterArea" class="filter-input" onchange="onAreaChange()">
+          <option value="">ყველა</option>
+          <option value="tbilisi">თბილისი</option>
+          <option value="region">რეგიონი</option>
+        </select>
+        <select id="filterRegionCity" class="filter-input area-sub" style="display:none;" onchange="renderRecordsTable()">
+          <option value="">ყველა რეგიონი</option>
+        </select>
+      </div>
+
+      <button type="button" class="btn btn-ghost btn-sm" onclick="resetFilter()">🔄 ფილტრის გასუფთავება</button>
+      <button type="button" class="btn btn-success" id="generateBtn" onclick="generateExcel()" style="margin-left:0;">📥 Excel-ის გენერირება</button>
     </div>
 
     <div id="recordsListWrap">
-      <p id="noRecordsHint">ჯერ არცერთი ჩანაწერი არ არის შენახული</p>
-      <div class="table-responsive">
-        <table class="records-table" id="recordsTable" style="display:none;">
+      <p id="noRecordsHint">იტვირთება...</p>
+      <div class="table-responsive" id="recordsTableWrap" style="display:none;">
+        <table class="records-table" id="recordsTable">
           <thead>
             <tr>
               <th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>თარიღი</th><th>მისამართი</th>
@@ -643,9 +661,14 @@
       </div>
     </div>
 
-    <footer style="margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); text-align: center; font-size: 12px; color: var(--ink-faint);">
-      <span>Engineered by </span><strong style="color: var(--ink);">Zaza Lomidze</strong> &nbsp;|&nbsp; Enterprise Operations System
+    <footer>
+      <span>Engineered by </span><strong>Zaza Lomidze</strong> &nbsp;|&nbsp; Enterprise Operations System
     </footer>
+  </div>
+
+  <div id="statusMessage" class="toast-status" role="status" aria-live="polite">
+    <span id="statusText"></span>
+    <button type="button" class="toast-close" onclick="hideStatus()" aria-label="დახურვა">×</button>
   </div>
 
   <script>
@@ -654,87 +677,121 @@
     let allMembersCache = [];
     let currentMembers = [];
     let editingRecordId = null;
+    let isSaving = false;
 
     let selectedExtraMemberId = '';
     let extraSearchResults = [];
+    let extraActiveIndex = -1;
+
+    // Guards against out-of-order responses when the user switches brigade/city quickly
+    let citiesReqToken = 0;
+    let membersReqToken = 0;
+
+    const $ = (id) => document.getElementById(id);
 
     const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, ch => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      "'": '&#39;',
-      '"': '&quot;'
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
     }[ch]));
+    const safeAttr = escapeHtml;
 
-    const safeAttr = (value) => escapeHtml(value ?? '');
+    // Local date (not UTC) — toISOString() gave yesterday's date between 00:00–04:00 in Tbilisi
+    function todayLocal() {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    }
 
     const jsonFetch = async (url, options = {}) => {
       const res = await fetch(url, options);
       let payload = {};
-      try {
-        payload = await res.json();
-      } catch (_) {
-        payload = {};
-      }
-      if (!res.ok) {
-        throw new Error(payload.error || payload.message || 'Request failed');
-      }
+      try { payload = await res.json(); } catch (_) { payload = {}; }
+      if (!res.ok) throw new Error(payload.error || payload.message || `შეცდომა ${res.status}`);
       return payload;
     };
 
+    /* ---------- Toast ---------- */
+    let statusTimer = null;
     function showStatus(msg, type = 'success') {
-      const status = document.getElementById('statusMessage');
-      status.textContent = msg;
-      status.className = `toast-status ${type}`;
-      status.style.display = 'block';
+      const box = $('statusMessage');
+      $('statusText').textContent = msg;
+      box.className = `toast-status ${type} show`;
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(hideStatus, type === 'error' ? 8000 : 4500);
+    }
+    function hideStatus() {
+      $('statusMessage').classList.remove('show');
     }
 
-    window.onload = function () {
-      document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+    /* ---------- Network indicator ---------- */
+    function updateNetStatus() {
+      const online = navigator.onLine;
+      $('netStatus').classList.toggle('offline', !online);
+      $('netStatusText').innerHTML = online ? 'LIVE SYSTEM &bull; ONLINE' : 'კავშირი არ არის &bull; OFFLINE';
+    }
+    window.addEventListener('online', updateNetStatus);
+    window.addEventListener('offline', updateNetStatus);
+
+    /* ---------- Init ---------- */
+    window.addEventListener('DOMContentLoaded', () => {
+      $('dateInput').value = todayLocal();
+      updateNetStatus();
       loadBrigades();
       loadWorkTypes();
       loadAllMembers();
+      loadCities();
+      loadOptions();
       fetchServerRecords();
       addWork();
       renderMemberList();
-    };
+    });
+
+    // Ctrl/Cmd + S saves the form
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        saveRecord();
+      }
+    });
+
+    // Close the extra-member dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!$('extraPicker').contains(e.target)) closeExtraResults();
+    });
+
+    // Clear the red "invalid" highlight as soon as the user fixes a field
+    document.addEventListener('input', (e) => { e.target.classList?.remove('is-invalid'); });
+    document.addEventListener('change', (e) => { e.target.classList?.remove('is-invalid'); });
 
     function fetchServerRecords() {
-      jsonFetch('/api/records')
+      return jsonFetch('/api/records')
         .then(data => {
           savedRecords = Array.isArray(data.records) ? data.records : [];
+          fillRegionCitySelect();
           renderRecordsTable();
           updateRecordCounter();
-
-          const alertBox = document.getElementById('cleanupAlert');
-          if (data.has_old_records) {
-            alertBox.style.display = 'block';
-          } else {
-            alertBox.style.display = 'none';
-          }
         })
-        .catch(() => showStatus('სერვერიდან მონაცემების წამოღება ვერ მოხერხდა', 'error'));
+        .catch(() => {
+          $('noRecordsHint').textContent = 'ჩანაწერების ჩატვირთვა ვერ მოხერხდა';
+          showStatus('სერვერიდან მონაცემების წამოღება ვერ მოხერხდა', 'error');
+        });
     }
 
     function loadBrigades() {
-      jsonFetch('/get_brigades')
+      return jsonFetch('/get_brigades')
         .then(brigades => {
-          const sel = document.getElementById('brigadeSelect');
+          const sel = $('brigadeSelect');
+          const keep = sel.value;
           sel.innerHTML = '<option value="">-- აირჩიეთ --</option>';
-          (brigades || []).forEach(b => {
-            const opt = document.createElement('option');
-            opt.value = b;
-            opt.textContent = b;
-            sel.appendChild(opt);
-          });
+          (brigades || []).forEach(b => sel.appendChild(new Option(b, b)));
+          if (keep) sel.value = keep;
         })
         .catch(() => showStatus('ბრიგადების ჩატვირთვა ვერ მოხერხდა', 'error'));
     }
 
     function loadWorkTypes() {
-      jsonFetch('/get_work_types')
+      return jsonFetch('/get_work_types')
         .then(types => {
-          const datalist = document.getElementById('workTypesList');
+          const datalist = $('workTypesList');
           datalist.innerHTML = '';
           (types || []).forEach(t => {
             const opt = document.createElement('option');
@@ -746,87 +803,169 @@
     }
 
     function loadAllMembers() {
-      jsonFetch('/get_all_members')
-        .then(members => {
-          allMembersCache = Array.isArray(members) ? members : [];
-        })
+      return jsonFetch('/get_all_members')
+        .then(members => { allMembersCache = Array.isArray(members) ? members : []; })
         .catch(() => showStatus('თანამშრომელთა სრული სიის ჩატვირთვა ვერ მოხერხდა', 'error'));
     }
 
+    function fillCitySelect(cities, placeholder = '-- აირჩიეთ რეგიონი --') {
+      const citySelect = $('citySelect');
+      citySelect.innerHTML = `<option value="">${placeholder}</option>`;
+      (cities || []).forEach(c => citySelect.appendChild(new Option(c, c)));
+    }
+
+    /* ---------- Extra member search ---------- */
+    function closeExtraResults() {
+      $('extraMemberResults').classList.remove('open');
+      $('extraMemberInput').setAttribute('aria-expanded', 'false');
+    }
+
     function searchExtraMembers(query) {
-      const resultsBox = document.getElementById('extraMemberResults');
-      const addBtn = document.getElementById('extraMemberAddBtn');
+      const resultsBox = $('extraMemberResults');
       selectedExtraMemberId = '';
-      addBtn.disabled = true;
+      $('extraMemberAddBtn').disabled = true;
+      extraActiveIndex = -1;
 
       const q = (query || '').trim().toLocaleLowerCase('ka-GE');
       if (!q) {
         resultsBox.innerHTML = '';
-        resultsBox.classList.remove('open');
+        closeExtraResults();
         return;
       }
 
-      const currentBrigade = document.getElementById('brigadeSelect').value;
-      const alreadySelected = new Set(
-        currentMembers
-          .map(m => String(m.personal_id ?? '').trim())
-          .filter(Boolean)
-      );
+      const currentBrigade = $('brigadeSelect').value;
+      const alreadySelected = new Set(currentMembers.map(m => String(m.personal_id ?? '').trim()).filter(Boolean));
 
       extraSearchResults = allMembersCache
-        .filter(m => !currentBrigade || String(m.brigade) !== String(currentBrigade))
+        .filter(m => !currentBrigade || String(m.brigade) !== String(currentBrigade) || m.city !== $('citySelect').value)
         .filter(m => !alreadySelected.has(String(m.personal_id ?? '')))
-        .filter(m => {
-          const haystack = [m.name, m.personal_id, m.brigade, m.city, m.position]
-            .filter(Boolean)
-            .join(' ')
-            .toLocaleLowerCase('ka-GE');
-          return haystack.includes(q);
-        })
-        .slice(0, 8);
+        .filter(m => [m.name, m.personal_id, m.brigade, m.city, m.position]
+          .filter(Boolean).join(' ').toLocaleLowerCase('ka-GE').includes(q))
+        .slice(0, 10);
 
       if (!extraSearchResults.length) {
-        resultsBox.innerHTML = '<div style="padding:10px; color:var(--ink-faint); font-size:12px; text-align:center;">ვერ მოიძებნა</div>';
-        resultsBox.classList.add('open');
-        return;
+        resultsBox.innerHTML = '<div class="extra-empty">ვერ მოიძებნა</div>';
+      } else {
+        resultsBox.innerHTML = extraSearchResults.map((m, i) => `
+          <button type="button" class="extra-result" role="option" data-i="${i}" onclick="selectExtraMember(${i})">
+            <span class="r-name">${safeAttr(m.name)}</span>
+            <span class="r-meta">${safeAttr(m.position || '—')} · ბრიგადა ${safeAttr(m.brigade)}${m.city ? ' · ' + safeAttr(m.city) : ''}</span>
+          </button>
+        `).join('');
       }
-
-      resultsBox.innerHTML = extraSearchResults.map((m, i) => `
-        <button type="button" class="extra-result" onclick="selectExtraMember(${i})">
-          <div style="font-weight:700; font-size:13px; color:var(--ink);">${safeAttr(m.name)}</div>
-          <div style="font-size:11px; color:var(--ink-soft);">${safeAttr(m.position || '')} · ბრიგადა ${safeAttr(m.brigade)}</div>
-        </button>
-      `).join('');
       resultsBox.classList.add('open');
+      $('extraMemberInput').setAttribute('aria-expanded', 'true');
+    }
+
+    function highlightExtra(index) {
+      const items = $('extraMemberResults').querySelectorAll('.extra-result');
+      items.forEach(el => el.classList.remove('active'));
+      if (items[index]) {
+        items[index].classList.add('active');
+        items[index].scrollIntoView({ block: 'nearest' });
+      }
+      extraActiveIndex = index;
     }
 
     function selectExtraMember(index) {
       const member = extraSearchResults[index];
       if (!member) return;
-
       selectedExtraMemberId = String(member.personal_id);
-      document.getElementById('extraMemberInput').value = member.name;
-      document.getElementById('extraMemberResults').classList.remove('open');
-      document.getElementById('extraMemberAddBtn').disabled = false;
+      $('extraMemberInput').value = member.name;
+      closeExtraResults();
+      $('extraMemberAddBtn').disabled = false;
     }
 
-    function clearExtraMemberSearch() {
-      document.getElementById('extraMemberInput').value = '';
-      document.getElementById('extraMemberResults').classList.remove('open');
-      document.getElementById('extraMemberAddBtn').disabled = true;
+    function clearExtraMemberSearch(focus = false) {
+      $('extraMemberInput').value = '';
+      $('extraMemberResults').innerHTML = '';
+      closeExtraResults();
+      $('extraMemberAddBtn').disabled = true;
       selectedExtraMemberId = '';
+      extraActiveIndex = -1;
+      if (focus) $('extraMemberInput').focus();
     }
 
     function handleExtraMemberKeydown(event) {
-      if (event.key === 'Enter' && selectedExtraMemberId) {
+      const open = $('extraMemberResults').classList.contains('open');
+      const count = open ? extraSearchResults.length : 0;
+
+      if (event.key === 'ArrowDown' && count) {
         event.preventDefault();
-        addExtraMember();
+        highlightExtra((extraActiveIndex + 1) % count);
+      } else if (event.key === 'ArrowUp' && count) {
+        event.preventDefault();
+        highlightExtra((extraActiveIndex - 1 + count) % count);
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        if (open && count) {
+          selectExtraMember(extraActiveIndex >= 0 ? extraActiveIndex : 0);
+          addExtraMember();
+        } else if (selectedExtraMemberId) {
+          addExtraMember();
+        }
+      } else if (event.key === 'Escape') {
+        closeExtraResults();
       }
     }
 
-    document.getElementById('brigadeSelect').addEventListener('change', function () {
-      const citySelect = document.getElementById('citySelect');
-      citySelect.innerHTML = '<option value="">-- აირჩიეთ რეგიონი --</option>';
+    /* ---------- Car / engineer / განწესი ---------- */
+    let optionsData = { cars: [], engineers: [], brigade_defaults: {} };
+
+    function loadOptions() {
+      return jsonFetch('/get_options')
+        .then(data => {
+          optionsData = {
+            cars: data.cars || [],
+            engineers: data.engineers || [],
+            brigade_defaults: data.brigade_defaults || {}
+          };
+          const keepCar = $('carSelect').value, keepEng = $('engineerSelect').value;
+          fillSimpleSelect('carSelect', optionsData.cars);
+          fillSimpleSelect('engineerSelect', optionsData.engineers);
+          setSelectValue('carSelect', keepCar);
+          setSelectValue('engineerSelect', keepEng);
+        })
+        .catch(() => showStatus('ავტომობილების / ინჟინრების სიის ჩატვირთვა ვერ მოხერხდა', 'error'));
+    }
+
+    function fillSimpleSelect(id, items) {
+      $(id).innerHTML = '<option value="">-- აირჩიეთ --</option>' +
+        items.map(v => `<option value="${safeAttr(v)}">${safeAttr(v)}</option>`).join('');
+    }
+
+    // Selects a value; if it was deleted from the settings, keeps it as a temporary option (old records)
+    function setSelectValue(id, value) {
+      const sel = $(id);
+      if (value && ![...sel.options].some(o => o.value === value)) {
+        sel.appendChild(new Option(`${value} (სიაში აღარ არის)`, value));
+      }
+      sel.value = value || '';
+    }
+
+    // "12/" alone is just the auto prefix, not a real განწესი
+    const cleanGanwesi = (v) => {
+      v = String(v || '').trim();
+      return /^[^/]*\/$/.test(v) ? '' : v;
+    };
+
+    // Defaults are per brigade + city (Tbilisi brigade 1 ≠ Batumi brigade 1)
+    function applyBrigadeDefaults(brigade, overwrite = true, city = $('citySelect').value) {
+      const d = (optionsData.brigade_defaults[brigade] || {})[city] || {};
+      // overwrite: a new brigade/city means a new team — reset to its defaults (or empty)
+      if (overwrite ? city : !$('carSelect').value) setSelectValue('carSelect', d.car || (overwrite ? '' : $('carSelect').value));
+      if (overwrite ? city : !$('engineerSelect').value) setSelectValue('engineerSelect', d.engineer || (overwrite ? '' : $('engineerSelect').value));
+      const g = $('ganwesiInput');
+      if (brigade && (!g.value.trim() || /^[^/]*\/$/.test(g.value.trim()))) g.value = `${brigade}/`;
+      if (!brigade && /^[^/]*\/$/.test(g.value.trim())) g.value = '';
+    }
+
+    /* ---------- Brigade / city ---------- */
+    $('brigadeSelect').addEventListener('change', function () {
+      applyBrigadeDefaults(this.value, true, '');
+      if (this.value) { $('carSelect').value = ''; $('engineerSelect').value = ''; }
+      const token = ++citiesReqToken;
+      fillCitySelect([], this.value ? 'იტვირთება...' : '-- აირჩიეთ ბრიგადა --');
       currentMembers = [];
       renderMemberList();
       clearExtraMemberSearch();
@@ -835,75 +974,102 @@
 
       jsonFetch(`/get_brigade_cities?brigade=${encodeURIComponent(this.value)}`)
         .then(cities => {
+          if (token !== citiesReqToken) return;
           const list = cities || [];
-          list.forEach(city => {
-            const opt = document.createElement('option');
-            opt.value = city;
-            opt.textContent = city;
-            citySelect.appendChild(opt);
-          });
-
+          fillCitySelect(list);
           if (list.length === 1) {
-            citySelect.value = list[0];
-            citySelect.dispatchEvent(new Event('change'));
+            $('citySelect').value = list[0];
+            $('citySelect').dispatchEvent(new Event('change'));
           }
         })
-        .catch(() => showStatus('რეგიონების ჩატვირთვა ვერ მოხერხდა', 'error'));
+        .catch(() => {
+          if (token !== citiesReqToken) return;
+          fillCitySelect([]);
+          showStatus('რეგიონების ჩატვირთვა ვერ მოხერხდა', 'error');
+        });
     });
 
-    document.getElementById('citySelect').addEventListener('change', function () {
-      const brigade = document.getElementById('brigadeSelect').value;
-      const city = this.value;
+    $('citySelect').addEventListener('change', function () {
+      applyBrigadeDefaults($('brigadeSelect').value, true, this.value);
+      loadBrigadeMembers($('brigadeSelect').value, this.value);
+    });
 
+    function loadBrigadeMembers(brigade, city, keepState = false) {
+      const token = ++membersReqToken;
       if (!brigade || !city) {
         currentMembers = [];
         renderMemberList();
-        return;
+        return Promise.resolve();
       }
 
-      jsonFetch(`/get_brigade_members?brigade=${encodeURIComponent(brigade)}&city=${encodeURIComponent(city)}`)
+      $('membersContainer').innerHTML = '<p class="members-empty">წევრები იტვირთება...</p>';
+
+      return jsonFetch(`/get_brigade_members?brigade=${encodeURIComponent(brigade)}&city=${encodeURIComponent(city)}`)
         .then(members => {
-          currentMembers = (members || []).map(m => ({
-            ...m,
-            absent: false,
-            note: '',
-            extra: false,
-            homeBrigade: null
-          }));
+          if (token !== membersReqToken) return;
+          const prev = {};
+          if (keepState) currentMembers.forEach(m => { prev[String(m.personal_id)] = m; });
+          const extras = keepState ? currentMembers.filter(m => m.extra) : [];
+
+          currentMembers = (members || []).map(m => {
+            const p = prev[String(m.personal_id)] || {};
+            return { ...m, absent: !!p.absent, note: p.note || '', extra: false, homeBrigade: null };
+          }).concat(extras.filter(x => !(members || []).some(m => String(m.personal_id) === String(x.personal_id))));
           renderMemberList();
         })
-        .catch(() => showStatus('ბრიგადის წევრების ჩატვირთვა ვერ მოხერხდა', 'error'));
-    });
+        .catch(() => {
+          if (token !== membersReqToken) return;
+          renderMemberList();
+          showStatus('ბრიგადის წევრების ჩატვირთვა ვერ მოხერხდა', 'error');
+        });
+    }
+
+    function reloadBrigadeMembers() {
+      loadBrigadeMembers($('brigadeSelect').value, $('citySelect').value, true)
+        .then(() => showStatus('ბრიგადის სია განახლდა (მონიშვნები შენარჩუნებულია).', 'success'));
+    }
+
+    /* ---------- Members ---------- */
+    const isMemberAbsent = (m) => !!(m.absent || (m.note || '').trim());
 
     function renderMemberList() {
-      const container = document.getElementById('membersContainer');
+      const container = $('membersContainer');
       container.innerHTML = '';
+      $('membersToolbar').style.display = currentMembers.length ? 'flex' : 'none';
 
       if (!currentMembers.length) {
-        container.innerHTML = '<p style="color: var(--ink-faint); font-size: 13.5px;">აირჩიეთ ბრიგადა და რეგიონი</p>';
-        document.getElementById('memberCount').textContent = '0 წევრი';
+        const hasSelection = $('brigadeSelect').value && $('citySelect').value;
+        container.innerHTML = `<p class="members-empty">${hasSelection ? 'ამ ბრიგადაში წევრები არ არის — დაამატეთ ქვემოთ ძებნით' : 'აირჩიეთ ბრიგადა და რეგიონი'}</p>`;
+        updateMemberCount();
         return;
       }
 
       currentMembers.forEach((m, idx) => {
         const div = document.createElement('div');
-        div.className = 'member-item' + (m.extra ? ' extra-member' : '');
-
+        div.className = 'member-item' + (m.extra ? ' extra-member' : '') + (isMemberAbsent(m) ? ' is-absent' : '');
         div.innerHTML = `
-          <label class="member-name">
+          <div class="member-name">
             ${safeAttr(m.name)}
-            <span class="position-tag">${safeAttr(m.position || '')} ${m.extra ? `(ბრიგადა ${safeAttr(m.homeBrigade || '')})` : ''}</span>
+            <span class="position-tag">${safeAttr(m.position || '')}</span>
+            ${m.extra ? `<span class="extra-badge">ბრიგადა ${safeAttr(m.homeBrigade || '?')}-დან</span>` : ''}
+          </div>
+          <label class="absent-toggle">
+            <input type="checkbox" ${m.absent ? 'checked' : ''} onchange="updateMemberField(${idx}, 'absent', this.checked)" />
+            არ გამოცხ.
           </label>
-          <input type="checkbox" id="absent_${idx}" ${m.absent ? 'checked' : ''} onchange="updateMemberField(${idx}, 'absent', this.checked)" />
-          <label for="absent_${idx}" style="font-size: 11px; font-weight: 700; color: var(--ink-soft);">არ გამოცხ.</label>
-          <input list="memberNotesList" placeholder="შენიშვნა" value="${safeAttr(m.note || '')}" oninput="updateMemberField(${idx}, 'note', this.value)" style="width: 120px;">
-          <button type="button" class="btn-remove-member" title="წაშლა" onclick="removeMember(${idx})">✖</button>
+          <input class="member-note" list="memberNotesList" placeholder="შენიშვნა" value="${safeAttr(m.note || '')}" oninput="updateMemberField(${idx}, 'note', this.value)">
+          <button type="button" class="btn-remove-member" title="სიიდან ამოღება" onclick="removeMember(${idx})">✖</button>
         `;
-
         container.appendChild(div);
       });
 
-      document.getElementById('memberCount').textContent = `${currentMembers.length} წევრი`;
+      updateMemberCount();
+    }
+
+    function updateMemberCount() {
+      const total = currentMembers.length;
+      const present = currentMembers.filter(m => !isMemberAbsent(m)).length;
+      $('memberCount').textContent = total ? `${present}/${total} გამოცხადდა` : '0 წევრი';
     }
 
     function removeMember(idx) {
@@ -912,12 +1078,22 @@
     }
 
     function updateMemberField(idx, field, value) {
-      if (currentMembers[idx]) currentMembers[idx][field] = value;
+      const m = currentMembers[idx];
+      if (!m) return;
+      m[field] = value;
+      // Update the card styling without re-rendering (so the note input keeps focus)
+      const card = $('membersContainer').children[idx];
+      if (card) card.classList.toggle('is-absent', isMemberAbsent(m));
+      updateMemberCount();
+    }
+
+    function setAllAbsent(value) {
+      currentMembers.forEach(m => { m.absent = value; if (!value) m.note = ''; });
+      renderMemberList();
     }
 
     function addExtraMember() {
       if (!selectedExtraMemberId) return;
-
       const source = allMembersCache.find(m => String(m.personal_id) === String(selectedExtraMemberId));
       if (!source) return;
 
@@ -938,9 +1114,11 @@
       });
 
       renderMemberList();
-      clearExtraMemberSearch();
+      clearExtraMemberSearch(true);
+      showStatus(`${source.name} დაემატა.`, 'success');
     }
 
+    /* ---------- Works ---------- */
     function buildTimeOptions(count, selected) {
       let html = '<option value="">--</option>';
       for (let i = 0; i < count; i++) {
@@ -951,15 +1129,16 @@
     }
 
     function addWork(workType = '', start = '', end = '', quantity = '', comment = '') {
-      const container = document.getElementById('workContainer');
+      const container = $('workContainer');
       const div = document.createElement('div');
       div.className = 'work-item';
-      div.id = `work_${workCounter}`;
+      div.id = `work_${workCounter++}`;
 
       const [startH, startM] = (start || '').split(':');
       const [endH, endM] = (end || '').split(':');
 
       div.innerHTML = `
+        <div class="field-cell cell-num"><span class="cell-label">№</span><span class="work-num"></span></div>
         <div class="field-cell cell-type">
           <span class="cell-label">სამუშაოს ტიპი</span>
           <input list="workTypesList" class="work-type-input" placeholder="-- აირჩიეთ ან ჩაწერეთ --" value="${safeAttr(workType)}">
@@ -967,130 +1146,206 @@
         <div class="field-cell cell-time">
           <span class="cell-label">დაწყება</span>
           <div class="time-inputs">
-            <select class="work-start-h">${buildTimeOptions(24, startH || '')}</select><span>:</span>
-            <select class="work-start-m">${buildTimeOptions(60, startM || '')}</select>
+            <select class="work-start-h" aria-label="დაწყების საათი">${buildTimeOptions(24, startH || '')}</select><span>:</span>
+            <select class="work-start-m" aria-label="დაწყების წუთი">${buildTimeOptions(60, startM || '')}</select>
           </div>
         </div>
         <div class="field-cell cell-time">
           <span class="cell-label">დასრულება</span>
           <div class="time-inputs">
-            <select class="work-end-h">${buildTimeOptions(24, endH || '')}</select><span>:</span>
-            <select class="work-end-m">${buildTimeOptions(60, endM || '')}</select>
+            <select class="work-end-h" aria-label="დასრულების საათი">${buildTimeOptions(24, endH || '')}</select><span>:</span>
+            <select class="work-end-m" aria-label="დასრულების წუთი">${buildTimeOptions(60, endM || '')}</select>
           </div>
+        </div>
+        <div class="field-cell cell-dur">
+          <span class="cell-label">ხანგრძლ.</span>
+          <span class="dur">—</span>
         </div>
         <div class="field-cell cell-qty">
           <span class="cell-label">რაოდენობა</span>
-          <input type="number" class="work-qty" placeholder="0" value="${safeAttr(quantity)}">
+          <input type="number" class="work-qty" placeholder="0" min="0" step="any" inputmode="decimal" value="${safeAttr(quantity)}">
         </div>
         <div class="field-cell cell-comment">
-          <span class="cell-label">კომენტარი</span>
-          <input type="text" class="work-comment" placeholder="სურვილისამებრ" value="${safeAttr(comment)}">
+          <span class="cell-label">შენიშვნა</span>
+          <input type="text" class="work-comment" placeholder="მაგ: რა გაკეთდა (სხვა სამუშაო)" value="${safeAttr(comment)}">
         </div>
-        <div class="field-cell" style="justify-content:center;">
-          <button type="button" class="btn btn-danger" style="padding:4px 8px; border-radius:50%; font-size:11px; min-height:auto;" onclick="removeWork('work_${workCounter}')">✖</button>
+        <div class="field-cell cell-actions">
+          <button type="button" class="btn-icon-danger" title="სამუშაოს წაშლა" onclick="removeWork(this)">✖</button>
         </div>
       `;
 
+      div.querySelectorAll('select').forEach(s => s.addEventListener('change', () => {
+        // Selecting an hour auto-fills minutes with 00 for speed
+        if (s.classList.contains('work-start-h') || s.classList.contains('work-end-h')) {
+          const mSel = s.parentElement.querySelector('select:last-of-type');
+          if (s.value && !mSel.value) mSel.value = '00';
+          if (!s.value) mSel.value = '';
+        }
+        div.classList.remove('invalid');
+        updateDuration(div);
+        updateWorksTotal();
+      }));
+      div.querySelector('.work-type-input').addEventListener('input', () => div.classList.remove('invalid'));
+
       container.appendChild(div);
-      workCounter++;
+      updateDuration(div);
+      renumberWorks();
+    }
+
+    function focusLastWork() {
+      const items = document.querySelectorAll('.work-item');
+      items[items.length - 1]?.querySelector('.work-type-input')?.focus();
+    }
+
+    function renumberWorks() {
+      document.querySelectorAll('.work-item').forEach((el, i) => {
+        el.querySelector('.work-num').textContent = i + 1;
+      });
+      updateWorksTotal();
     }
 
     function readTimeValue(div, prefix) {
       const h = div.querySelector(`.${prefix}-h`)?.value;
       const m = div.querySelector(`.${prefix}-m`)?.value;
-
       if (!h && !m) return '';
-      if (!h || !m) return '';
-
+      if (!h || !m) return null; // partially filled → invalid
       return `${h}:${m}`;
     }
 
-    function isValidTimeRange(start, end) {
-      if (!start || !end) return true;
-      const [sh, sm] = start.split(':').map(Number);
-      const [eh, em] = end.split(':').map(Number);
+    const toMinutes = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
 
-      if ([sh, sm, eh, em].some(v => Number.isNaN(v))) return false;
-      const startMin = sh * 60 + sm;
-      const endMin = eh * 60 + em;
-      return endMin >= startMin;
+    // Night shifts cross midnight (e.g. 21:30 → 05:00 = 7:30), as in the accounting file
+    function workDurationMinutes(div) {
+      const s = readTimeValue(div, 'work-start');
+      const e = readTimeValue(div, 'work-end');
+      if (!s || !e) return null;
+      return ((toMinutes(e) - toMinutes(s)) % 1440 + 1440) % 1440;
     }
 
-    function removeWork(id) {
-      const el = document.getElementById(id);
-      if (el) el.remove();
+    const fmtDuration = (min) => `${Math.floor(min / 60)}სთ ${String(min % 60).padStart(2, '0')}წ`;
+
+    function updateDuration(div) {
+      const el = div.querySelector('.dur');
+      const s = readTimeValue(div, 'work-start');
+      const e = readTimeValue(div, 'work-end');
+      const d = workDurationMinutes(div);
+      el.textContent = d == null ? '—' : fmtDuration(d);
+      el.title = '';
+      el.style.color = '';
+      if (s && e && toMinutes(e) < toMinutes(s)) {
+        el.innerHTML = `${fmtDuration(d)}<small style="display:block;font-size:10px;color:var(--primary);">🌙 +1 დღე</small>`;
+        el.title = 'ღამის სამუშაო — დასრულება მომდევნო დღეს';
+      }
     }
+
+    function updateWorksTotal() {
+      const items = document.querySelectorAll('.work-item');
+      let total = 0, counted = 0;
+      items.forEach(div => { const d = workDurationMinutes(div); if (d != null) { total += d; counted++; } });
+      $('worksTotal').innerHTML = `სამუშაო: <strong>${items.length}</strong>` + (counted ? ` · ჯამური დრო: <strong>${fmtDuration(total)}</strong>` : '');
+    }
+
+    function removeWork(btn) {
+      btn.closest('.work-item')?.remove();
+      if (!document.querySelector('.work-item')) addWork();
+      renumberWorks();
+    }
+
+    /* ---------- Save ---------- */
+    function markInvalid(id) { $(id).classList.add('is-invalid'); }
 
     function saveRecord() {
-      const inputId = document.getElementById('idInput').value.trim();
-      const brigade = document.getElementById('brigadeSelect').value;
-      const city = document.getElementById('citySelect').value;
-      const date = document.getElementById('dateInput').value;
-      const address = document.getElementById('addressInput').value.trim();
+      if (isSaving) return;
 
-      if (!inputId || !brigade || !city || !date || !address) {
-        showStatus('გთხოვთ შეავსოთ ID, ბრიგადა, რეგიონი, თარიღი და მისამართი.', 'error');
+      const inputId = $('idInput').value.trim();
+      const brigade = $('brigadeSelect').value;
+      const city = $('citySelect').value;
+      const date = $('dateInput').value;
+      const address = $('addressInput').value.trim();
+
+      const missing = [];
+      if (!inputId) { missing.push('ID'); markInvalid('idInput'); }
+      if (!brigade) { missing.push('ბრიგადა'); markInvalid('brigadeSelect'); }
+      if (!city) { missing.push('რეგიონი'); markInvalid('citySelect'); }
+      if (!date) { missing.push('თარიღი'); markInvalid('dateInput'); }
+      if (!address) { missing.push('მისამართი'); markInvalid('addressInput'); }
+      if (missing.length) {
+        showStatus(`გთხოვთ შეავსოთ: ${missing.join(', ')}.`, 'error');
+        document.querySelector('.is-invalid')?.focus();
+        return;
+      }
+
+      let coefficient = $('coefficientInput').value.trim().replace(',', '.');
+      if (coefficient && (!/^\d+(\.\d+)?$/.test(coefficient) || Number(coefficient) <= 0)) {
+        markInvalid('coefficientInput');
+        showStatus('კოეფიციენტი უნდა იყოს დადებითი რიცხვი (მაგ: 1.2).', 'error');
+        $('coefficientInput').focus();
         return;
       }
 
       const works = [];
-      let invalidWorkFound = false;
+      let invalidTime = false, orphanRow = false, negativeQty = false;
 
       document.querySelectorAll('.work-item').forEach(div => {
+        div.classList.remove('invalid');
         const workType = div.querySelector('.work-type-input').value.trim();
         const quantity = div.querySelector('.work-qty').value.trim();
-
-        if (!workType) return;
-
+        const comment = div.querySelector('.work-comment').value.trim();
         const start = readTimeValue(div, 'work-start');
         const end = readTimeValue(div, 'work-end');
 
-        if (!isValidTimeRange(start, end)) {
-          invalidWorkFound = true;
+        if (!workType) {
+          // A row with data but no type used to be silently dropped
+          if (quantity || comment || start || end || start === null || end === null) {
+            orphanRow = true;
+            div.classList.add('invalid');
+          }
           return;
         }
 
-        works.push({
-          work_type: workType,
-          start,
-          end,
-          quantity,
-          comment: div.querySelector('.work-comment').value.trim()
-        });
+        if (start === null || end === null) {
+          invalidTime = true;
+          div.classList.add('invalid');
+          return;
+        }
+
+        if (quantity && Number(quantity) < 0) {
+          negativeQty = true;
+          div.classList.add('invalid');
+          return;
+        }
+
+        works.push({ work_type: workType, start, end, quantity, comment });
       });
 
-      if (invalidWorkFound) {
-        showStatus('სამუშაოს დაწყების და დასრულების დრო არასწორია. გადაამოწმეთ საათები.', 'error');
-        return;
+      if (orphanRow) { showStatus('ზოგიერთ სამუშაოს ტიპი არ აქვს მითითებული (მონიშნულია წითლად).', 'error'); return; }
+      if (invalidTime) { showStatus('სამუშაოს დრო არასწორია: შეავსეთ საათიც და წუთიც.', 'error'); return; }
+      if (negativeQty) { showStatus('რაოდენობა არ შეიძლება იყოს უარყოფითი.', 'error'); return; }
+      if (!works.length) { showStatus('დაამატეთ მინიმუმ ერთი სამუშაო.', 'error'); focusLastWork(); return; }
+
+      if (!currentMembers.length && !confirm('ჩანაწერს წევრები არ აქვს. მაინც შევინახო?')) return;
+
+      const duplicates = savedRecords.filter(r =>
+        String(r.id) === String(inputId) && String(r.db_id || r.id) !== String(editingRecordId || ''));
+      if (duplicates.length) {
+        const ok = confirm(`⚠️ ID "${inputId}" უკვე არსებობს ბაზაში (${duplicates.length} ჩანაწერი).\n\nგსურთ შეინახოთ კიდევ ერთი ჩანაწერი ამავე ID-ით?`);
+        if (!ok) { showStatus('შენახვა გაუქმებულია.', 'warning'); return; }
       }
-
-      if (!works.length) {
-        showStatus('დაამატეთ მინიმუმ ერთი სამუშაო.', 'error');
-        return;
-      }
-
-      const existingRecords = savedRecords.filter(r => String(r.id) === String(inputId));
-
-      if (existingRecords.length > 0 && !editingRecordId) {
-        const userChoice = confirm(`⚠️ ID "${inputId}" უკვე შეყვანილია ბაზაში!\n\nგსურთ დაამატოთ ახალი ჩანაწერი ამავე ID-ით?`);
-        if (!userChoice) {
-          showStatus('შენახვა გაუქმებულია.', 'warning');
-          return;
-        }
-      }
-
-      const recordDbId = editingRecordId || `${inputId}_${Date.now()}`;
 
       const record = {
         id: inputId,
-        db_id: recordDbId,
+        db_id: editingRecordId || `${inputId}_${Date.now()}`,
         brigade,
         city,
         date,
         address,
-        object_name: document.getElementById('objectNameInput').value.trim(),
-        coefficient: document.getElementById('coefficientInput').value.trim(),
-        overall_comment: document.getElementById('overallComment').value.trim(),
+        object_name: $('objectNameInput').value.trim(),
+        coefficient,
+        overall_comment: $('overallComment').value.trim(),
+        note: $('overallNote').value.trim(),
+        car: $('carSelect').value,
+        ganwesi: cleanGanwesi($('ganwesiInput').value),
+        engineer: $('engineerSelect').value,
         members: currentMembers.map(m => ({
           name: m.name,
           position: m.position,
@@ -1103,6 +1358,12 @@
         works
       };
 
+      isSaving = true;
+      const btn = $('saveBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ ინახება...';
+      const wasEditing = !!editingRecordId;
+
       jsonFetch('/api/records/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1110,223 +1371,343 @@
       })
         .then(data => {
           if (data.success) {
-            showStatus(`✨ ჩანაწერი ID ${inputId} წარმატებით შეინახა ბაზაში!`, 'success');
-            editingRecordId = null;
-            document.getElementById('saveBtn').textContent = '💾 შენახვა';
+            showStatus(`✨ ჩანაწერი ID ${inputId} ${wasEditing ? 'განახლდა' : 'შეინახა'}!`, 'success');
+            setEditMode(null);
             fetchServerRecords();
-            clearForm(true);
+            clearForm(true, true);
           } else {
-            showStatus(`❌ შეცდომა: ${data.error}`, 'error');
+            showStatus(`❌ შეცდომა: ${data.error || 'უცნობი შეცდომა'}`, 'error');
           }
         })
-        .catch(err => showStatus(`❌ სერვერთან კავშირის შეცდომა: ${err.message || err}`, 'error'));
+        .catch(err => showStatus(`❌ სერვერთან კავშირის შეცდომა: ${err.message || err}`, 'error'))
+        .finally(() => {
+          isSaving = false;
+          btn.disabled = false;
+          btn.textContent = editingRecordId ? '💾 განახლების შენახვა' : '💾 შენახვა';
+        });
     }
 
-    function editRecord(recordDbId) {
+    /* ---------- Edit / copy ---------- */
+    function setEditMode(recordDbId, displayId = '') {
+      editingRecordId = recordDbId;
+      $('editBanner').classList.toggle('show', !!recordDbId);
+      $('editBannerId').textContent = displayId;
+      $('saveBtn').textContent = recordDbId ? '💾 განახლების შენახვა' : '💾 შენახვა';
+      renderRecordsTable();
+    }
+
+    function cancelEdit() {
+      setEditMode(null);
+      clearForm();
+      showStatus('რედაქტირება გაუქმდა.', 'warning');
+    }
+
+    function loadRecordIntoForm(recordDbId, asCopy = false) {
       const rec = savedRecords.find(r => String(r.db_id || r.id) === String(recordDbId));
       if (!rec) return;
 
-      editingRecordId = rec.db_id || rec.id;
+      setEditMode(asCopy ? null : (rec.db_id || rec.id), rec.id);
 
-      document.getElementById('idInput').value = rec.id;
-      document.getElementById('brigadeSelect').value = rec.brigade;
+      $('idInput').value = asCopy ? '' : rec.id;
+      $('brigadeSelect').value = rec.brigade;
+      $('dateInput').value = asCopy ? todayLocal() : (rec.date || '');
+      $('addressInput').value = rec.address || '';
+      $('objectNameInput').value = rec.object_name || '';
+      $('coefficientInput').value = rec.coefficient || '';
+      $('overallComment').value = rec.overall_comment || '';
+      $('overallNote').value = rec.note || '';
+      setSelectValue('carSelect', rec.car || '');
+      setSelectValue('engineerSelect', rec.engineer || '');
+      $('ganwesiInput').value = asCopy ? '' : (rec.ganwesi || '');
 
+      // Members: use exactly what was saved (previously, removed members silently came back on edit)
+      currentMembers = (rec.members || []).map(m => ({
+        name: m.name,
+        position: m.position,
+        personal_id: m.personal_id,
+        absent: asCopy ? false : !!m.absent,
+        note: asCopy ? '' : (m.note || ''),
+        extra: !!m.extra,
+        homeBrigade: m.home_brigade || null
+      }));
+      renderMemberList();
+
+      $('workContainer').innerHTML = '';
+      workCounter = 0;
+      const works = rec.works || [];
+      if (works.length) works.forEach(w => addWork(w.work_type || '', w.start || '', w.end || '', w.quantity ?? '', w.comment || ''));
+      else addWork();
+
+      const token = ++citiesReqToken;
+      fillCitySelect([], 'იტვირთება...');
       jsonFetch(`/get_brigade_cities?brigade=${encodeURIComponent(rec.brigade)}`)
         .then(cities => {
-          const citySelect = document.getElementById('citySelect');
-          citySelect.innerHTML = '<option value="">-- აირჩიეთ რეგიონი --</option>';
-          (cities || []).forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c;
-            opt.textContent = c;
-            citySelect.appendChild(opt);
-          });
-
-          citySelect.value = rec.city;
-          return jsonFetch(`/get_brigade_members?brigade=${encodeURIComponent(rec.brigade)}&city=${encodeURIComponent(rec.city)}`);
-        })
-        .then(members => {
-          const presetMap = {};
-          (rec.members || []).forEach(m => {
-            presetMap[String(m.personal_id)] = m;
-          });
-
-          currentMembers = (members || []).map(m => {
-            const preset = presetMap[String(m.personal_id)] || {};
-            return {
-              ...m,
-              absent: !!preset.absent,
-              note: preset.note || '',
-              extra: false,
-              homeBrigade: null
-            };
-          });
-
-          (rec.members || []).forEach(m => {
-            if (m.extra && !currentMembers.some(cm => String(cm.personal_id) === String(m.personal_id))) {
-              currentMembers.push({
-                name: m.name,
-                position: m.position,
-                personal_id: m.personal_id,
-                absent: !!m.absent,
-                note: m.note || '',
-                extra: true,
-                homeBrigade: m.home_brigade
-              });
-            }
-          });
-
+          if (token !== citiesReqToken) return;
+          const list = [...(cities || [])];
+          if (rec.city && !list.includes(rec.city)) list.push(rec.city);
+          fillCitySelect(list);
+          $('citySelect').value = rec.city;
           renderMemberList();
         })
-        .catch(() => showStatus('ჩანაწერის ჩატვირთვა ვერ მოხერხდა', 'error'));
+        .catch(() => {
+          fillCitySelect(rec.city ? [rec.city] : []);
+          $('citySelect').value = rec.city || '';
+          showStatus('რეგიონების ჩატვირთვა ვერ მოხერხდა', 'error');
+        });
 
-      document.getElementById('dateInput').value = rec.date || '';
-      document.getElementById('addressInput').value = rec.address || '';
-      document.getElementById('objectNameInput').value = rec.object_name || '';
-      document.getElementById('coefficientInput').value = rec.coefficient || '';
-      document.getElementById('overallComment').value = rec.overall_comment || '';
-
-      document.getElementById('workContainer').innerHTML = '';
-      workCounter = 0;
-      (rec.works || []).forEach(w => addWork(w.work_type || '', w.start || '', w.end || '', w.quantity || '', w.comment || ''));
-
-      document.getElementById('saveBtn').textContent = '💾 განახლების შენახვა';
-      showStatus(`ჩანაწერი ID ${rec.id} რედაქტირებისთვის ჩაიტვირთა.`, 'success');
+      showStatus(asCopy
+        ? `ჩანაწერი ID ${rec.id} დაკოპირდა — შეიყვანეთ ახალი ID.`
+        : `ჩანაწერი ID ${rec.id} ჩაიტვირთა რედაქტირებისთვის.`, 'success');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (asCopy) setTimeout(() => $('idInput').focus(), 300);
     }
 
     function removeRecord(recordDbId) {
-      if (!confirm('წავშალო ჩანაწერი?')) return;
+      const rec = savedRecords.find(r => String(r.db_id || r.id) === String(recordDbId));
+      if (!confirm(`წავშალო ჩანაწერი${rec ? ` ID ${rec.id} (${rec.date || ''})` : ''}?\nეს მოქმედება შეუქცევადია.`)) return;
 
       jsonFetch(`/api/records/delete/${encodeURIComponent(recordDbId)}`, { method: 'DELETE' })
         .then(() => {
+          if (String(editingRecordId) === String(recordDbId)) {
+            setEditMode(null);
+            clearForm(true);
+          }
           showStatus('ჩანაწერი წაიშალა.', 'success');
           fetchServerRecords();
         })
-        .catch(() => showStatus('ჩანაწერის წაშლა ვერ მოხერხდა', 'error'));
+        .catch(err => showStatus(`ჩანაწერის წაშლა ვერ მოხერხდა: ${err.message || ''}`, 'error'));
     }
 
-    function getFilteredRecords() {
-      const searchId = document.getElementById('filterSearchId').value.trim().toLocaleLowerCase('ka-GE');
-      const start = document.getElementById('filterStartDate').value;
-      const end = document.getElementById('filterEndDate').value;
+    // Event delegation for table buttons (replaces inline onclick with unescaped ids)
+    $('recordsTbody').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      if (btn.dataset.action === 'edit') loadRecordIntoForm(id);
+      else if (btn.dataset.action === 'copy') loadRecordIntoForm(id, true);
+      else if (btn.dataset.action === 'delete') removeRecord(id);
+    });
 
-      return savedRecords.filter(rec => {
-        if (searchId && !String(rec.id).toLocaleLowerCase('ka-GE').includes(searchId)) return false;
-        if (start && rec.date < start) return false;
-        if (end && rec.date > end) return false;
-        return true;
-      });
+    /* ---------- Location filter (Tbilisi / regions) ---------- */
+    const TBILISI = 'თბილისი';
+    let configRegionCities = [];
+
+    function loadCities() {
+      return jsonFetch('/get_cities')
+        .then(data => {
+          configRegionCities = Array.isArray(data.regions) ? data.regions : [];
+          fillRegionCitySelect();
+        })
+        .catch(() => { /* ფილტრი მაინც იმუშავებს ჩანაწერების ქალაქებით */ });
+    }
+
+    // Region cities = cities from settings + cities that appear in saved records (except Tbilisi)
+    function fillRegionCitySelect() {
+      const sel = $('filterRegionCity');
+      const keep = sel.value;
+      const set = new Set(configRegionCities);
+      savedRecords.forEach(r => { if (r.city && r.city !== TBILISI) set.add(r.city); });
+      const cities = [...set].sort((a, b) => a.localeCompare(b, 'ka'));
+      sel.innerHTML = '<option value="">ყველა რეგიონი</option>' +
+        cities.map(c => `<option value="${safeAttr(c)}">${safeAttr(c)}</option>`).join('');
+      if (keep && cities.includes(keep)) sel.value = keep;
+    }
+
+    function onAreaChange() {
+      const isRegion = $('filterArea').value === 'region';
+      $('filterRegionCity').style.display = isRegion ? '' : 'none';
+      if (!isRegion) $('filterRegionCity').value = '';
+      renderRecordsTable();
+    }
+
+    function locationLabel() {
+      const area = $('filterArea').value;
+      if (area === 'tbilisi') return TBILISI;
+      if (area === 'region') return $('filterRegionCity').value || 'რეგიონები';
+      return '';
+    }
+
+    /* ---------- Records table ---------- */
+    function getFilteredRecords() {
+      const q = $('filterSearchId').value.trim().toLocaleLowerCase('ka-GE');
+      let start = $('filterStartDate').value;
+      let end = $('filterEndDate').value;
+      if (start && end && start > end) [start, end] = [end, start];
+      const area = $('filterArea').value;
+      const regionCity = $('filterRegionCity').value;
+
+      return savedRecords
+        .filter(rec => {
+          const city = String(rec.city || '').trim();
+          if (area === 'tbilisi' && city !== TBILISI) return false;
+          if (area === 'region') {
+            if (city === TBILISI) return false;
+            if (regionCity && city !== regionCity) return false;
+          }
+          if (q) {
+            const hay = [rec.id, rec.address, rec.brigade, rec.city, rec.object_name, rec.ganwesi, rec.car]
+              .filter(Boolean).join(' ').toLocaleLowerCase('ka-GE');
+            if (!hay.includes(q)) return false;
+          }
+          if (start && (rec.date || '') < start) return false;
+          if (end && (rec.date || '') > end) return false;
+          return true;
+        })
+        .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) ||
+                        String(b.db_id || '').localeCompare(String(a.db_id || '')));
+    }
+
+    function formatDate(d) {
+      if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return d || '';
+      const [y, m, day] = d.split('-');
+      return `${day}.${m}.${y}`;
     }
 
     function renderRecordsTable() {
-      const tbody = document.getElementById('recordsTbody');
-      const table = document.getElementById('recordsTable');
-      const hint = document.getElementById('noRecordsHint');
-
+      const tbody = $('recordsTbody');
+      const wrap = $('recordsTableWrap');
+      const hint = $('noRecordsHint');
+      const counter = $('filteredCounter');
       tbody.innerHTML = '';
 
       const filtered = getFilteredRecords();
+      const isFiltering = $('filterSearchId').value.trim() || $('filterStartDate').value || $('filterEndDate').value || $('filterArea').value;
+
+      counter.style.display = savedRecords.length ? 'inline-block' : 'none';
+      counter.textContent = isFiltering ? `${filtered.length} / ${savedRecords.length}` : `${savedRecords.length}`;
+      $('generateBtn').textContent = `📥 Excel-ის გენერირება${filtered.length ? ` (${filtered.length})` : ''}`;
+
       if (!filtered.length) {
-        table.style.display = 'none';
+        wrap.style.display = 'none';
         hint.style.display = 'block';
+        hint.textContent = savedRecords.length ? 'ფილტრს არცერთი ჩანაწერი არ შეესაბამება' : 'ჯერ არცერთი ჩანაწერი არ არის შენახული';
         return;
       }
 
       hint.style.display = 'none';
-      table.style.display = 'table';
+      wrap.style.display = 'block';
 
+      const frag = document.createDocumentFragment();
       filtered.forEach(rec => {
         const members = Array.isArray(rec.members) ? rec.members : [];
-        const activeCount = members.filter(m => !(m.absent || (m.note || '').trim())).length;
-        const recDbId = rec.db_id || rec.id;
+        const activeCount = members.filter(m => !isMemberAbsent(m)).length;
+        const recDbId = String(rec.db_id || rec.id);
+        const idAttr = safeAttr(recDbId);
 
         const tr = document.createElement('tr');
+        if (editingRecordId && String(editingRecordId) === recDbId) tr.className = 'editing';
         tr.innerHTML = `
-          <td style="font-family:var(--font-mono); font-weight:700;">${safeAttr(rec.id)}</td>
+          <td style="font-family:var(--font-mono); font-weight:700;">${safeAttr(rec.id)}${rec.ganwesi ? `<small style="display:block;font-weight:500;color:var(--ink-faint);font-size:11px;">${safeAttr(rec.ganwesi)}</small>` : ''}</td>
           <td>${safeAttr(rec.brigade)}</td>
           <td>${safeAttr(rec.city)}</td>
-          <td>${safeAttr(rec.date)}</td>
-          <td>${safeAttr(rec.address)}</td>
-          <td>${activeCount}/${members.length}</td>
+          <td style="white-space:nowrap;">${safeAttr(formatDate(rec.date))}</td>
+          <td class="addr">${safeAttr(rec.address)}${rec.object_name ? `<small>${safeAttr(rec.object_name)}</small>` : ''}</td>
+          <td><span class="badge-att ${activeCount < members.length ? 'partial' : ''}">${activeCount}/${members.length}</span></td>
           <td>${(rec.works || []).length}</td>
           <td>
-            <button type="button" class="btn btn-outline" style="padding:6px 10px; font-size:12px; min-height:auto;" onclick="editRecord('${recDbId}')">✏️</button>
-            <button type="button" class="btn btn-danger" style="padding:6px 10px; font-size:12px; min-height:auto;" onclick="removeRecord('${recDbId}')">🗑️</button>
+            <div class="row-actions">
+              <button type="button" class="btn btn-outline btn-sm" title="რედაქტირება" data-action="edit" data-id="${idAttr}">✏️</button>
+              <button type="button" class="btn btn-ghost btn-sm" title="კოპირება ახალ ჩანაწერად" data-action="copy" data-id="${idAttr}">📄</button>
+              <button type="button" class="btn btn-danger btn-sm" title="წაშლა" data-action="delete" data-id="${idAttr}">🗑️</button>
+            </div>
           </td>
         `;
-        tbody.appendChild(tr);
+        frag.appendChild(tr);
       });
+      tbody.appendChild(frag);
     }
 
     function resetFilter() {
-      document.getElementById('filterSearchId').value = '';
-      document.getElementById('filterStartDate').value = '';
-      document.getElementById('filterEndDate').value = '';
-      renderRecordsTable();
+      $('filterSearchId').value = '';
+      $('filterStartDate').value = '';
+      $('filterEndDate').value = '';
+      $('filterArea').value = '';
+      onAreaChange();
     }
 
+    /* ---------- Excel ---------- */
     function generateExcel() {
       const recordsToExport = getFilteredRecords();
       if (!recordsToExport.length) {
-        showStatus('ჩანაწერები ვერ მოიძებნა.', 'error');
+        showStatus('ექსპორტისთვის ჩანაწერები ვერ მოიძებნა.', 'error');
         return;
       }
 
-      const btn = document.getElementById('generateBtn');
+      const btn = $('generateBtn');
       btn.disabled = true;
       btn.textContent = '⏳ გენერირდება...';
 
       fetch('/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ records: recordsToExport })
+        body: JSON.stringify({ records: recordsToExport, label: locationLabel() })
       })
-        .then(res => res.blob())
+        .then(async res => {
+          // Previously an error response was downloaded as a broken .xlsx
+          if (!res.ok) {
+            let msg = `სერვერის შეცდომა ${res.status}`;
+            try { const j = await res.json(); msg = j.error || j.message || msg; } catch (_) {}
+            throw new Error(msg);
+          }
+          return res.blob();
+        })
         .then(blob => {
-          const url = window.URL.createObjectURL(blob);
+          const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `ანგარიში_${new Date().toISOString().slice(0, 10)}.xlsx`;
+          const lbl = locationLabel();
+          a.download = `ანგარიში${lbl ? '_' + lbl : ''}_${todayLocal()}.xlsx`;
           document.body.appendChild(a);
           a.click();
           a.remove();
-          showStatus('✅ Excel ფაილი ჩამოიტვირთა!', 'success');
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          showStatus(`✅ Excel ფაილი ჩამოიტვირთა (${recordsToExport.length} ჩანაწერი).`, 'success');
         })
         .catch(err => showStatus(`❌ შეცდომა გენერირებისას: ${err.message || err}`, 'error'))
         .finally(() => {
           btn.disabled = false;
-          btn.textContent = '📥 Excel-ის გენერირება';
+          renderRecordsTable();
         });
     }
 
     function updateRecordCounter() {
-      document.getElementById('recordCounter').textContent = `ჩანაწერები: ${savedRecords.length}`;
+      $('recordCounter').textContent = `ჩანაწერები: ${savedRecords.length}`;
     }
 
-    function clearForm(keepStatus = false) {
-      document.getElementById('idInput').value = '';
-      document.getElementById('objectNameInput').value = '';
-      document.getElementById('coefficientInput').value = '';
-      document.getElementById('overallComment').value = '';
-      document.getElementById('workContainer').innerHTML = '';
+    /* ---------- Clear ---------- */
+    function clearForm(keepStatus = false, keepBrigade = false) {
+      // Clearing the form also leaves edit mode — previously the next save overwrote the old record
+      if (editingRecordId) setEditMode(null);
+
+      ['idInput', 'objectNameInput', 'coefficientInput', 'overallComment', 'overallNote', 'ganwesiInput', 'addressInput'].forEach(id => { $(id).value = ''; });
+      if (!keepBrigade) { $('carSelect').value = ''; $('engineerSelect').value = ''; }
+      else applyBrigadeDefaults($('brigadeSelect').value, false);
+      document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+      $('workContainer').innerHTML = '';
       workCounter = 0;
       addWork();
 
-      document.getElementById('brigadeSelect').value = '';
-      document.getElementById('citySelect').innerHTML = '<option value="">-- აირჩიეთ ბრიგადა --</option>';
+      clearExtraMemberSearch();
 
-      currentMembers = [];
-      renderMemberList();
-
-      document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
-      document.getElementById('addressInput').value = '';
-
-      if (!keepStatus) {
-        document.getElementById('statusMessage').style.display = 'none';
+      if (keepBrigade && $('brigadeSelect').value && $('citySelect').value) {
+        // After saving, keep the same brigade and reset attendance for the next entry
+        currentMembers.forEach(m => { m.absent = false; m.note = ''; });
+        currentMembers = currentMembers.filter(m => !m.extra);
+        loadBrigadeMembers($('brigadeSelect').value, $('citySelect').value);
+      } else {
+        citiesReqToken++;
+        membersReqToken++;
+        $('brigadeSelect').value = '';
+        fillCitySelect([], '-- აირჩიეთ ბრიგადა --');
+        currentMembers = [];
+        renderMemberList();
       }
 
-      document.getElementById('idInput').focus();
+      $('dateInput').value = todayLocal();
+
+      if (!keepStatus) hideStatus();
+      $('idInput').focus();
     }
   </script>
 </body>

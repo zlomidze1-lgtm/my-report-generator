@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="robots" content="noindex" />
+  <title>ადმინ პანელი — Brigade-Ops</title>
+
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink: #0f172a; --ink-soft: #475569; --ink-faint: #94a3b8;
+      --surface: rgba(255,255,255,.9); --surface-solid: #fff; --surface-muted: #f8fafc;
+      --line: #e2e8f0; --line-strong: #cbd5e1;
+      --primary: #2563eb; --primary-glow: rgba(37,99,235,.22);
+      --signal: #c7f33b; --signal-ink: #1a2e00; --signal-dim: #f7fbe9;
+      --steel-soft: #eef2ff;
+      --success: #10b981; --success-soft: #ecfdf5;
+      --danger: #ef4444; --danger-soft: #fef2f2;
+      --warning: #f59e0b; --warning-soft: #fffbeb;
+      --radius-lg: 20px; --radius-md: 14px; --radius-sm: 10px;
+      --shadow-subtle: 0 4px 20px -2px rgba(15,23,42,.04);
+      --shadow-card: 0 12px 32px -4px rgba(15,23,42,.06), 0 4px 12px -2px rgba(15,23,42,.03);
+      --font-body: 'Noto Sans Georgian', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    button, input, select { font: inherit; color: inherit; }
+    img { display: block; max-width: 100%; }
+    body {
+      font-family: var(--font-body); color: var(--ink); line-height: 1.45; min-height: 100vh; padding-bottom: 110px;
+      background:
+        radial-gradient(circle at 8% 8%, rgba(55,103,255,.08), transparent 28%),
+        radial-gradient(circle at 92% 10%, rgba(199,243,59,.12), transparent 25%),
+        linear-gradient(180deg,#f8faff 0%,#f2f5fa 55%,#eef2f7 100%);
+      background-attachment: fixed;
+    }
+    :focus-visible { outline: 3px solid var(--primary-glow); outline-offset: 2px; }
+
+    /* Top bar (same as main page) */
+    .topbar {
+      position: sticky; top: 0; z-index: 100; min-height: 70px;
+      padding: 10px clamp(16px,4vw,52px); display: flex; align-items: center; gap: 14px;
+      background: rgba(15,23,42,.94); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
+      box-shadow: 0 10px 30px rgba(4,10,22,.15);
+    }
+    .topbar::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--signal), #6b8cff, transparent); }
+    .topbar .mark { width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0; overflow: hidden; background: #fff; padding: 2px; }
+    .topbar .mark img { width: 100%; height: 100%; object-fit: contain; }
+    .topbar .titles h1 { font-size: 17px; font-weight: 800; color: #fff; line-height: 1.25; }
+    .topbar .titles p { font-family: var(--font-mono); font-size: 9.5px; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; }
+    .nav-tabs { display: flex; gap: 4px; margin-left: auto; background: rgba(255,255,255,.06); padding: 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); }
+    .nav-tab { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 9px; color: #cbd5e1; font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+    .nav-tab:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .nav-tab.active { background: var(--signal); color: var(--signal-ink); }
+    .logout { background: transparent; border: 1px solid rgba(255,255,255,.15); color: #cbd5e1; border-radius: 9px; padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer; display: none; }
+    .logout:hover { color: #fff; border-color: rgba(255,255,255,.35); }
+
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 22px 0; }
+
+    .panel { background: var(--surface); border: 1px solid rgba(226,232,240,.8); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-card); }
+    .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+    .panel-eyebrow { font-family: var(--font-mono); font-size: 10px; font-weight: 800; color: var(--primary); letter-spacing: 1.2px; background: var(--steel-soft); padding: 5px 10px; border-radius: 999px; }
+    .panel-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -.3px; }
+    .panel-head .spacer { margin-left: auto; }
+
+    .btn { padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 700; font-size: 13.5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--line-strong); background: var(--surface-solid); min-height: 42px; white-space: nowrap; transition: transform .15s, box-shadow .15s, background .15s, color .15s; }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px -4px rgba(15,23,42,.12); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary { background: linear-gradient(135deg,#c7f33b,#a8dc1f); color: var(--signal-ink); border-color: #a8dc1f; }
+    .btn-success { background: linear-gradient(135deg,#10b981,#059669); color: #fff; border-color: #059669; }
+    .btn-danger { color: var(--danger); border-color: #fecaca; }
+    .btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
+    .btn-ghost { background: transparent; color: var(--ink-soft); }
+    .btn-outline { border-color: #c9d5ff; color: var(--primary); background: #f4f7ff; }
+    .btn-sm { min-height: 34px; padding: 6px 10px; font-size: 12px; }
+
+    .input { padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); font-size: 14px; background: #fff; min-height: 42px; width: 100%; transition: border-color .15s, box-shadow .15s; }
+    .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
+    .input.is-invalid { border-color: var(--danger); box-shadow: 0 0 0 4px rgba(239,68,68,.15); }
+    label.lbl { display: block; font-family: var(--font-mono); font-weight: 700; font-size: 10px; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: .9px; text-transform: uppercase; }
+
+    /* Login */
+    .login-box { max-width: 420px; margin: 8vh auto 0; text-align: center; }
+    .login-box .logo { width: 88px; height: 88px; margin: 0 auto 16px; }
+    .login-box h2 { font-size: 20px; margin-bottom: 6px; }
+    .login-box p { color: var(--ink-soft); font-size: 13.5px; margin-bottom: 20px; }
+    .login-box form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+    .login-error { color: #991b1b; background: var(--danger-soft); border: 1px solid #fecaca; border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; display: none; }
+
+    /* Stats */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .stat { background: var(--surface); border: 1px solid rgba(226,232,240,.8); border-radius: var(--radius-md); padding: 16px 18px; box-shadow: var(--shadow-subtle); }
+    .stat .k { font-family: var(--font-mono); font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--ink-faint); text-transform: uppercase; }
+    .stat .v { font-size: 26px; font-weight: 800; letter-spacing: -.5px; margin-top: 2px; }
+
+    /* Section tabs */
+    .section-tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+    .section-tab { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line-strong); background: #fff; font-weight: 700; font-size: 13.5px; cursor: pointer; color: var(--ink-soft); }
+    .section-tab.active { background: var(--ink); color: var(--signal); border-color: var(--ink); }
+    .section-tab .count { font-family: var(--font-mono); font-size: 11px; opacity: .7; margin-left: 4px; }
+
+    /* Brigades layout */
+    .brigades-layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+    .brigade-list { display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow-y: auto; margin: 0 -4px; padding: 0 4px; }
+    .brigade-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 12px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: #fff; cursor: pointer; text-align: left; transition: border-color .15s, background .15s; }
+    .brigade-btn:hover { border-color: var(--line-strong); background: var(--surface-muted); }
+    .brigade-btn.active { border-color: var(--primary); background: var(--steel-soft); box-shadow: inset 3px 0 0 var(--primary); }
+    .brigade-btn .num { font-family: var(--font-mono); font-weight: 800; font-size: 15px; min-width: 34px; height: 34px; border-radius: 9px; background: var(--ink); color: var(--signal); display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; }
+    .brigade-btn .meta { flex: 1; min-width: 0; }
+    .brigade-btn .meta b { display: block; font-size: 13.5px; }
+    .brigade-btn .meta small { display: block; font-size: 11.5px; color: var(--ink-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .add-brigade { display: flex; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .add-brigade .input { font-family: var(--font-mono); font-weight: 600; }
+
+    .editor-empty { text-align: center; padding: 48px 20px; color: var(--ink-faint); border: 1.5px dashed var(--line-strong); border-radius: var(--radius-lg); font-size: 14px; }
+    .brigade-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .brigade-title h3 { font-size: 20px; font-weight: 800; }
+    .brigade-title .num-input { width: 110px; font-family: var(--font-mono); font-weight: 700; }
+    .brigade-title .spacer { margin-left: auto; }
+
+    .city-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+    .chip { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--steel-soft); color: var(--primary); }
+    .chip.tb { background: var(--signal-dim); color: #3f6212; }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-md); background: #fff; }
+    table.mtable { width: 100%; border-collapse: collapse; min-width: 720px; }
+    table.mtable th { background: linear-gradient(180deg,#1e293b,#0f172a); color: var(--signal); font-family: var(--font-mono); font-size: 10px; font-weight: 800; letter-spacing: 1px; padding: 12px; text-transform: uppercase; text-align: left; white-space: nowrap; }
+    table.mtable td { padding: 6px 8px; border-top: 1px solid var(--line); vertical-align: middle; }
+    table.mtable td .input { min-height: 38px; padding: 8px 10px; font-size: 13.5px; border-color: transparent; background: transparent; }
+    table.mtable td .input:hover { border-color: var(--line); }
+    table.mtable td .input:focus { background: #fff; border-color: var(--primary); }
+    table.mtable td.pid .input { font-family: var(--font-mono); }
+    table.mtable tr.new-row td { background: var(--signal-dim); }
+    table.mtable tr.new-row td .input { border-color: var(--line-strong); background: #fff; }
+    table.mtable td.idx { width: 40px; text-align: center; font-family: var(--font-mono); color: var(--ink-faint); font-size: 12px; }
+    table.mtable td.acts { width: 1%; white-space: nowrap; }
+    .move-select { min-height: 34px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line-strong); background: #fff; font-size: 12px; cursor: pointer; }
+    .icon-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #fecaca; background: #fff; color: var(--danger); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; vertical-align: middle; }
+    .icon-btn:hover { background: var(--danger); color: #fff; }
+    .leader-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--warning); margin-right: 4px; }
+
+    .member-search { max-width: 320px; margin-bottom: 12px; }
+
+    /* Work types */
+    .wt-toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .wt-toolbar .input { flex: 1; min-width: 220px; }
+    .wt-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 8px; }
+    .wt-item { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+    .wt-item .input { border-color: transparent; min-height: 36px; padding: 6px 8px; }
+    .wt-item .input:hover { border-color: var(--line); }
+    .wt-item .n { font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); min-width: 22px; }
+    .wt-item .usage { font-size: 11px; color: var(--ink-faint); white-space: nowrap; }
+    .input.mono, .wt-item .input.mono { font-family: var(--font-mono); font-weight: 600; }
+    .hint-line { font-size: 12.5px; color: var(--ink-soft); margin: -6px 0 14px; }
+    .wt-table { min-width: 760px; }
+    .wt-table td.tar { width: 130px; }
+    .wt-table td.tar .input { font-family: var(--font-mono); text-align: right; }
+    .wt-table th.th-worker { background: #385723; color: #fff; }
+    .wt-table th.th-brigade { background: #1F4E79; color: #fff; }
+    .wt-table th.th-engineer { background: #5B3A7A; color: #fff; }
+    .wt-table tr.zero td:nth-child(2) .input { color: var(--ink-soft); }
+    .zero-badge { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 800; color: #92400e; background: var(--warning-soft); border: 1px solid #fde68a; border-radius: 999px; padding: 1px 7px; vertical-align: middle; white-space: nowrap; }
+    .defaults-box { margin-bottom: 16px; padding: 12px 14px; background: var(--surface-muted); border: 1px solid var(--line); border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 8px; }
+    .defaults-head, .defaults-line { display: grid; grid-template-columns: 130px 1fr 1fr; gap: 10px; align-items: center; }
+    .defaults-head span { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--ink-soft); letter-spacing: .6px; text-transform: uppercase; }
+    .defaults-line .chip { justify-self: start; }
+    @media (max-width: 720px) { .defaults-head { display: none; } .defaults-line { grid-template-columns: 1fr; } }
+    .defaults-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; padding: 14px; background: var(--surface-muted); border: 1px solid var(--line); border-radius: var(--radius-md); }
+
+    /* Save bar */
+    .savebar {
+      position: fixed; left: 50%; bottom: 20px; z-index: 900; transform: translate(-50%, 140%);
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;
+      padding: 12px 14px 12px 20px; border-radius: 16px; background: var(--ink); color: #fff;
+      box-shadow: 0 24px 50px -10px rgba(15,23,42,.45); transition: transform .25s;
+      max-width: calc(100vw - 24px);
+    }
+    .savebar.show { transform: translate(-50%, 0); }
+    .savebar .msg { font-size: 13.5px; font-weight: 600; }
+    .savebar .msg .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--warning); margin-right: 8px; }
+    .savebar .btn-ghost { color: #cbd5e1; border-color: rgba(255,255,255,.2); }
+
+    .tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .tools .note { flex-basis: 100%; font-size: 12px; color: var(--ink-faint); }
+
+    /* Toast */
+    .toast { position: fixed; left: 50%; top: 86px; z-index: 1000; transform: translate(-50%, -10px); opacity: 0; pointer-events: none; max-width: min(560px, calc(100vw - 32px)); border-radius: var(--radius-md); padding: 12px 18px; font-size: 13.5px; font-weight: 600; box-shadow: 0 20px 40px -8px rgba(15,23,42,.25); transition: opacity .25s, transform .25s; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+    .toast.success { background: var(--success-soft); color: #065f46; border: 1px solid #a7f3d0; }
+    .toast.error { background: var(--danger-soft); color: #991b1b; border: 1px solid #fecaca; }
+    .toast.warning { background: var(--warning-soft); color: #92400e; border: 1px solid #fde68a; }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 860px) {
+      .brigades-layout { grid-template-columns: 1fr; }
+      .brigade-list { max-height: none; flex-direction: row; overflow-x: auto; padding-bottom: 6px; }
+      .brigade-btn { width: auto; flex-shrink: 0; }
+      .brigade-btn .meta small { display: none; }
+    }
+    @media (max-width: 720px) {
+      .topbar { flex-wrap: wrap; padding: 12px 14px; }
+      .topbar .titles h1 { font-size: 15px; }
+      .nav-tabs { margin-left: 0; flex: 1; }
+      .nav-tab { flex: 1; justify-content: center; }
+      .wrap { padding: 16px 10px 0; }
+      .panel { padding: 16px 12px; border-radius: 16px; }
+      .wt-list { grid-template-columns: 1fr; }
+      .savebar { bottom: 10px; width: calc(100vw - 20px); }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="mark"><img src="/logo.png" alt="Logo" /></div>
+    <div class="titles">
+      <h1>ადმინ პანელი</h1>
+      <p>Brigade-Ops / Settings</p>
+    </div>
+    <nav class="nav-tabs">
+      <a class="nav-tab" href="/" onclick="return confirmLeave()">📋 ანგარიში</a>
+      <a class="nav-tab active" href="/admin">⚙️ ადმინ პანელი</a>
+    </nav>
+    <button type="button" class="logout" id="logoutBtn" onclick="logout()">გასვლა</button>
+  </div>
+
+  <div class="wrap">
+    <!-- LOGIN -->
+    <section class="panel login-box" id="loginView">
+      <img class="logo" src="/logo.png" alt="" />
+      <h2>ადმინისტრატორის შესვლა</h2>
+      <p>ბრიგადების, წევრებისა და სამუშაოს ტიპების მართვა</p>
+      <form onsubmit="event.preventDefault(); login();">
+        <div>
+          <label class="lbl" for="pwInput">პაროლი</label>
+          <input type="password" id="pwInput" class="input" autocomplete="current-password" required autofocus />
+        </div>
+        <div class="login-error" id="loginError"></div>
+        <button type="submit" class="btn btn-primary" id="loginBtn">🔐 შესვლა</button>
+      </form>
+    </section>
+
+    <!-- APP -->
+    <div id="appView" class="hidden">
+      <div class="stats">
+        <div class="stat"><div class="k">ბრიგადები</div><div class="v" id="stBrigades">0</div></div>
+        <div class="stat"><div class="k">თანამშრომლები</div><div class="v" id="stMembers">0</div></div>
+        <div class="stat"><div class="k">ქალაქები</div><div class="v" id="stCities">0</div></div>
+        <div class="stat"><div class="k">სამუშაოს ტიპები</div><div class="v" id="stWorks">0</div></div>
+        <div class="stat"><div class="k">ავტომობილები</div><div class="v" id="stCars">0</div></div>
+        <div class="stat"><div class="k">ინჟინრები</div><div class="v" id="stEngineers">0</div></div>
+      </div>
+
+      <div class="section-tabs">
+        <button type="button" class="section-tab active" data-tab="brigades" onclick="switchTab('brigades')">👷 ბრიგადები <span class="count" id="tabCountB"></span></button>
+        <button type="button" class="section-tab" data-tab="works" onclick="switchTab('works')">🛠 სამუშაოები და ტარიფები <span class="count" id="tabCountW"></span></button>
+        <button type="button" class="section-tab" data-tab="cars" onclick="switchTab('cars')">🚗 ავტომობილები <span class="count" id="tabCountC"></span></button>
+        <button type="button" class="section-tab" data-tab="engineers" onclick="switchTab('engineers')">👷 ინჟინრები <span class="count" id="tabCountE"></span></button>
+      </div>
+
+      <!-- Brigades -->
+      <section id="tab-brigades">
+        <div class="brigades-layout">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-eyebrow">// სია</span>
+              <h2>ბრიგადები</h2>
+            </div>
+            <div class="brigade-list" id="brigadeList"></div>
+            <form class="add-brigade" onsubmit="event.preventDefault(); addBrigade();">
+              <input type="text" id="newBrigadeInput" class="input" placeholder="ახალი ნომერი" maxlength="20" />
+              <button type="submit" class="btn btn-success">➕</button>
+            </form>
+          </div>
+
+          <div class="panel" id="brigadeEditor"></div>
+        </div>
+      </section>
+
+      <!-- Work types + tariffs -->
+      <section id="tab-works" class="hidden">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-eyebrow">// ტარიფები</span>
+            <h2>შესრულებული სამუშაოები და ტარიფები</h2>
+            <span class="spacer"></span>
+            <input type="search" id="wtSearch" class="input" placeholder="🔎 ძებნა..." oninput="renderWorkTypes()" style="max-width:240px;" />
+          </div>
+          <p class="hint-line">Excel-ში თანხა = ტარიფი × „რაოდ. კაცი“. ტარიფი ჩანაწერში ფიქსირდება შენახვის მომენტში — ცვლილება ძველ ჩანაწერებზე არ მოქმედებს.</p>
+          <div class="table-wrap">
+            <table class="mtable wt-table">
+              <thead><tr>
+                <th>#</th><th>შესრულებული სამუშაო</th>
+                <th class="th-worker">ტარიფი მუშა</th><th class="th-brigade">ტარიფი ბრიგ.</th><th class="th-engineer">ტარიფი ინჟინერი</th><th></th>
+              </tr></thead>
+              <tbody id="wtBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cars -->
+      <section id="tab-cars" class="hidden">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-eyebrow">// სია</span>
+            <h2>ავტომობილები</h2>
+          </div>
+          <p class="hint-line">ბრიგადის ნაგულისხმევი ავტომობილი ეთითება „ბრიგადები“ ტაბში — ფორმაში ავტომატურად შეივსება.</p>
+          <form class="wt-toolbar" onsubmit="event.preventDefault(); addListItem('cars');">
+            <input type="text" id="new-cars" class="input mono" placeholder="მაგ: CJ-752-JC" />
+            <button type="submit" class="btn btn-success">➕ დამატება</button>
+          </form>
+          <div class="wt-list" id="list-cars"></div>
+        </div>
+      </section>
+
+      <!-- Engineers -->
+      <section id="tab-engineers" class="hidden">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-eyebrow">// სია</span>
+            <h2>ინჟინრები საბონუსე სისტემაში</h2>
+          </div>
+          <p class="hint-line">ბრიგადის ინჟინერი ეთითება „ბრიგადები“ ტაბში — ფორმაში ავტომატურად შეივსება.</p>
+          <form class="wt-toolbar" onsubmit="event.preventDefault(); addListItem('engineers');">
+            <input type="text" id="new-engineers" class="input" placeholder="გვარი სახელი" />
+            <button type="submit" class="btn btn-success">➕ დამატება</button>
+          </form>
+          <div class="wt-list" id="list-engineers"></div>
+        </div>
+      </section>
+
+      <div class="tools">
+        <button type="button" class="btn btn-primary btn-sm" onclick="downloadBackup()">💾 სრული სარეზერვო ასლი (ჩანაწერები + პარამეტრები)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="exportConfig()">⬇️ config.json-ის ჩამოტვირთვა</button>
+        <button type="button" class="btn btn-danger btn-sm" onclick="resetConfig()">↺ config.json-ის საწყის მდგომარეობაზე დაბრუნება</button>
+        <div class="note">ცვლილებები ინახება მონაცემთა ბაზაში. config.json გამოიყენება მხოლოდ საწყის მონაცემებად პირველი გაშვებისას.</div>
+      </div>
+    </div>
+  </div>
+
+  <datalist id="positionsList"></datalist>
+  <datalist id="citiesList"></datalist>
+
+  <div class="savebar" id="saveBar">
+    <span class="msg"><span class="dot"></span><span id="saveBarText">შეუნახავი ცვლილებები</span></span>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="discardChanges()">გაუქმება</button>
+    <button type="button" class="btn btn-primary btn-sm" id="saveBtn" onclick="saveConfig()">💾 შენახვა</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const esc = (v) => String(v ?? '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
+    const TBILISI = 'თბილისი';
+    const LEADERS = new Set(['ბრიგადირი', 'სარემონტო ბრიგადის უფროსი']);
+    const PW_KEY = 'brigadeops_admin_pw';
+
+    let password = '';
+    let cfg = { version: 2, brigades: {}, work_types: [], cars: [], engineers: [] };
+    let savedSnapshot = '';
+    let positions = [];
+    let selectedBrigade = null;
+    let memberFilter = '';
+
+    const brigadeSortKey = (a, b) => {
+      const da = /^\d+$/.test(a), db = /^\d+$/.test(b);
+      if (da && db) return Number(a) - Number(b);
+      if (da) return -1;
+      if (db) return 1;
+      return a.localeCompare(b, 'ka');
+    };
+
+    /* ---------- Toast ---------- */
+    let toastTimer;
+    function toast(msg, type = 'success') {
+      const t = $('toast');
+      t.textContent = msg;
+      t.className = `toast ${type} show`;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), type === 'error' ? 7000 : 3500);
+    }
+
+    /* ---------- API ---------- */
+    async function api(url, options = {}) {
+      const res = await fetch(url, {
+        ...options,
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': password, ...(options.headers || {}) }
+      });
+      let data = {};
+      try { data = await res.json(); } catch (_) {}
+      if (res.status === 401) {
+        sessionStorage.removeItem(PW_KEY);
+        showLogin('პაროლი არასწორია ან სესია ამოიწურა.');
+      }
+      if (!res.ok) throw new Error(data.error || `შეცდომა ${res.status}`);
+      return data;
+    }
+
+    /* ---------- Auth ---------- */
+    function showLogin(error = '') {
+      $('appView').classList.add('hidden');
+      $('loginView').classList.remove('hidden');
+      $('logoutBtn').style.display = 'none';
+      $('loginError').style.display = error ? 'block' : 'none';
+      $('loginError').textContent = error;
+      $('pwInput').focus();
+    }
+
+    async function login() {
+      password = $('pwInput').value;
+      if (!password) return;
+      const btn = $('loginBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ მოწმდება...';
+      try {
+        await api('/api/admin/login', { method: 'POST' });
+        sessionStorage.setItem(PW_KEY, password);
+        await enterApp();
+      } catch (e) {
+        showLogin(e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔐 შესვლა';
+      }
+    }
+
+    function logout() {
+      if (!confirmLeave()) return;
+      sessionStorage.removeItem(PW_KEY);
+      password = '';
+      $('pwInput').value = '';
+      setSnapshot();
+      showLogin();
+    }
+
+    async function enterApp() {
+      await loadConfig();
+      $('loginView').classList.add('hidden');
+      $('appView').classList.remove('hidden');
+      $('logoutBtn').style.display = 'inline-flex';
+    }
+
+    function normalizeCfg(raw) {
+      const out = { version: 2, brigades: {}, work_types: [], cars: [], engineers: [] };
+      Object.entries((raw && raw.brigades) || {}).forEach(([k, v]) => {
+        out.brigades[String(k)] = {
+          city_defaults: Object.fromEntries(Object.entries((v && v.city_defaults) || {})
+            .map(([c, d]) => [c, { car: String((d && d.car) ?? ''), engineer: String((d && d.engineer) ?? '') }])),
+          members: ((v && v.members) || []).map(m => ({
+            name: String(m.name ?? ''),
+            position: String(m.position ?? ''),
+            city: String(m.city ?? ''),
+            personal_id: String(m.personal_id ?? '')
+          }))
+        };
+      });
+      out.work_types = ((raw && raw.work_types) || []).map(w => typeof w === 'string'
+        ? { name: w, worker: 0, brigade: 0, engineer: 0 }
+        : { name: String(w.name ?? ''), worker: Number(w.worker) || 0, brigade: Number(w.brigade) || 0, engineer: Number(w.engineer) || 0 });
+      out.cars = ((raw && raw.cars) || []).map(String);
+      out.engineers = ((raw && raw.engineers) || []).map(String);
+      return out;
+    }
+
+    /* ---------- Config load/save ---------- */
+    async function loadConfig() {
+      const data = await api('/api/admin/config');
+      cfg = normalizeCfg(data.config);
+      positions = data.positions || [];
+      setSnapshot();
+      const keys = brigadeKeys();
+      if (!selectedBrigade || !cfg.brigades[selectedBrigade]) selectedBrigade = keys[0] || null;
+      renderAll();
+    }
+
+    function setSnapshot() {
+      savedSnapshot = JSON.stringify(cfg);
+      updateDirty();
+    }
+
+    const isDirty = () => JSON.stringify(cfg) !== savedSnapshot;
+
+    function updateDirty() {
+      $('saveBar').classList.toggle('show', isDirty());
+    }
+
+    function validateLocally() {
+      const seen = new Map();
+      for (const [b, data] of Object.entries(cfg.brigades)) {
+        for (const m of data.members) {
+          if (!m.name.trim()) return `ბრიგადა ${b}: ერთ-ერთ წევრს სახელი აკლია`;
+          if (!m.city.trim()) return `ბრიგადა ${b}: „${m.name}“-ს ქალაქი აკლია`;
+          if (!m.position.trim()) return `ბრიგადა ${b}: „${m.name}“-ს თანამდებობა აკლია`;
+          const pid = m.personal_id.trim();
+          if (pid) {
+            if (seen.has(pid)) return `პირადი # ${pid} მეორდება (ბრიგადა ${seen.get(pid)} და ${b})`;
+            seen.set(pid, b);
+          }
+        }
+      }
+      const names = new Set();
+      for (const w of cfg.work_types) {
+        const n = w.name.trim();
+        if (!n) return 'ერთ-ერთ სამუშაოს სახელი ცარიელია';
+        const key = n.replace(/\s+/g, '').toLowerCase();
+        if (names.has(key)) return `სამუშაო „${n}“ მეორდება`;
+        names.add(key);
+        for (const f of ['worker', 'brigade', 'engineer']) {
+          if (!Number.isFinite(Number(w[f])) || Number(w[f]) < 0) return `„${n}“: ტარიფი არასწორია`;
+        }
+      }
+      for (const k of ['cars', 'engineers']) {
+        if (cfg[k].some(v => !v.trim())) return `${k === 'cars' ? 'ავტომობილის' : 'ინჟინრის'} ველი ცარიელია`;
+      }
+      return '';
+    }
+
+    async function saveConfig() {
+      const err = validateLocally();
+      if (err) { toast(err, 'error'); return; }
+      const btn = $('saveBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ ინახება...';
+      try {
+        const data = await api('/api/admin/config', { method: 'PUT', body: JSON.stringify(cfg) });
+        cfg = normalizeCfg(data.config);
+        setSnapshot();
+        renderAll();
+        toast('✅ ცვლილებები შენახულია. მთავარ გვერდზე განახლება გამოჩნდება გვერდის გადატვირთვისას.');
+      } catch (e) {
+        toast(`❌ ${e.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 შენახვა';
+      }
+    }
+
+    function discardChanges() {
+      if (!confirm('გავაუქმო ყველა შეუნახავი ცვლილება?')) return;
+      cfg = JSON.parse(savedSnapshot);
+      if (!cfg.brigades[selectedBrigade]) selectedBrigade = brigadeKeys()[0] || null;
+      renderAll();
+      updateDirty();
+      toast('ცვლილებები გაუქმდა.', 'warning');
+    }
+
+    function confirmLeave() {
+      return !isDirty() || confirm('გაქვთ შეუნახავი ცვლილებები. დარწმუნებული ხართ, რომ გსურთ გასვლა?');
+    }
+    window.addEventListener('beforeunload', (e) => {
+      if (isDirty()) { e.preventDefault(); e.returnValue = ''; }
+    });
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's' && !$('appView').classList.contains('hidden')) {
+        e.preventDefault();
+        if (isDirty()) saveConfig();
+      }
+    });
+
+    async function exportConfig() {
+      try {
+        const res = await fetch('/api/admin/export', { headers: { 'X-Admin-Password': password } });
+        if (!res.ok) throw new Error(`შეცდომა ${res.status}`);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `config_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch (e) {
+        toast(`❌ ${e.message}`, 'error');
+      }
+    }
+
+    async function downloadBackup() {
+      try {
+        const res = await fetch('/api/admin/backup', { headers: { 'X-Admin-Password': password } });
+        if (!res.ok) {
+          let msg = `შეცდომა ${res.status}`;
+          try { msg = (await res.json()).error || msg; } catch (_) {}
+          throw new Error(msg);
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        toast('✅ სარეზერვო ასლი ჩამოიტვირთა. შეინახეთ უსაფრთხო ადგილას.');
+      } catch (e) {
+        toast(`❌ ${e.message}`, 'error');
+      }
+    }
+
+    async function resetConfig() {
+      if (!confirm('ყველა ბრიგადა და სამუშაოს ტიპი დაბრუნდება config.json-ის მდგომარეობაზე.\nადმინ პანელში გაკეთებული ყველა ცვლილება დაიკარგება.\n\nგავაგრძელო?')) return;
+      try {
+        const data = await api('/api/admin/reset', { method: 'POST' });
+        cfg = normalizeCfg(data.config);
+        selectedBrigade = brigadeKeys()[0] || null;
+        setSnapshot();
+        renderAll();
+        toast('პარამეტრები დაბრუნდა config.json-ის მდგომარეობაზე.', 'warning');
+      } catch (e) {
+        toast(`❌ ${e.message}`, 'error');
+      }
+    }
+
+    /* ---------- Helpers ---------- */
+    const brigadeKeys = () => Object.keys(cfg.brigades).sort(brigadeSortKey);
+
+    function allCities() {
+      const s = new Set();
+      Object.values(cfg.brigades).forEach(b => b.members.forEach(m => { if (m.city.trim()) s.add(m.city.trim()); }));
+      return [...s].sort((a, b) => a.localeCompare(b, 'ka'));
+    }
+
+    function changed() {
+      updateDirty();
+      renderStats();
+    }
+
+    /* ---------- Rendering ---------- */
+    function renderAll() {
+      renderStats();
+      renderDatalists();
+      renderBrigadeList();
+      renderEditor();
+      renderWorkTypes();
+      renderList('cars');
+      renderList('engineers');
+    }
+
+    function renderStats() {
+      const keys = brigadeKeys();
+      const members = keys.reduce((s, k) => s + cfg.brigades[k].members.length, 0);
+      $('stBrigades').textContent = keys.length;
+      $('stMembers').textContent = members;
+      $('stCities').textContent = allCities().length;
+      $('stWorks').textContent = cfg.work_types.length;
+      $('stCars').textContent = cfg.cars.length;
+      $('stEngineers').textContent = cfg.engineers.length;
+      $('tabCountB').textContent = keys.length;
+      $('tabCountW').textContent = cfg.work_types.length;
+      $('tabCountC').textContent = cfg.cars.length;
+      $('tabCountE').textContent = cfg.engineers.length;
+    }
+
+    function renderDatalists() {
+      const pos = new Set([...positions, 'მუშა', 'ბრიგადირი', 'სარემონტო ბრიგადის უფროსი']);
+      Object.values(cfg.brigades).forEach(b => b.members.forEach(m => m.position && pos.add(m.position)));
+      $('positionsList').innerHTML = [...pos].map(p => `<option value="${esc(p)}"></option>`).join('');
+      const cities = new Set([TBILISI, ...allCities()]);
+      $('citiesList').innerHTML = [...cities].map(c => `<option value="${esc(c)}"></option>`).join('');
+    }
+
+    function renderBrigadeList() {
+      const keys = brigadeKeys();
+      const list = $('brigadeList');
+      if (!keys.length) {
+        list.innerHTML = '<p style="color:var(--ink-faint); font-size:13px;">ბრიგადები არ არის — დაამატეთ ქვემოთ.</p>';
+        return;
+      }
+      list.innerHTML = keys.map(k => {
+        const members = cfg.brigades[k].members;
+        const cities = [...new Set(members.map(m => m.city).filter(Boolean))].join(', ');
+        return `
+          <button type="button" class="brigade-btn ${k === selectedBrigade ? 'active' : ''}" data-key="${esc(k)}">
+            <span class="num">${esc(k)}</span>
+            <span class="meta"><b>${members.length} წევრი</b><small>${esc(cities || 'ქალაქი არ არის')}</small></span>
+          </button>`;
+      }).join('');
+    }
+
+    function selectBrigade(key) {
+      selectedBrigade = key;
+      memberFilter = '';
+      renderBrigadeList();
+      renderEditor();
+    }
+
+    function renderEditor() {
+      const box = $('brigadeEditor');
+      if (!selectedBrigade || !cfg.brigades[selectedBrigade]) {
+        box.innerHTML = '<div class="editor-empty">აირჩიეთ ბრიგადა მარცხნივ, ან შექმენით ახალი.</div>';
+        return;
+      }
+      const key = selectedBrigade;
+      const members = cfg.brigades[key].members;
+      const cities = [...new Set(members.map(m => m.city).filter(Boolean))];
+      const otherBrigades = brigadeKeys().filter(k => k !== key);
+      const q = memberFilter.trim().toLocaleLowerCase('ka-GE');
+
+      const rows = members.map((m, i) => ({ m, i }))
+        .filter(({ m }) => !q || [m.name, m.personal_id, m.city, m.position].join(' ').toLocaleLowerCase('ka-GE').includes(q))
+        .map(({ m, i }) => `
+          <tr data-i="${i}">
+            <td class="idx">${LEADERS.has(m.position) ? '<span class="leader-dot" title="ხელმძღვანელი"></span>' : ''}${i + 1}</td>
+            <td><input class="input" data-f="name" value="${esc(m.name)}" placeholder="სახელი გვარი"></td>
+            <td><input class="input" data-f="position" list="positionsList" value="${esc(m.position)}" placeholder="თანამდებობა"></td>
+            <td><input class="input" data-f="city" list="citiesList" value="${esc(m.city)}" placeholder="ქალაქი"></td>
+            <td class="pid"><input class="input" data-f="personal_id" value="${esc(m.personal_id)}" placeholder="პირადი #" inputmode="numeric"></td>
+            <td class="acts">
+              ${otherBrigades.length ? `<select class="move-select" data-move="${i}" title="სხვა ბრიგადაში გადაყვანა">
+                <option value="">↪ გადაყვანა</option>
+                ${otherBrigades.map(b => `<option value="${esc(b)}">ბრიგადა ${esc(b)}</option>`).join('')}
+              </select>` : ''}
+              <button type="button" class="icon-btn" data-del="${i}" title="წაშლა">✖</button>
+            </td>
+          </tr>`).join('');
+
+      box.innerHTML = `
+        <div class="brigade-title">
+          <span class="panel-eyebrow">// ბრიგადა</span>
+          <h3>№</h3>
+          <input class="input num-input" id="renameInput" value="${esc(key)}" maxlength="20" title="ნომრის შეცვლა">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="renameBrigade()">✎ ნომრის შეცვლა</button>
+          <span class="spacer"></span>
+          <button type="button" class="btn btn-danger btn-sm" onclick="deleteBrigade()">🗑 ბრიგადის წაშლა</button>
+        </div>
+        ${cities.length ? '' : '<div class="city-chips"><span style="color:var(--ink-faint); font-size:12.5px;">ქალაქი ჯერ არ არის — წევრს ქალაქი მიუთითეთ</span></div>'}
+        ${cities.length ? `<div class="defaults-box">
+          <div class="defaults-head"><span></span><span>🚗 ნაგულისხმევი ავტომობილი</span><span>👷 ინჟინერი საბონუსე სისტემაში</span></div>
+          ${cities.map(c => {
+            const d = (cfg.brigades[key].city_defaults || {})[c] || {};
+            return `<div class="defaults-line">
+              <span class="chip ${c === TBILISI ? 'tb' : ''}">📍 ${esc(c)}</span>
+              <select class="input" data-dcity="${esc(c)}" data-dfield="car">
+                <option value="">— არ არის —</option>
+                ${cfg.cars.map(x => `<option value="${esc(x)}" ${x === d.car ? 'selected' : ''}>${esc(x)}</option>`).join('')}
+              </select>
+              <select class="input" data-dcity="${esc(c)}" data-dfield="engineer">
+                <option value="">— არ არის —</option>
+                ${cfg.engineers.map(x => `<option value="${esc(x)}" ${x === d.engineer ? 'selected' : ''}>${esc(x)}</option>`).join('')}
+              </select>
+            </div>`;
+          }).join('')}
+        </div>` : ''}
+        ${members.length > 6 ? `<input type="search" class="input member-search" id="memberSearch" placeholder="🔎 წევრის ძებნა..." value="${esc(memberFilter)}">` : ''}
+        <div class="table-wrap">
+          <table class="mtable">
+            <thead><tr><th>#</th><th>სახელი გვარი</th><th>თანამდებობა</th><th>ქალაქი</th><th>პირადი #</th><th></th></tr></thead>
+            <tbody id="membersBody">
+              ${rows || (members.length ? '<tr><td colspan="6" style="text-align:center; padding:16px; color:var(--ink-faint);">ვერ მოიძებნა</td></tr>' : '')}
+              <tr class="new-row">
+                <td class="idx">＋</td>
+                <td><input class="input" id="nmName" placeholder="სახელი გვარი *"></td>
+                <td><input class="input" id="nmPosition" list="positionsList" placeholder="თანამდებობა *" value="მუშა"></td>
+                <td><input class="input" id="nmCity" list="citiesList" placeholder="ქალაქი *" value="${esc(cities[0] || '')}"></td>
+                <td class="pid"><input class="input" id="nmPid" placeholder="პირადი #" inputmode="numeric"></td>
+                <td class="acts"><button type="button" class="btn btn-success btn-sm" onclick="addMember()">➕ დამატება</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>`;
+
+      const search = $('memberSearch');
+      box.querySelectorAll('[data-dcity]').forEach(sel => sel.addEventListener('change', () => {
+        const cd = cfg.brigades[key].city_defaults = cfg.brigades[key].city_defaults || {};
+        const d = cd[sel.dataset.dcity] = cd[sel.dataset.dcity] || { car: '', engineer: '' };
+        d[sel.dataset.dfield] = sel.value;
+        if (!d.car && !d.engineer) delete cd[sel.dataset.dcity];
+        changed();
+        renderList(sel.dataset.dfield === 'car' ? 'cars' : 'engineers');
+      }));
+      if (search) search.addEventListener('input', (e) => {
+        memberFilter = e.target.value;
+        const pos = e.target.selectionStart;
+        renderEditor();
+        const s = $('memberSearch');
+        s.focus(); s.setSelectionRange(pos, pos);
+      });
+
+      box.querySelectorAll('#membersBody tr[data-i] .input').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const i = Number(inp.closest('tr').dataset.i);
+          cfg.brigades[key].members[i][inp.dataset.f] = inp.value;
+          inp.classList.remove('is-invalid');
+          changed();
+        });
+        inp.addEventListener('change', () => { renderBrigadeList(); renderDatalists(); });
+      });
+      box.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => deleteMember(Number(b.dataset.del))));
+      box.querySelectorAll('[data-move]').forEach(s => s.addEventListener('change', () => {
+        if (s.value) moveMember(Number(s.dataset.move), s.value);
+      }));
+      box.querySelectorAll('.new-row .input').forEach(inp => inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); addMember(); }
+      }));
+    }
+
+    /* ---------- Brigade actions ---------- */
+    function addBrigade() {
+      const inp = $('newBrigadeInput');
+      const key = inp.value.trim();
+      if (!key) {
+        const nums = brigadeKeys().filter(k => /^\d+$/.test(k)).map(Number);
+        inp.value = String((nums.length ? Math.max(...nums) : 0) + 1);
+        inp.focus();
+        toast('შემოთავაზებულია შემდეგი ნომერი — დააჭირეთ ➕', 'warning');
+        return;
+      }
+      if (cfg.brigades[key]) { toast(`ბრიგადა ${key} უკვე არსებობს.`, 'error'); inp.classList.add('is-invalid'); return; }
+      cfg.brigades[key] = { city_defaults: {}, members: [] };
+      inp.value = '';
+      inp.classList.remove('is-invalid');
+      selectedBrigade = key;
+      changed();
+      renderBrigadeList();
+      renderEditor();
+      setTimeout(() => $('nmName')?.focus(), 50);
+      toast(`ბრიგადა ${key} დაემატა — დაამატეთ წევრები და შეინახეთ.`);
+    }
+
+    function renameBrigade() {
+      const newKey = $('renameInput').value.trim();
+      const oldKey = selectedBrigade;
+      if (!newKey || newKey === oldKey) return;
+      if (cfg.brigades[newKey]) { toast(`ბრიგადა ${newKey} უკვე არსებობს.`, 'error'); return; }
+      if (!confirm(`ბრიგადა ${oldKey} → ${newKey}?\n\nშენიშვნა: უკვე შენახულ ჩანაწერებში ძველი ნომერი დარჩება.`)) return;
+      const rebuilt = {};
+      Object.keys(cfg.brigades).forEach(k => { rebuilt[k === oldKey ? newKey : k] = cfg.brigades[k]; });
+      cfg.brigades = rebuilt;
+      selectedBrigade = newKey;
+      changed();
+      renderBrigadeList();
+      renderEditor();
+    }
+
+    function deleteBrigade() {
+      const key = selectedBrigade;
+      const n = cfg.brigades[key].members.length;
+      if (!confirm(`წავშალო ბრიგადა ${key}${n ? ` (${n} წევრით)` : ''}?\n\nუკვე შენახული ჩანაწერები არ წაიშლება.`)) return;
+      delete cfg.brigades[key];
+      selectedBrigade = brigadeKeys()[0] || null;
+      changed();
+      renderAll();
+    }
+
+    /* ---------- Member actions ---------- */
+    function findPersonalId(pid, exceptBrigade, exceptIndex) {
+      for (const [b, data] of Object.entries(cfg.brigades)) {
+        for (let i = 0; i < data.members.length; i++) {
+          if (b === exceptBrigade && i === exceptIndex) continue;
+          if (data.members[i].personal_id.trim() === pid) return { b, m: data.members[i] };
+        }
+      }
+      return null;
+    }
+
+    function addMember() {
+      const name = $('nmName').value.trim();
+      const position = $('nmPosition').value.trim();
+      const city = $('nmCity').value.trim();
+      const pid = $('nmPid').value.trim();
+
+      let bad = false;
+      [['nmName', name], ['nmPosition', position], ['nmCity', city]].forEach(([id, v]) => {
+        if (!v) { $(id).classList.add('is-invalid'); bad = true; }
+      });
+      if (bad) { toast('შეავსეთ სახელი, თანამდებობა და ქალაქი.', 'error'); return; }
+
+      if (pid) {
+        const dup = findPersonalId(pid);
+        if (dup) { $('nmPid').classList.add('is-invalid'); toast(`პირადი # ${pid} უკვე აქვს: ${dup.m.name} (ბრიგადა ${dup.b})`, 'error'); return; }
+      }
+
+      cfg.brigades[selectedBrigade].members.push({ name, position, city, personal_id: pid });
+      changed();
+      renderBrigadeList();
+      renderDatalists();
+      renderEditor();
+      setTimeout(() => $('nmName')?.focus(), 30);
+    }
+
+    function deleteMember(i) {
+      const m = cfg.brigades[selectedBrigade].members[i];
+      if (!confirm(`წავშალო „${m.name || 'უსახელო'}“ ბრიგადიდან ${selectedBrigade}?`)) return;
+      cfg.brigades[selectedBrigade].members.splice(i, 1);
+      changed();
+      renderBrigadeList();
+      renderEditor();
+    }
+
+    function moveMember(i, target) {
+      const from = selectedBrigade;
+      const [m] = cfg.brigades[from].members.splice(i, 1);
+      cfg.brigades[target].members.push(m);
+      changed();
+      renderBrigadeList();
+      renderEditor();
+      toast(`${m.name} გადაყვანილია ბრიგადა ${target}-ში.`);
+    }
+
+    /* ---------- Work types + tariffs ---------- */
+    const TARIFF_FIELDS = ['worker', 'brigade', 'engineer'];
+    const fmtTariff = (n) => (Number(n) || 0).toString();
+
+    function renderWorkTypes() {
+      const q = ($('wtSearch').value || '').trim().toLocaleLowerCase('ka-GE');
+      const items = cfg.work_types.map((w, i) => ({ w, i }))
+        .filter(({ w }) => !q || w.name.toLocaleLowerCase('ka-GE').includes(q));
+      const body = $('wtBody');
+      const isZero = (w) => TARIFF_FIELDS.every(f => !Number(w[f]));
+      body.innerHTML = items.map(({ w, i }) => `
+          <tr data-wi="${i}" class="${isZero(w) ? 'zero' : ''}">
+            <td class="idx">${i + 1}</td>
+            <td><input class="input" data-f="name" value="${esc(w.name)}" placeholder="სამუშაოს დასახელება">
+              ${isZero(w) ? '<span class="zero-badge" title="ყველა ტარიფი 0-ია">ტარიფი 0</span>' : ''}</td>
+            ${TARIFF_FIELDS.map(f => `<td class="tar"><input class="input" data-f="${f}" value="${esc(fmtTariff(w[f]))}" inputmode="decimal"></td>`).join('')}
+            <td class="acts"><button type="button" class="icon-btn" data-wdel="${i}" title="წაშლა">✖</button></td>
+          </tr>`).join('')
+        + (q && !items.length ? '<tr><td colspan="6" style="text-align:center; padding:16px; color:var(--ink-faint);">ვერ მოიძებნა</td></tr>' : '')
+        + `<tr class="new-row">
+            <td class="idx">＋</td>
+            <td><input class="input" id="nwName" placeholder="ახალი სამუშაო *"></td>
+            ${TARIFF_FIELDS.map(f => `<td class="tar"><input class="input" id="nw_${f}" placeholder="0" inputmode="decimal"></td>`).join('')}
+            <td class="acts"><button type="button" class="btn btn-success btn-sm" onclick="addWorkType()">➕</button></td>
+          </tr>`;
+
+      body.querySelectorAll('tr[data-wi] .input').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const w = cfg.work_types[Number(inp.closest('tr').dataset.wi)];
+          const f = inp.dataset.f;
+          if (f === 'name') { w.name = inp.value; }
+          else {
+            const n = Number(inp.value.replace(',', '.'));
+            const ok = inp.value.trim() === '' || (Number.isFinite(n) && n >= 0);
+            inp.classList.toggle('is-invalid', !ok);
+            w[f] = inp.value.trim() === '' ? 0 : (ok ? n : NaN);
+          }
+          changed();
+        });
+        inp.addEventListener('change', () => {
+          const tr = inp.closest('tr');
+          const w = cfg.work_types[Number(tr.dataset.wi)];
+          const zero = TARIFF_FIELDS.every(f => !Number(w[f]));
+          if (tr.classList.contains('zero') !== zero) renderWorkTypes();
+        });
+      });
+      body.querySelectorAll('[data-wdel]').forEach(b => b.addEventListener('click', () => {
+        const i = Number(b.dataset.wdel);
+        if (!confirm(`წავშალო „${cfg.work_types[i].name}“?\n\nუკვე შენახულ ჩანაწერებში სამუშაო და მისი ტარიფი დარჩება.`)) return;
+        cfg.work_types.splice(i, 1);
+        changed();
+        renderWorkTypes();
+      }));
+      body.querySelectorAll('.new-row .input').forEach(inp => inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); addWorkType(); }
+      }));
+    }
+
+    function addWorkType() {
+      const name = $('nwName').value.trim();
+      if (!name) { $('nwName').classList.add('is-invalid'); $('nwName').focus(); return; }
+      const key = name.replace(/\s+/g, '').toLowerCase();
+      if (cfg.work_types.some(w => w.name.replace(/\s+/g, '').toLowerCase() === key)) {
+        toast('ასეთი სამუშაო უკვე არსებობს.', 'error'); return;
+      }
+      const entry = { name };
+      for (const f of TARIFF_FIELDS) {
+        const raw = $('nw_' + f).value.trim().replace(',', '.');
+        const n = raw === '' ? 0 : Number(raw);
+        if (!Number.isFinite(n) || n < 0) { $('nw_' + f).classList.add('is-invalid'); toast('ტარიფი უნდა იყოს დადებითი რიცხვი.', 'error'); return; }
+        entry[f] = n;
+      }
+      cfg.work_types.push(entry);
+      $('wtSearch').value = '';
+      changed();
+      renderWorkTypes();
+      $('nwName').focus();
+    }
+
+    /* ---------- Cars / engineers (simple lists) ---------- */
+    const LIST_FIELD = { cars: 'car', engineers: 'engineer' };
+    const eachDefault = (fn) => Object.values(cfg.brigades).forEach(b => Object.values(b.city_defaults || {}).forEach(fn));
+
+    function listUsage(kind, value) {
+      const out = [];
+      brigadeKeys().forEach(k => Object.entries(cfg.brigades[k].city_defaults || {}).forEach(([c, d]) => {
+        if (d[LIST_FIELD[kind]] === value) out.push(`${k} (${c})`);
+      }));
+      return out;
+    }
+
+    function renderList(kind) {
+      const box = $('list-' + kind);
+      const mono = kind === 'cars' ? 'mono' : '';
+      box.innerHTML = cfg[kind].length
+        ? cfg[kind].map((v, i) => {
+            const used = listUsage(kind, v);
+            return `
+              <div class="wt-item">
+                <span class="n">${i + 1}</span>
+                <input class="input ${mono}" data-li="${i}" value="${esc(v)}">
+                <span class="usage" title="ნაგულისხმევი ამ ბრიგადებში">${used.length ? '👷 ' + used.map(esc).join(', ') : ''}</span>
+                <button type="button" class="icon-btn" data-ldel="${i}" title="წაშლა">✖</button>
+              </div>`;
+          }).join('')
+        : '<p style="color:var(--ink-faint); font-size:13px;">სია ცარიელია — დაამატეთ ზემოთ.</p>';
+
+      box.querySelectorAll('[data-li]').forEach(inp => {
+        let before = inp.value;
+        inp.addEventListener('input', () => {
+          const i = Number(inp.dataset.li);
+          const old = cfg[kind][i];
+          cfg[kind][i] = inp.value;
+          // rename propagates to brigade defaults
+          eachDefault(d => { if (d[LIST_FIELD[kind]] === old) d[LIST_FIELD[kind]] = inp.value; });
+          changed();
+        });
+        inp.addEventListener('change', () => {
+          const v = inp.value.trim();
+          const dup = cfg[kind].filter(x => x.trim().toLowerCase() === v.toLowerCase()).length > 1;
+          inp.classList.toggle('is-invalid', !v || dup);
+          if (dup) toast(`„${v}“ უკვე არის სიაში.`, 'error');
+          if (before !== inp.value && selectedBrigade) renderEditor();
+          before = inp.value;
+        });
+      });
+      box.querySelectorAll('[data-ldel]').forEach(b => b.addEventListener('click', () => {
+        const i = Number(b.dataset.ldel);
+        const v = cfg[kind][i];
+        const used = listUsage(kind, v);
+        if (!confirm(`წავშალო „${v}“?${used.length ? `\n\nნაგულისხმევია ბრიგადებში: ${used.join(', ')} — იქიდანაც მოიხსნება.` : ''}`)) return;
+        cfg[kind].splice(i, 1);
+        eachDefault(d => { if (d[LIST_FIELD[kind]] === v) d[LIST_FIELD[kind]] = ''; });
+        changed();
+        renderList(kind);
+        renderEditor();
+      }));
+    }
+
+    function addListItem(kind) {
+      const inp = $('new-' + kind);
+      let v = inp.value.trim();
+      if (kind === 'cars') v = v.toUpperCase().replace(/[_\s]+/g, '-');
+      if (!v) { inp.focus(); return; }
+      if (cfg[kind].some(x => x.trim().toLowerCase() === v.toLowerCase())) { toast(`„${v}“ უკვე არის სიაში.`, 'error'); return; }
+      cfg[kind].push(v);
+      inp.value = '';
+      changed();
+      renderList(kind);
+      renderEditor();
+      inp.focus();
+    }
+
+    /* ---------- Tabs ---------- */
+    $('brigadeList').addEventListener('click', (e) => {
+      const btn = e.target.closest('.brigade-btn');
+      if (btn) selectBrigade(btn.dataset.key);
+    });
+    function switchTab(name) {
+      document.querySelectorAll('.section-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+      ['brigades', 'works', 'cars', 'engineers'].forEach(t => $('tab-' + t).classList.toggle('hidden', name !== t));
+    }
+
+    /* ---------- Init ---------- */
+    window.addEventListener('DOMContentLoaded', async () => {
+      const stored = sessionStorage.getItem(PW_KEY);
+      if (stored) {
+        password = stored;
+        try { await enterApp(); return; } catch (e) { /* falls through to login */ }
+      }
+      showLogin();
+    });
+  </script>
+</body>
+</html>
