@@ -164,7 +164,7 @@
       min-height: 48px;
       transition: border-color .15s, box-shadow .15s;
     }
-    #idInput, #coefficientInput { font-family: var(--font-mono); font-weight: 600; }
+    #idInput { font-family: var(--font-mono); font-weight: 600; }
     .form-group input:focus, .form-group select:focus {
       border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-glow);
     }
@@ -317,8 +317,6 @@
       display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px;
       padding: 18px 0 0; align-items: center;
     }
-    .kbd-hint { font-size: 11px; color: var(--ink-faint); font-family: var(--font-mono); }
-    kbd { font-family: var(--font-mono); font-size: 10px; background: #fff; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; }
 
     .pill {
       border-radius: 999px; background: var(--ink); color: var(--signal);
@@ -431,7 +429,6 @@
       .actions { flex-direction: column; align-items: stretch; gap: 10px; }
       .actions .btn { width: 100%; }
       .actions .pill { margin-left: 0; text-align: center; }
-      .kbd-hint { display: none; }
       .filter-box { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px; }
       .filter-box .f-group { flex-direction: column; align-items: stretch; }
       .filter-box .filter-input, #filterSearchId { width: 100%; min-width: 0; }
@@ -449,7 +446,7 @@
     <div class="mark"><img src="/logo.png" alt="Logo" /></div>
     <div class="titles">
       <h1>სამუშაოს ანგარიშის გენერატორი</h1>
-      <p>Brigade-Ops / Enterprise v3.2</p>
+      <p>Brigade-Ops / Enterprise v3.3</p>
     </div>
     <nav class="nav-tabs">
       <a class="nav-tab active" href="/">📋 ანგარიში</a>
@@ -508,7 +505,7 @@
           </div>
           <div class="form-group">
             <label for="coefficientInput">ქალაქის კოეფიციენტი (გადაადგილება)</label>
-            <input type="text" id="coefficientInput" inputmode="decimal" placeholder="მაგ: 1.2" />
+            <input type="text" id="coefficientInput" placeholder="ჩაწერეთ თავისუფლად" />
           </div>
         </div>
 
@@ -610,7 +607,6 @@
       <div class="actions">
         <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveRecord()">💾 შენახვა</button>
         <button type="button" class="btn btn-ghost" onclick="clearForm()">🔄 გასუფთავება</button>
-        <span class="kbd-hint"><kbd>Ctrl</kbd> + <kbd>S</kbd> — შენახვა</span>
         <span class="pill" id="recordCounter">ჩანაწერები: 0</span>
       </div>
     </form>
@@ -743,14 +739,6 @@
       fetchServerRecords();
       addWork();
       renderMemberList();
-    });
-
-    // Ctrl/Cmd + S saves the form
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-        e.preventDefault();
-        saveRecord();
-      }
     });
 
     // Close the extra-member dropdown when clicking outside
@@ -1275,13 +1263,7 @@
         return;
       }
 
-      let coefficient = $('coefficientInput').value.trim().replace(',', '.');
-      if (coefficient && (!/^\d+(\.\d+)?$/.test(coefficient) || Number(coefficient) <= 0)) {
-        markInvalid('coefficientInput');
-        showStatus('კოეფიციენტი უნდა იყოს დადებითი რიცხვი (მაგ: 1.2).', 'error');
-        $('coefficientInput').focus();
-        return;
-      }
+      const coefficient = $('coefficientInput').value.trim();   // any free text
 
       const works = [];
       let invalidTime = false, orphanRow = false, negativeQty = false;

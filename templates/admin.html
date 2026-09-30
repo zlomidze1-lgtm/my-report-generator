@@ -156,7 +156,35 @@
     .wt-item .input { border-color: transparent; min-height: 36px; padding: 6px 8px; }
     .wt-item .input:hover { border-color: var(--line); }
     .wt-item .n { font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); min-width: 22px; }
-    .wt-item .usage { font-size: 11px; color: var(--ink-faint); white-space: nowrap; }
+    .icon-btn { flex-shrink: 0; }
+
+    /* Cars / engineers cards */
+    .list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+    .list-card {
+      background: #fff; border: 1px solid var(--line); border-radius: var(--radius-md);
+      padding: 12px 12px 12px 14px; display: flex; flex-direction: column; gap: 10px;
+      box-shadow: var(--shadow-subtle); transition: border-color .15s, box-shadow .15s;
+    }
+    .list-card:hover { border-color: var(--line-strong); box-shadow: 0 8px 22px -8px rgba(15,23,42,.14); }
+    .list-card.unused { background: var(--surface-muted); }
+    .list-card .top { display: flex; align-items: center; gap: 10px; }
+    .list-card .avatar {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px; color: #fff; background: linear-gradient(135deg, #1F4E79, #2563eb);
+    }
+    .list-card.car .avatar { background: linear-gradient(135deg, #0f172a, #334155); font-size: 17px; }
+    .list-card .input { flex: 1; min-width: 0; min-height: 38px; padding: 7px 10px; font-weight: 700; border-color: transparent; background: transparent; }
+    .list-card .input:hover { border-color: var(--line); }
+    .list-card .input:focus { background: #fff; }
+    .list-card.car .input { font-family: var(--font-mono); letter-spacing: .5px; }
+    .usage-row { display: flex; flex-wrap: wrap; gap: 6px; padding-left: 48px; }
+    .utag { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--steel-soft); color: var(--primary); white-space: nowrap; }
+    .utag b { font-family: var(--font-mono); }
+    .utag.tb { background: var(--signal-dim); color: #3f6212; }
+    .utag.none { background: transparent; color: var(--ink-faint); font-weight: 500; padding-left: 0; }
+    .add-row { display: flex; gap: 10px; margin-bottom: 16px; }
+    .add-row .input { flex: 1; min-width: 0; }
     .input.mono, .wt-item .input.mono { font-family: var(--font-mono); font-weight: 600; }
     .hint-line { font-size: 12.5px; color: var(--ink-soft); margin: -6px 0 14px; }
     .wt-table { min-width: 760px; }
@@ -183,6 +211,7 @@
       max-width: calc(100vw - 24px);
     }
     .savebar.show { transform: translate(-50%, 0); }
+    .savebar:not(.show) { visibility: hidden; transition: transform .25s, visibility 0s .25s; }
     .savebar .msg { font-size: 13.5px; font-weight: 600; }
     .savebar .msg .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--warning); margin-right: 8px; }
     .savebar .btn-ghost { color: #cbd5e1; border-color: rgba(255,255,255,.2); }
@@ -199,13 +228,15 @@
 
     .hidden { display: none !important; }
 
+    .brigades-layout > *, .panel, .table-wrap { min-width: 0; }
     @media (max-width: 860px) {
-      .brigades-layout { grid-template-columns: 1fr; }
+      .brigades-layout { grid-template-columns: minmax(0, 1fr); }
       .brigade-list { max-height: none; flex-direction: row; overflow-x: auto; padding-bottom: 6px; }
       .brigade-btn { width: auto; flex-shrink: 0; }
       .brigade-btn .meta small { display: none; }
     }
     @media (max-width: 720px) {
+      body { overflow-x: hidden; }
       .topbar { flex-wrap: wrap; padding: 12px 14px; }
       .topbar .titles h1 { font-size: 15px; }
       .nav-tabs { margin-left: 0; flex: 1; }
@@ -213,7 +244,18 @@
       .wrap { padding: 16px 10px 0; }
       .panel { padding: 16px 12px; border-radius: 16px; }
       .wt-list { grid-template-columns: 1fr; }
-      .savebar { bottom: 10px; width: calc(100vw - 20px); }
+      .savebar { bottom: 10px; width: calc(100vw - 20px); padding: 10px 12px; gap: 8px; flex-wrap: nowrap; }
+      .savebar .msg { font-size: 12px; flex: 1; }
+      .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .stat { padding: 10px 12px; }
+      .stat .v { font-size: 20px; }
+      .stat .k { font-size: 9px; letter-spacing: .4px; }
+      .section-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+      .section-tab { flex-shrink: 0; }
+      .brigade-title .num-input { width: 80px; }
+      .list-grid { grid-template-columns: 1fr; }
+      .tools .btn { width: 100%; }
+      #wtSearch { max-width: none !important; width: 100%; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
   </style>
@@ -315,11 +357,11 @@
             <h2>ავტომობილები</h2>
           </div>
           <p class="hint-line">ბრიგადის ნაგულისხმევი ავტომობილი ეთითება „ბრიგადები“ ტაბში — ფორმაში ავტომატურად შეივსება.</p>
-          <form class="wt-toolbar" onsubmit="event.preventDefault(); addListItem('cars');">
+          <form class="add-row" onsubmit="event.preventDefault(); addListItem('cars');">
             <input type="text" id="new-cars" class="input mono" placeholder="მაგ: CJ-752-JC" />
             <button type="submit" class="btn btn-success">➕ დამატება</button>
           </form>
-          <div class="wt-list" id="list-cars"></div>
+          <div class="list-grid" id="list-cars"></div>
         </div>
       </section>
 
@@ -331,11 +373,11 @@
             <h2>ინჟინრები საბონუსე სისტემაში</h2>
           </div>
           <p class="hint-line">ბრიგადის ინჟინერი ეთითება „ბრიგადები“ ტაბში — ფორმაში ავტომატურად შეივსება.</p>
-          <form class="wt-toolbar" onsubmit="event.preventDefault(); addListItem('engineers');">
+          <form class="add-row" onsubmit="event.preventDefault(); addListItem('engineers');">
             <input type="text" id="new-engineers" class="input" placeholder="გვარი სახელი" />
             <button type="submit" class="btn btn-success">➕ დამატება</button>
           </form>
-          <div class="wt-list" id="list-engineers"></div>
+          <div class="list-grid" id="list-engineers"></div>
         </div>
       </section>
 
@@ -560,12 +602,6 @@
     }
     window.addEventListener('beforeunload', (e) => {
       if (isDirty()) { e.preventDefault(); e.returnValue = ''; }
-    });
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's' && !$('appView').classList.contains('hidden')) {
-        e.preventDefault();
-        if (isDirty()) saveConfig();
-      }
     });
 
     async function exportConfig() {
@@ -991,7 +1027,7 @@
     function listUsage(kind, value) {
       const out = [];
       brigadeKeys().forEach(k => Object.entries(cfg.brigades[k].city_defaults || {}).forEach(([c, d]) => {
-        if (d[LIST_FIELD[kind]] === value) out.push(`${k} (${c})`);
+        if (d[LIST_FIELD[kind]] === value) out.push({ brigade: k, city: c });
       }));
       return out;
     }
@@ -999,15 +1035,21 @@
     function renderList(kind) {
       const box = $('list-' + kind);
       const mono = kind === 'cars' ? 'mono' : '';
+      const initials = (v) => v.trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
       box.innerHTML = cfg[kind].length
         ? cfg[kind].map((v, i) => {
             const used = listUsage(kind, v);
+            const tags = used.length
+              ? used.map(u => `<span class="utag ${u.city === TBILISI ? 'tb' : ''}">ბრიგადა <b>${esc(u.brigade)}</b> · ${esc(u.city)}</span>`).join('')
+              : '<span class="utag none">ბრიგადაზე არ არის მიბმული</span>';
             return `
-              <div class="wt-item">
-                <span class="n">${i + 1}</span>
-                <input class="input ${mono}" data-li="${i}" value="${esc(v)}">
-                <span class="usage" title="ნაგულისხმევი ამ ბრიგადებში">${used.length ? '👷 ' + used.map(esc).join(', ') : ''}</span>
-                <button type="button" class="icon-btn" data-ldel="${i}" title="წაშლა">✖</button>
+              <div class="list-card ${kind === 'cars' ? 'car' : ''} ${used.length ? '' : 'unused'}">
+                <div class="top">
+                  <span class="avatar">${kind === 'cars' ? '🚗' : esc(initials(v))}</span>
+                  <input class="input" data-li="${i}" value="${esc(v)}" title="შესაცვლელად დააჭირეთ">
+                  <button type="button" class="icon-btn" data-ldel="${i}" title="წაშლა">✖</button>
+                </div>
+                <div class="usage-row">${tags}</div>
               </div>`;
           }).join('')
         : '<p style="color:var(--ink-faint); font-size:13px;">სია ცარიელია — დაამატეთ ზემოთ.</p>';
@@ -1035,7 +1077,8 @@
         const i = Number(b.dataset.ldel);
         const v = cfg[kind][i];
         const used = listUsage(kind, v);
-        if (!confirm(`წავშალო „${v}“?${used.length ? `\n\nნაგულისხმევია ბრიგადებში: ${used.join(', ')} — იქიდანაც მოიხსნება.` : ''}`)) return;
+        const usedTxt = used.map(u => `${u.brigade} (${u.city})`).join(', ');
+        if (!confirm(`წავშალო „${v}“?${used.length ? `\n\nმიბმულია ბრიგადებზე: ${usedTxt} — იქიდანაც მოიხსნება.` : ''}`)) return;
         cfg[kind].splice(i, 1);
         eachDefault(d => { if (d[LIST_FIELD[kind]] === v) d[LIST_FIELD[kind]] = ''; });
         changed();
