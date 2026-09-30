@@ -35,7 +35,6 @@ PLACEHOLDER = "@"
 
 # ძველ ჩანაწერებში შენახული მნიშვნელობები → Excel-ის (აღრიცხვის) ფორმატი
 COMMENT_MAP = {
-    "საბონუსე": "",                       # საბონუსე სისტემა Excel-ში ცარიელია
     "დღიური": "დღიური ანაზღაურება",
     "ბიულეტენი": "ბიულეტინი",
     "სავარაუდო ბიულეტენი": "სავარაუდო ბიულეტინი",
@@ -419,7 +418,7 @@ COLUMNS = [
     ("თანხა\nინჟინერი",             12, "#,##0.00",   "engineer"), # X
     ("ინჟინერი საბონუსე\nსისტემაში", 24, "@",          "main"),     # Y
     ("ქალაქი",                     12, "@",          "extra"),    # Z
-    ("ქალაქის\nკოეფიციენტი",       14, "0.00",       "extra"),    # AA
+    ("ქალაქის\nკოეფიციენტი",       14, "General",    "extra"),    # AA
     ("სხვა\nბრიგადიდან",            13, "@",          "extra"),    # AB
 ]
 NCOLS = len(COLUMNS)
@@ -508,7 +507,9 @@ def build_rows(records, cfg):
         comment = _map_comment(record.get("overall_comment", ""))
         rec_note = str(record.get("note", "") or "").strip()
         city = record.get("city", "")
-        coef = to_number(record.get("coefficient"), None)
+        # კოეფიციენტი — თავისუფალი ტექსტი; რიცხვი Excel-ში რიცხვად ჩაიწერება
+        coef_raw = str(record.get("coefficient", "") or "").strip()
+        coef = to_number(coef_raw, None) if re.fullmatch(r"-?\d+([.,]\d+)?", coef_raw) else (coef_raw or None)
 
         active, absent = [], []
         for m in members:
