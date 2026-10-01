@@ -449,6 +449,18 @@
     .abs-table tbody tr.just-updated { animation: flashOk 2.2s ease-out; }
     @keyframes flashOk { 0% { background: #bbf7d0; } 100% { background: transparent; } }
     .abs-note { font-size: 12px; color: var(--ink-faint); margin-top: 10px; }
+    .abs-view { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .abs-view .lbl { font-family: var(--font-mono); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--ink-soft); margin-right: 4px; }
+    .abs-view button { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line-strong); background: #fff; font-weight: 700; font-size: 13px; cursor: pointer; color: var(--ink-soft); }
+    .abs-view button b { font-family: var(--font-mono); margin-left: 4px; color: var(--ink-faint); }
+    .abs-view button.active { background: var(--steel-soft); border-color: var(--primary); color: var(--primary); }
+    .abs-view button.active b { color: var(--primary); }
+    .abs-table td.work { text-align: left; min-width: 240px; }
+    .wk { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; line-height: 1.35; padding: 1px 0; }
+    .wk span { font-family: var(--font-mono); font-weight: 700; white-space: nowrap; color: var(--ink); }
+    .wk span small { color: var(--ink-faint); font-weight: 500; }
+    .wk-hours { font-size: 11px; color: var(--ink-faint); font-family: var(--font-mono); margin-top: 2px; }
+    .wk-none { color: var(--ink-faint); font-size: 12px; }
 
     #noRecordsHint {
       text-align: center; padding: 36px; border: 1.5px dashed var(--line-strong);
@@ -509,7 +521,7 @@
     <div class="mark"><img src="/logo.png" alt="Logo" /></div>
     <div class="titles">
       <h1>სამუშაოს ანგარიშის გენერატორი</h1>
-      <p>Brigade-Ops / Enterprise v3.4</p>
+      <p>Brigade-Ops / Enterprise v3.5</p>
     </div>
     <nav class="nav-tabs">
       <a class="nav-tab active" href="/">📋 ანგარიში</a>
@@ -757,11 +769,19 @@
       <div id="absContent" hidden>
         <div class="abs-person-card" id="absPersonCard"></div>
 
+        <div class="abs-view" id="absViewBar" role="group" aria-label="ჩვენება">
+          <span class="lbl">ჩვენება:</span>
+          <button type="button" class="active" data-view="all">ყველა დღე <b id="absCntAll">0</b></button>
+          <button type="button" data-view="worked">🛠 ნამუშევარი <b id="absCntWorked">0</b></button>
+          <button type="button" data-view="absent">🩺 გაცდენა <b id="absCntAbsent">0</b></button>
+        </div>
+
         <div class="abs-bar" id="absBar">
           <span class="abs-sel">მონიშნულია: <b id="absSelCount">0</b> / <span id="absTotal">0</span></span>
           <span class="abs-quick">
             <button type="button" class="btn btn-ghost btn-sm" onclick="absSelect('all')">ყველა</button>
-            <button type="button" class="btn btn-ghost btn-sm" onclick="absSelect('absent')">მხოლოდ გაცდენები</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="absSelect('worked')">ნამუშევარი დღეები</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="absSelect('absent')">გაცდენები</button>
             <button type="button" class="btn btn-ghost btn-sm" onclick="absSelect('none')">მოხსნა</button>
           </span>
           <span class="abs-apply">
@@ -776,7 +796,7 @@
             <thead>
               <tr>
                 <th class="chk"><input type="checkbox" id="absCheckAll" title="ყველას მონიშვნა" onchange="absSelect(this.checked ? 'all' : 'none')"></th>
-                <th>თარიღი</th><th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>მისამართი</th><th>მიმდინარე სტატუსი</th>
+                <th>თარიღი</th><th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>მისამართი</th><th>მიმდინარე სტატუსი</th><th>ნამუშევარი (კაცზე / ჯამი)</th>
               </tr>
             </thead>
             <tbody id="absTbody"></tbody>
@@ -1654,6 +1674,9 @@
     let absResults = [];
     let absActive = -1;
     let absJustUpdated = new Set();
+    let absView = 'all';            // all | worked | absent
+    let absVisible = [];
+    const LEADER_POSITIONS = new Set(['ბრიგადირი', 'სარემონტო ბრიგადის უფროსი']);
 
     const recId = (r) => String(r.db_id || r.id);
     const normReason = (n) => OLD_SPELLING[n] || n;
@@ -1662,7 +1685,7 @@
     const memberStatus = (m) => (m.absent || String(m.note || '').trim())
       ? (normReason(String(m.note || '').trim()) || 'არ გამოცხადდა') : null;
     const statusBadge = (st) => st === null
-      ? '<span class="st present">✔ გამოცხადდა</span>'
+      ? '<span class="st present">✔ იმუშავა</span>'
       : `<span class="st ${reasonClass(st)}">${safeAttr(st)}</span>`;
 
     function personKey(m) {
@@ -1711,7 +1734,7 @@
         '<optgroup label="არ გამოცხადდა — მიზეზი">' +
         ABSENCE_REASONS.map(r => `<option value="${safeAttr(r)}">${safeAttr(r)}</option>`).join('') +
         '</optgroup><optgroup label="სხვა">' +
-        `<option value="${PRESENT_STATUS}">✔ გამოცხადდა (გაცდენის მოხსნა)</option></optgroup>`;
+        `<option value="${PRESENT_STATUS}">✔ იმუშავა / გამოცხადდა (გაცდენის მოხსნა)</option></optgroup>`;
       $('absNewStatus').addEventListener('change', updateAbsBar);
     }
 
@@ -1759,7 +1782,6 @@
       absJustUpdated.clear();
       absSelected = new Set();
       renderAbs();
-      absSelect('absent');   // by default select the days already marked as absent
     }
 
     function clearAbsPerson() {
@@ -1792,9 +1814,45 @@
         const date = r.date || '';
         if ((from && date < from) || (to && date > to)) return;
         const m = (r.members || []).find(x => samePerson(x, absPerson));
-        if (m) out.push({ rec: r, id: recId(r), status: memberStatus(m) });
+        if (m) out.push({ rec: r, id: recId(r), status: memberStatus(m), work: workShare(r, m) });
       });
       return out.sort((a, b) => String(a.rec.date || '').localeCompare(String(b.rec.date || '')) || a.id.localeCompare(b.id));
+    }
+
+    // Same split as the Excel export: leader = 1, workers share the quantity
+    function workShare(rec, m) {
+      if (memberStatus(m) !== null) return null;
+      const present = (rec.members || []).filter(x => memberStatus(x) === null);
+      const workers = present.filter(x => !LEADER_POSITIONS.has(x.position)).length;
+      const div = LEADER_POSITIONS.has(m.position) ? 1 : workers;
+      let minutes = 0;
+      const items = (rec.works || []).map(w => {
+        const qty = Number(String(w.quantity ?? '').replace(',', '.')) || 0;
+        if (w.start && w.end) {
+          const [sh, sm] = w.start.split(':').map(Number), [eh, em] = w.end.split(':').map(Number);
+          minutes += (((eh * 60 + em) - (sh * 60 + sm)) % 1440 + 1440) % 1440;
+        }
+        return { type: w.work_type || '—', qty, per: div ? qty / div : 0 };
+      });
+      return { items, minutes };
+    }
+
+    const fmtQty = (n) => (Math.round(n * 100) / 100).toLocaleString('en-US', { maximumFractionDigits: 2 });
+
+    function workCell(r) {
+      if (!r.work) return '<span class="wk-none">— არ უმუშავია</span>';
+      if (!r.work.items.length) return '<span class="wk-none">სამუშაო არ არის მითითებული</span>';
+      const shown = r.work.items.slice(0, 3).map(w =>
+        `<div class="wk"><b>${safeAttr(w.type)}</b><span>${fmtQty(w.per)} <small>/ ${fmtQty(w.qty)}</small></span></div>`).join('');
+      const more = r.work.items.length > 3 ? `<div class="wk-hours">+ კიდევ ${r.work.items.length - 3} სამუშაო</div>` : '';
+      const hrs = r.work.minutes ? `<div class="wk-hours">⏱ ${fmtDuration(r.work.minutes)}</div>` : '';
+      return shown + more + hrs;
+    }
+
+    function setAbsView(view) {
+      absView = view;
+      document.querySelectorAll('#absViewBar button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+      renderAbs();
     }
 
     function renderAbs() {
@@ -1806,8 +1864,12 @@
         return;
       }
       const rows = absRowsCache = absRows();
-      const ids = new Set(rows.map(r => r.id));
-      absSelected = new Set([...absSelected].filter(id => ids.has(id)));
+      absVisible = rows.filter(r => absView === 'all' || (absView === 'worked' ? r.status === null : r.status !== null));
+      const ids = new Set(absVisible.map(r => r.id));
+      absSelected = new Set([...absSelected].filter(id => ids.has(id)));   // never act on hidden rows
+      $('absCntAll').textContent = rows.length;
+      $('absCntWorked').textContent = rows.filter(r => r.status === null).length;
+      $('absCntAbsent').textContent = rows.filter(r => r.status !== null).length;
 
       // person card + status counters (click a counter = select those days)
       const counts = new Map();
@@ -1818,7 +1880,7 @@
         <span class="abs-who"><b>${safeAttr(absPerson.name)}</b><small>${safeAttr(absPerson.position || '')}${absPerson.pid ? ' · ' + safeAttr(absPerson.pid) : ''}</small></span>
         <span class="abs-stats">
           ${[...counts.entries()].sort((a, b) => (a[0] === null) - (b[0] === null) || b[1] - a[1]).map(([st, n]) =>
-            `<span class="st ${st === null ? 'present' : reasonClass(st)}" data-st="${st === null ? PRESENT_STATUS : safeAttr(st)}" title="მონიშნე ეს დღეები">${st === null ? '✔ გამოცხადდა' : safeAttr(st)} <b>${n}</b></span>`
+            `<span class="st ${st === null ? 'present' : reasonClass(st)}" data-st="${st === null ? PRESENT_STATUS : safeAttr(st)}" title="მონიშნე ეს დღეები">${st === null ? '✔ იმუშავა' : safeAttr(st)} <b>${n}</b></span>`
           ).join('')}
         </span>`;
       $('absPersonCard').querySelectorAll('[data-st]').forEach(el => el.addEventListener('click', () => absSelect('status', el.dataset.st)));
@@ -1833,7 +1895,8 @@
       $('absContent').hidden = false;
       $('absContent').prepend($('absPersonCard'));
 
-      $('absTbody').innerHTML = rows.map(r => `
+      $('absTbody').innerHTML = (absVisible.length ? '' :
+        `<tr><td colspan="8" style="padding:24px; color:var(--ink-faint);">ამ ხედში დღეები არ არის</td></tr>`) + absVisible.map(r => `
         <tr data-id="${safeAttr(r.id)}" class="${absSelected.has(r.id) ? 'sel' : ''} ${absJustUpdated.has(r.id) ? 'just-updated' : ''}">
           <td class="chk"><input type="checkbox" ${absSelected.has(r.id) ? 'checked' : ''} aria-label="მონიშვნა"></td>
           <td style="white-space:nowrap;">${safeAttr(formatDate(r.rec.date))}</td>
@@ -1842,6 +1905,7 @@
           <td>${safeAttr(r.rec.city)}</td>
           <td class="addr">${safeAttr(r.rec.address)}</td>
           <td>${statusBadge(r.status)}</td>
+          <td class="work">${workCell(r)}</td>
         </tr>`).join('');
       absJustUpdated.clear();
       updateAbsBar();
@@ -1858,11 +1922,18 @@
       updateAbsBar();
     });
 
+    $('absViewBar').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-view]');
+      if (b) setAbsView(b.dataset.view);
+    });
+
     function absSelect(mode, st) {
-      const rows = absRowsCache;
+      if (mode === 'status' && absView !== 'all') { absView = 'all'; setAbsView('all'); }
+      const rows = absVisible;
       if (mode === 'all') absSelected = new Set(rows.map(r => r.id));
       else if (mode === 'none') absSelected = new Set();
       else if (mode === 'absent') absSelected = new Set(rows.filter(r => r.status !== null).map(r => r.id));
+      else if (mode === 'worked') absSelected = new Set(rows.filter(r => r.status === null).map(r => r.id));
       else if (mode === 'status') absSelected = new Set(rows.filter(r => (st === PRESENT_STATUS ? r.status === null : r.status === st)).map(r => r.id));
       $('absTbody').querySelectorAll('tr[data-id]').forEach(tr => {
         const on = absSelected.has(tr.dataset.id);
@@ -1873,7 +1944,7 @@
     }
 
     function updateAbsBar() {
-      const n = absSelected.size, total = absRowsCache.length;
+      const n = absSelected.size, total = absVisible.length;
       $('absSelCount').textContent = n;
       $('absTotal').textContent = total;
       const all = $('absCheckAll');
@@ -1891,15 +1962,15 @@
         showStatus('ერთ-ერთი მონიშნული ჩანაწერი ახლა ფორმაში რედაქტირდება — ჯერ შეინახეთ ან გააუქმეთ რედაქტირება.', 'error');
         return;
       }
-      const label = status === PRESENT_STATUS ? 'გამოცხადდა' : status;
+      const label = status === PRESENT_STATUS ? 'იმუშავა (გამოცხადდა)' : status;
       const rows = absRowsCache.filter(r => absSelected.has(r.id));
       const wasPresent = rows.filter(r => r.status === null).length;
       const wasAbsent = rows.length - wasPresent;
       let msg = `${absPerson.name}\n${ids.length} ჩანაწერში სტატუსი გახდება: „${label}“.`;
       if (status !== PRESENT_STATUS && wasPresent)
-        msg += `\n\n⚠️ ${wasPresent} ჩანაწერში ის გამოცხადებული იყო — ამ დღეებში სამუშაოს რაოდენობა დანარჩენ წევრებზე გადანაწილდება.`;
+        msg += `\n\n⚠️ ${wasPresent} დღეში მას ნამუშევარი უწერია — ეს ნამუშევარი მოეხსნება და ბრიგადის დანარჩენ წევრებზე გადანაწილდება.`;
       if (status === PRESENT_STATUS && wasAbsent)
-        msg += `\n\n⚠️ ${wasAbsent} ჩანაწერში ის ჩაითვლება სამუშაოში მონაწილედ.`;
+        msg += `\n\n⚠️ ${wasAbsent} დღეში ის ჩაითვლება სამუშაოში მონაწილედ — იმ დღის სამუშაო მასზეც გადანაწილდება.`;
       if (!confirm(msg + '\n\nგავაგრძელო?')) return;
 
       const btn = $('absApplyBtn');
