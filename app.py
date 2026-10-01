@@ -980,6 +980,70 @@ def api_delete_record(record_id):
         return jsonify({"error": str(e)}), 500
 
 
+# ჩანაწერებში გაცდენის მიზეზის მასობრივი ცვლილება (ერთი პიროვნება, რამდენიმე ჩანაწერი)
+ABSENCE_REASONS = ["შვებულება", "ბიულეტინი", "სავარაუდო ბიულეტინი", "უხელფასო შვებულება", "არასაპატიო", "საპატიო"]
+PRESENT_STATUS = "__present__"
+
+
+@app.route("/api/records/bulk-absence", methods=["POST"])
+def api_bulk_absence():
+    data = request.get_json(silent=True) or {}
+    db_ids = list(dict.fromkeys(str(x) for x in (data.get("db_ids") or []) if str(x).strip()))
+    pid = str(data.get("personal_id") or "").strip()
+    name = str(data.get("name") or "").strip()
+    status = str(data.get("status") or "").strip()
+
+    if not db_ids:
+        return jsonify({"error": "მონიშნეთ მინიმუმ ერთი ჩანაწერი"}), 400
+    if len(db_ids) > 3000:
+        return jsonify({"error": "ერთდროულად მაქსიმუმ 3000 ჩანაწერი"}), 400
+    if not (pid or name):
+        return jsonify({"error": "პიროვნება არ არის მითითებული"}), 400
+    if not status or len(status) > 100:
+        return jsonify({"error": "აირჩიეთ ახალი სტატუსი"}), 400
+
+    def same_person(m):
+        mp = str(m.get("personal_id") or "").strip()
+        if pid and mp:
+            return mp == pid
+        return str(m.get("name") or "").strip() == name
+
+    updated, unchanged, missing = [], 0, 0
+    try:
+        with db_cursor(commit=True) as cur:
+            for db_id in db_ids:
+                cur.execute("SELECT data FROM records WHERE db_id = %s FOR UPDATE;", (db_id,))
+                row = cur.fetchone()
+                rec = row and row.get("data")
+                if not isinstance(rec, dict):
+                    missing += 1
+                    continue
+                changed = False
+                found = False
+                for m in rec.get("members", []) or []:
+                    if not isinstance(m, dict) or not same_person(m):
+                        continue
+                    found = True
+                    if status == PRESENT_STATUS:
+                        new_absent, new_note = False, ""
+                    else:
+                        new_absent, new_note = True, status
+                    if bool(m.get("absent")) != new_absent or str(m.get("note") or "").strip() != new_note:
+                        m["absent"], m["note"] = new_absent, new_note
+                        changed = True
+                if not found:
+                    missing += 1
+                elif not changed:
+                    unchanged += 1
+                else:
+                    cur.execute("UPDATE records SET data = %s WHERE db_id = %s;", (Json(rec), db_id))
+                    updated.append(db_id)
+        return jsonify({"success": True, "updated": len(updated), "unchanged": unchanged,
+                        "missing": missing, "updated_ids": updated})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/generate", methods=["POST"])
 def generate():
     data = request.get_json(silent=True)
