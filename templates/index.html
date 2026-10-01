@@ -396,6 +396,60 @@
     .badge-att { font-family: var(--font-mono); font-weight: 700; }
     .badge-att.partial { color: #b45309; }
 
+    /* Records tabs */
+    .rec-tabs { display: flex; gap: 6px; margin: -4px 0 14px; flex-wrap: wrap; }
+    .rec-tab { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line-strong); background: #fff; font-weight: 700; font-size: 13.5px; cursor: pointer; color: var(--ink-soft); transition: background .15s, color .15s; }
+    .rec-tab:hover { color: var(--ink); }
+    .rec-tab.active { background: var(--ink); color: var(--signal); border-color: var(--ink); }
+
+    /* Absence editor */
+    .abs-filter .abs-person-group { flex: 1 1 340px; }
+    .abs-filter .extra-member-picker { min-width: 240px; }
+    .abs-empty { text-align: center; padding: 36px 20px; border: 1.5px dashed var(--line-strong); border-radius: var(--radius-lg); font-size: 13.5px; color: var(--ink-faint); }
+    .abs-person-card {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 12px;
+      padding: 14px 18px; background: var(--surface); border: 1px solid rgba(226,232,240,.8);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);
+    }
+    .abs-avatar { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; background: linear-gradient(135deg, #1F4E79, #2563eb); }
+    .abs-who b { display: block; font-size: 15px; }
+    .abs-who small { color: var(--ink-soft); font-family: var(--font-mono); font-size: 11.5px; }
+    .abs-stats { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+    .abs-stats .st { cursor: pointer; }
+    .abs-stats .st:hover { filter: brightness(.95); box-shadow: 0 0 0 2px rgba(15,23,42,.08); }
+
+    .st { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; white-space: nowrap; border: 1px solid transparent; }
+    .st b { font-family: var(--font-mono); }
+    .st.present { background: var(--success-soft); color: #047857; border-color: #a7f3d0; }
+    .st.r0 { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }   /* შვებულება */
+    .st.r1 { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }   /* ბიულეტინი */
+    .st.r2 { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }   /* სავარაუდო ბიულეტინი */
+    .st.r3 { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }   /* უხელფასო შვებულება */
+    .st.r4 { background: #fdf2f8; color: #9d174d; border-color: #fbcfe8; }   /* არასაპატიო */
+    .st.r5 { background: #ecfeff; color: #0e7490; border-color: #a5f3fc; }   /* საპატიო */
+    .st.rx { background: #f1f5f9; color: #475569; border-color: #e2e8f0; }
+
+    .abs-bar {
+      display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; margin-bottom: 12px;
+      padding: 10px 14px; background: var(--ink); color: #e2e8f0; border-radius: var(--radius-md);
+      position: sticky; top: 78px; z-index: 5; box-shadow: 0 12px 28px -12px rgba(15,23,42,.45);
+    }
+    .abs-bar .abs-sel b { color: var(--signal); font-family: var(--font-mono); font-size: 15px; }
+    .abs-bar .abs-quick { display: inline-flex; gap: 6px; }
+    .abs-bar .btn-ghost { color: #cbd5e1; border-color: rgba(255,255,255,.18); background: transparent; }
+    .abs-bar .btn-ghost:hover { color: #fff; }
+    .abs-bar .abs-apply { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+    .abs-bar label { font-size: 12.5px; font-weight: 700; }
+    .abs-bar select { min-height: 36px; border-radius: 8px; padding: 6px 10px; border: 0; color: var(--ink); background: #fff; font-weight: 600; cursor: pointer; }
+    .abs-table th.chk, .abs-table td.chk { width: 46px; }
+    .abs-table input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+    .abs-table tbody tr { cursor: pointer; }
+    .abs-table tbody tr.sel { background: #eef2ff; }
+    .abs-table tbody tr.sel:hover { background: #e0e7ff; }
+    .abs-table tbody tr.just-updated { animation: flashOk 2.2s ease-out; }
+    @keyframes flashOk { 0% { background: #bbf7d0; } 100% { background: transparent; } }
+    .abs-note { font-size: 12px; color: var(--ink-faint); margin-top: 10px; }
+
     #noRecordsHint {
       text-align: center; padding: 36px; border: 1.5px dashed var(--line-strong);
       border-radius: var(--radius-lg); font-family: var(--font-mono); font-size: 13px; color: var(--ink-faint);
@@ -430,6 +484,15 @@
       .actions .btn { width: 100%; }
       .actions .pill { margin-left: 0; text-align: center; }
       .filter-box { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px; }
+      .rec-tabs { flex-wrap: nowrap; overflow-x: auto; }
+      .rec-tab { flex-shrink: 0; }
+      .abs-filter .extra-member-picker { min-width: 0; width: 100%; }
+      .abs-filter .abs-person-group { flex: none; }
+      .abs-filter .f-group .btn { width: 100%; }
+      .abs-stats { margin-left: 0; }
+      .abs-bar { position: static; }
+      .abs-bar .abs-apply { margin-left: 0; width: 100%; }
+      .abs-bar .abs-apply select { flex: 1; }
       .filter-box .f-group { flex-direction: column; align-items: stretch; }
       .filter-box .filter-input, #filterSearchId { width: 100%; min-width: 0; }
       .filter-box .btn { width: 100%; margin-left: 0; }
@@ -446,7 +509,7 @@
     <div class="mark"><img src="/logo.png" alt="Logo" /></div>
     <div class="titles">
       <h1>სამუშაოს ანგარიშის გენერატორი</h1>
-      <p>Brigade-Ops / Enterprise v3.3</p>
+      <p>Brigade-Ops / Enterprise v3.4</p>
     </div>
     <nav class="nav-tabs">
       <a class="nav-tab active" href="/">📋 ანგარიში</a>
@@ -504,8 +567,8 @@
             <input type="text" id="objectNameInput" placeholder="ჩაწერეთ ობიექტის დასახელება" />
           </div>
           <div class="form-group">
-            <label for="coefficientInput">გადაადგილება ქალაქის მიხედვით </label>
-            <input type="text" id="coefficientInput" placeholder="ქალაქი" />
+            <label for="coefficientInput">ქალაქის კოეფიციენტი (გადაადგილება)</label>
+            <input type="text" id="coefficientInput" placeholder="ჩაწერეთ თავისუფლად" />
           </div>
         </div>
 
@@ -613,6 +676,12 @@
 
     <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები <span class="pill sm" id="filteredCounter" style="display:none;"></span></h2>
 
+    <div class="rec-tabs" role="tablist">
+      <button type="button" class="rec-tab active" data-rtab="list" onclick="switchRecTab('list')">📋 ჩანაწერები</button>
+      <button type="button" class="rec-tab" data-rtab="absence" onclick="switchRecTab('absence')">🩺 გაცდენების რედაქტირება</button>
+    </div>
+
+    <div id="recTab-list">
     <div class="filter-box">
       <div class="f-group">
         <label for="filterSearchId">🔎 ძებნა:</label>
@@ -654,6 +723,66 @@
           </thead>
           <tbody id="recordsTbody"></tbody>
         </table>
+      </div>
+    </div>
+    </div>
+
+    <!-- Absence bulk editor -->
+    <div id="recTab-absence" hidden>
+      <div class="filter-box abs-filter">
+        <div class="f-group abs-person-group">
+          <label for="absPersonInput">👤 პიროვნება:</label>
+          <div class="extra-member-picker" id="absPicker">
+            <span class="extra-search-icon">⌕</span>
+            <input type="text" id="absPersonInput" class="extra-member-input" placeholder="სახელი, გვარი ან პირადი #..."
+                   autocomplete="off" oninput="searchAbsPerson(this.value)" onkeydown="absPersonKeydown(event)"
+                   onfocus="if (this.value && !absPerson) searchAbsPerson(this.value)" />
+            <button type="button" class="extra-clear" title="გასუფთავება" onclick="clearAbsPerson()">×</button>
+            <div id="absPersonResults" class="extra-member-results" role="listbox"></div>
+          </div>
+        </div>
+        <div class="f-group">
+          <label>📅 პერიოდი:</label>
+          <input type="date" id="absFrom" class="filter-input" onchange="renderAbs()" />
+          <span style="color: var(--ink-faint); font-weight: bold;">→</span>
+          <input type="date" id="absTo" class="filter-input" onchange="renderAbs()" />
+          <button type="button" class="btn btn-ghost btn-sm" onclick="setAbsPeriod('prev')">წინა თვე</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="setAbsPeriod('this')">მიმდინარე თვე</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="setAbsPeriod('all')">მთელი პერიოდი</button>
+        </div>
+      </div>
+
+      <div id="absEmpty" class="abs-empty">აირჩიეთ პიროვნება — გამოჩნდება ყველა ჩანაწერი (ID), სადაც ის ფიგურირებს არჩეულ პერიოდში.</div>
+
+      <div id="absContent" hidden>
+        <div class="abs-person-card" id="absPersonCard"></div>
+
+        <div class="abs-bar" id="absBar">
+          <span class="abs-sel">მონიშნულია: <b id="absSelCount">0</b> / <span id="absTotal">0</span></span>
+          <span class="abs-quick">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="absSelect('all')">ყველა</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="absSelect('absent')">მხოლოდ გაცდენები</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="absSelect('none')">მოხსნა</button>
+          </span>
+          <span class="abs-apply">
+            <label for="absNewStatus">ახალი სტატუსი →</label>
+            <select id="absNewStatus"></select>
+            <button type="button" class="btn btn-primary btn-sm" id="absApplyBtn" onclick="applyAbs()" disabled>✔ გამოყენება</button>
+          </span>
+        </div>
+
+        <div class="table-responsive" id="absTableWrap">
+          <table class="records-table abs-table">
+            <thead>
+              <tr>
+                <th class="chk"><input type="checkbox" id="absCheckAll" title="ყველას მონიშვნა" onchange="absSelect(this.checked ? 'all' : 'none')"></th>
+                <th>თარიღი</th><th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>მისამართი</th><th>მიმდინარე სტატუსი</th>
+              </tr>
+            </thead>
+            <tbody id="absTbody"></tbody>
+          </table>
+        </div>
+        <p class="abs-note">ცვლილება ინახება ჩანაწერებში და ავტომატურად აისახება Excel-ის გენერირებისას.</p>
       </div>
     </div>
 
@@ -744,6 +873,7 @@
     // Close the extra-member dropdown when clicking outside
     document.addEventListener('click', (e) => {
       if (!$('extraPicker').contains(e.target)) closeExtraResults();
+      if (!$('absPicker').contains(e.target)) $('absPersonResults').classList.remove('open');
     });
 
     // Clear the red "invalid" highlight as soon as the user fixes a field
@@ -757,6 +887,8 @@
           fillRegionCitySelect();
           renderRecordsTable();
           updateRecordCounter();
+          absIndexDirty = true;
+          if (absPerson) renderAbs();
         })
         .catch(() => {
           $('noRecordsHint').textContent = 'ჩანაწერების ჩატვირთვა ვერ მოხერხდა';
@@ -1507,6 +1639,292 @@
       if (area === 'tbilisi') return TBILISI;
       if (area === 'region') return $('filterRegionCity').value || 'რეგიონები';
       return '';
+    }
+
+    /* ---------- Absence bulk editor ---------- */
+    const ABSENCE_REASONS = ['შვებულება', 'ბიულეტინი', 'სავარაუდო ბიულეტინი', 'უხელფასო შვებულება', 'არასაპატიო', 'საპატიო'];
+    const PRESENT_STATUS = '__present__';
+    const OLD_SPELLING = { 'ბიულეტენი': 'ბიულეტინი', 'სავარაუდო ბიულეტენი': 'სავარაუდო ბიულეტინი' };
+
+    let absPerson = null;          // {key, name, pid, position, places: Set, recs}
+    let absSelected = new Set();   // db_ids
+    let absRowsCache = [];
+    let absPeople = [];
+    let absIndexDirty = true;
+    let absResults = [];
+    let absActive = -1;
+    let absJustUpdated = new Set();
+
+    const recId = (r) => String(r.db_id || r.id);
+    const normReason = (n) => OLD_SPELLING[n] || n;
+    const reasonClass = (n) => { const i = ABSENCE_REASONS.indexOf(n); return i >= 0 ? `r${i}` : 'rx'; };
+    // null = present; otherwise the reason text
+    const memberStatus = (m) => (m.absent || String(m.note || '').trim())
+      ? (normReason(String(m.note || '').trim()) || 'არ გამოცხადდა') : null;
+    const statusBadge = (st) => st === null
+      ? '<span class="st present">✔ გამოცხადდა</span>'
+      : `<span class="st ${reasonClass(st)}">${safeAttr(st)}</span>`;
+
+    function personKey(m) {
+      const pid = String(m.personal_id || '').trim();
+      return pid ? `id:${pid}` : `n:${String(m.name || '').trim()}`;
+    }
+
+    function samePerson(m, p) {
+      const mp = String(m.personal_id || '').trim();
+      if (p.pid && mp) return mp === p.pid;
+      return String(m.name || '').trim() === p.name;
+    }
+
+    function buildAbsIndex() {
+      const map = new Map();
+      const add = (m, brigade, city) => {
+        if (!m || !String(m.name || '').trim()) return null;
+        const k = personKey(m);
+        let p = map.get(k);
+        if (!p) {
+          p = { key: k, name: String(m.name).trim(), pid: String(m.personal_id || '').trim(), position: m.position || '', places: new Set(), recs: 0 };
+          map.set(k, p);
+        }
+        if (brigade) p.places.add(`ბრ. ${brigade}${city ? ' · ' + city : ''}`);
+        return p;
+      };
+      allMembersCache.forEach(m => add(m, m.brigade, m.city));
+      savedRecords.forEach(r => (r.members || []).forEach(m => { const p = add(m, r.brigade, r.city); if (p) p.recs++; }));
+      absPeople = [...map.values()].sort((a, b) => a.name.localeCompare(b.name, 'ka'));
+      absIndexDirty = false;
+    }
+
+    function switchRecTab(name) {
+      document.querySelectorAll('.rec-tab').forEach(t => t.classList.toggle('active', t.dataset.rtab === name));
+      $('recTab-list').hidden = name !== 'list';
+      $('recTab-absence').hidden = name !== 'absence';
+      if (name === 'absence') {
+        if (!$('absNewStatus').options.length) fillAbsStatusSelect();
+        if (absIndexDirty) buildAbsIndex();
+        if (!absPerson) setTimeout(() => $('absPersonInput').focus(), 50);
+      }
+    }
+
+    function fillAbsStatusSelect() {
+      $('absNewStatus').innerHTML = '<option value="">-- აირჩიეთ --</option>' +
+        '<optgroup label="არ გამოცხადდა — მიზეზი">' +
+        ABSENCE_REASONS.map(r => `<option value="${safeAttr(r)}">${safeAttr(r)}</option>`).join('') +
+        '</optgroup><optgroup label="სხვა">' +
+        `<option value="${PRESENT_STATUS}">✔ გამოცხადდა (გაცდენის მოხსნა)</option></optgroup>`;
+      $('absNewStatus').addEventListener('change', updateAbsBar);
+    }
+
+    function searchAbsPerson(query) {
+      const box = $('absPersonResults');
+      if (absPerson && query !== absPerson.name) { absPerson = null; absSelected.clear(); renderAbs(); }
+      const q = (query || '').trim().toLocaleLowerCase('ka-GE');
+      absActive = -1;
+      if (!q) { box.classList.remove('open'); box.innerHTML = ''; return; }
+      if (absIndexDirty) buildAbsIndex();
+      absResults = absPeople.filter(p => `${p.name} ${p.pid}`.toLocaleLowerCase('ka-GE').includes(q)).slice(0, 12);
+      box.innerHTML = absResults.length
+        ? absResults.map((p, i) => `
+            <button type="button" class="extra-result" data-i="${i}" onclick="selectAbsPerson(${i})">
+              <span class="r-name">${safeAttr(p.name)}</span>
+              <span class="r-meta">${safeAttr(p.position || '—')}${p.pid ? ' · ' + safeAttr(p.pid) : ''} · ${[...p.places].slice(0, 2).map(safeAttr).join(', ') || '—'} · ${p.recs} ჩანაწერი</span>
+            </button>`).join('')
+        : '<div class="extra-empty">ვერ მოიძებნა</div>';
+      box.classList.add('open');
+    }
+
+    function absPersonKeydown(e) {
+      const box = $('absPersonResults');
+      const items = box.querySelectorAll('.extra-result');
+      if (!box.classList.contains('open') || !items.length) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        absActive = (absActive + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+        items.forEach((el, i) => el.classList.toggle('active', i === absActive));
+        items[absActive].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        selectAbsPerson(absActive >= 0 ? absActive : 0);
+      } else if (e.key === 'Escape') {
+        box.classList.remove('open');
+      }
+    }
+
+    function selectAbsPerson(i) {
+      const p = absResults[i];
+      if (!p) return;
+      absPerson = p;
+      $('absPersonInput').value = p.name;
+      $('absPersonResults').classList.remove('open');
+      absJustUpdated.clear();
+      absSelected = new Set();
+      renderAbs();
+      absSelect('absent');   // by default select the days already marked as absent
+    }
+
+    function clearAbsPerson() {
+      absPerson = null;
+      absSelected.clear();
+      $('absPersonInput').value = '';
+      $('absPersonResults').classList.remove('open');
+      renderAbs();
+      $('absPersonInput').focus();
+    }
+
+    function setAbsPeriod(kind) {
+      const d = new Date(), pad = (n) => String(n).padStart(2, '0');
+      const fmt = (x) => `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}`;
+      if (kind === 'all') { $('absFrom').value = ''; $('absTo').value = ''; }
+      else {
+        const first = new Date(d.getFullYear(), d.getMonth() - (kind === 'prev' ? 1 : 0), 1);
+        const last = new Date(first.getFullYear(), first.getMonth() + 1, 0);
+        $('absFrom').value = fmt(first); $('absTo').value = fmt(last);
+      }
+      renderAbs();
+    }
+
+    function absRows() {
+      if (!absPerson) return [];
+      let from = $('absFrom').value, to = $('absTo').value;
+      if (from && to && from > to) [from, to] = [to, from];
+      const out = [];
+      savedRecords.forEach(r => {
+        const date = r.date || '';
+        if ((from && date < from) || (to && date > to)) return;
+        const m = (r.members || []).find(x => samePerson(x, absPerson));
+        if (m) out.push({ rec: r, id: recId(r), status: memberStatus(m) });
+      });
+      return out.sort((a, b) => String(a.rec.date || '').localeCompare(String(b.rec.date || '')) || a.id.localeCompare(b.id));
+    }
+
+    function renderAbs() {
+      if (!$('recTab-absence')) return;
+      if (!absPerson) {
+        $('absEmpty').hidden = false;
+        $('absEmpty').textContent = 'აირჩიეთ პიროვნება — გამოჩნდება ყველა ჩანაწერი (ID), სადაც ის ფიგურირებს არჩეულ პერიოდში.';
+        $('absContent').hidden = true;
+        return;
+      }
+      const rows = absRowsCache = absRows();
+      const ids = new Set(rows.map(r => r.id));
+      absSelected = new Set([...absSelected].filter(id => ids.has(id)));
+
+      // person card + status counters (click a counter = select those days)
+      const counts = new Map();
+      rows.forEach(r => counts.set(r.status, (counts.get(r.status) || 0) + 1));
+      const initials = absPerson.name.split(/\s+/).slice(0, 2).map(w => w[0] || '').join('');
+      $('absPersonCard').innerHTML = `
+        <span class="abs-avatar">${safeAttr(initials)}</span>
+        <span class="abs-who"><b>${safeAttr(absPerson.name)}</b><small>${safeAttr(absPerson.position || '')}${absPerson.pid ? ' · ' + safeAttr(absPerson.pid) : ''}</small></span>
+        <span class="abs-stats">
+          ${[...counts.entries()].sort((a, b) => (a[0] === null) - (b[0] === null) || b[1] - a[1]).map(([st, n]) =>
+            `<span class="st ${st === null ? 'present' : reasonClass(st)}" data-st="${st === null ? PRESENT_STATUS : safeAttr(st)}" title="მონიშნე ეს დღეები">${st === null ? '✔ გამოცხადდა' : safeAttr(st)} <b>${n}</b></span>`
+          ).join('')}
+        </span>`;
+      $('absPersonCard').querySelectorAll('[data-st]').forEach(el => el.addEventListener('click', () => absSelect('status', el.dataset.st)));
+
+      if (!rows.length) {
+        $('absContent').hidden = true;
+        $('absEmpty').hidden = false;
+        $('absEmpty').textContent = `${absPerson.name} — არჩეულ პერიოდში ჩანაწერი არ მოიძებნა.`;
+        return;
+      }
+      $('absEmpty').hidden = true;
+      $('absContent').hidden = false;
+      $('absContent').prepend($('absPersonCard'));
+
+      $('absTbody').innerHTML = rows.map(r => `
+        <tr data-id="${safeAttr(r.id)}" class="${absSelected.has(r.id) ? 'sel' : ''} ${absJustUpdated.has(r.id) ? 'just-updated' : ''}">
+          <td class="chk"><input type="checkbox" ${absSelected.has(r.id) ? 'checked' : ''} aria-label="მონიშვნა"></td>
+          <td style="white-space:nowrap;">${safeAttr(formatDate(r.rec.date))}</td>
+          <td style="font-family:var(--font-mono); font-weight:700;">${safeAttr(r.rec.id)}</td>
+          <td>${safeAttr(r.rec.brigade)}</td>
+          <td>${safeAttr(r.rec.city)}</td>
+          <td class="addr">${safeAttr(r.rec.address)}</td>
+          <td>${statusBadge(r.status)}</td>
+        </tr>`).join('');
+      absJustUpdated.clear();
+      updateAbsBar();
+    }
+
+    $('absTbody').addEventListener('click', (e) => {
+      const tr = e.target.closest('tr[data-id]');
+      if (!tr) return;
+      const id = tr.dataset.id;
+      if (absSelected.has(id)) absSelected.delete(id); else absSelected.add(id);
+      const on = absSelected.has(id);
+      tr.classList.toggle('sel', on);
+      tr.querySelector('input[type=checkbox]').checked = on;
+      updateAbsBar();
+    });
+
+    function absSelect(mode, st) {
+      const rows = absRowsCache;
+      if (mode === 'all') absSelected = new Set(rows.map(r => r.id));
+      else if (mode === 'none') absSelected = new Set();
+      else if (mode === 'absent') absSelected = new Set(rows.filter(r => r.status !== null).map(r => r.id));
+      else if (mode === 'status') absSelected = new Set(rows.filter(r => (st === PRESENT_STATUS ? r.status === null : r.status === st)).map(r => r.id));
+      $('absTbody').querySelectorAll('tr[data-id]').forEach(tr => {
+        const on = absSelected.has(tr.dataset.id);
+        tr.classList.toggle('sel', on);
+        tr.querySelector('input[type=checkbox]').checked = on;
+      });
+      updateAbsBar();
+    }
+
+    function updateAbsBar() {
+      const n = absSelected.size, total = absRowsCache.length;
+      $('absSelCount').textContent = n;
+      $('absTotal').textContent = total;
+      const all = $('absCheckAll');
+      all.checked = n > 0 && n === total;
+      all.indeterminate = n > 0 && n < total;
+      $('absApplyBtn').disabled = !n || !$('absNewStatus').value;
+    }
+
+    async function applyAbs() {
+      const status = $('absNewStatus').value;
+      const ids = [...absSelected];
+      if (!absPerson || !ids.length || !status) return;
+
+      if (editingRecordId && ids.includes(String(editingRecordId))) {
+        showStatus('ერთ-ერთი მონიშნული ჩანაწერი ახლა ფორმაში რედაქტირდება — ჯერ შეინახეთ ან გააუქმეთ რედაქტირება.', 'error');
+        return;
+      }
+      const label = status === PRESENT_STATUS ? 'გამოცხადდა' : status;
+      const rows = absRowsCache.filter(r => absSelected.has(r.id));
+      const wasPresent = rows.filter(r => r.status === null).length;
+      const wasAbsent = rows.length - wasPresent;
+      let msg = `${absPerson.name}\n${ids.length} ჩანაწერში სტატუსი გახდება: „${label}“.`;
+      if (status !== PRESENT_STATUS && wasPresent)
+        msg += `\n\n⚠️ ${wasPresent} ჩანაწერში ის გამოცხადებული იყო — ამ დღეებში სამუშაოს რაოდენობა დანარჩენ წევრებზე გადანაწილდება.`;
+      if (status === PRESENT_STATUS && wasAbsent)
+        msg += `\n\n⚠️ ${wasAbsent} ჩანაწერში ის ჩაითვლება სამუშაოში მონაწილედ.`;
+      if (!confirm(msg + '\n\nგავაგრძელო?')) return;
+
+      const btn = $('absApplyBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ ინახება...';
+      try {
+        const res = await jsonFetch('/api/records/bulk-absence', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ db_ids: ids, personal_id: absPerson.pid, name: absPerson.name, status })
+        });
+        absJustUpdated = new Set(res.updated_ids || []);
+        let text = `✅ განახლდა ${res.updated} ჩანაწერი → „${label}“`;
+        if (res.unchanged) text += ` · ${res.unchanged} უკვე ასე იყო`;
+        if (res.missing) text += ` · ${res.missing} ვერ მოიძებნა`;
+        showStatus(text, res.missing ? 'warning' : 'success');
+        absSelected = new Set();
+        $('absNewStatus').value = '';
+        await fetchServerRecords();
+      } catch (err) {
+        showStatus(`❌ ${err.message || err}`, 'error');
+      } finally {
+        btn.textContent = '✔ გამოყენება';
+        updateAbsBar();
+      }
     }
 
     /* ---------- Records table ---------- */
