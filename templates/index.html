@@ -326,6 +326,57 @@
     .actions .pill { margin-left: auto; }
 
     /* ---------- Toast ---------- */
+    /* User chip */
+    .user-chip { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 6px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); color: #f8fafc; }
+    .user-chip[hidden] { display: none; }
+    .uc-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--signal); color: var(--signal-ink); font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
+    .uc-name { font-size: 13px; font-weight: 700; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .uc-logout { border: 0; background: rgba(255,255,255,.1); color: #e2e8f0; border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .uc-logout:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+    /* Login screen */
+    .login-screen { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 16px;
+      background: radial-gradient(circle at 20% 10%, rgba(55,103,255,.25), transparent 40%), radial-gradient(circle at 85% 90%, rgba(199,243,59,.18), transparent 40%), #0f172a; }
+    .login-screen[hidden] { display: none; }
+    .login-card { width: 100%; max-width: 380px; background: #fff; border-radius: 20px; padding: 28px 26px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 30px 80px -20px rgba(0,0,0,.5); }
+    .login-logo { width: 64px; height: 64px; margin: 0 auto 4px; }
+    .login-card h2 { text-align: center; font-size: 20px; }
+    .login-card p { text-align: center; color: var(--ink-soft); font-size: 13px; margin-bottom: 8px; }
+    .login-card label { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--ink-soft); letter-spacing: .9px; text-transform: uppercase; margin-top: 6px; }
+    .login-card input { padding: 11px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); font-size: 14px; min-height: 46px; }
+    .login-card input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
+    .login-card .btn { margin-top: 10px; }
+    .login-error { background: var(--danger-soft); color: #991b1b; border: 1px solid #fecaca; border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; }
+    .login-error[hidden] { display: none; }
+    .login-note { text-align: center; color: var(--ink-faint); font-size: 11.5px; margin-top: 6px; }
+
+    /* Overlap modal */
+    .modal-back { position: fixed; inset: 0; z-index: 1500; background: rgba(15,23,42,.55); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal-back[hidden] { display: none; }
+    .modal { width: 100%; max-width: 680px; max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: #fff; border-radius: 18px; box-shadow: 0 40px 90px -20px rgba(0,0,0,.45); overflow: hidden; }
+    .modal-head { display: flex; gap: 14px; align-items: flex-start; padding: 20px 22px 14px; background: linear-gradient(135deg, #fffbeb, #fef3c7); border-bottom: 1px solid #fde68a; }
+    .modal-icon { font-size: 28px; line-height: 1; }
+    .modal-head h3 { font-size: 17px; color: #92400e; }
+    .modal-head p { font-size: 13px; color: #92400e; margin-top: 2px; }
+    .modal-body { padding: 16px 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+    .ov-card { border: 1px solid #fde68a; border-left: 4px solid var(--warning); border-radius: 12px; padding: 12px 14px; background: #fffdf5; }
+    .ov-msg { font-size: 13.5px; line-height: 1.5; }
+    .ov-msg b { color: var(--ink); }
+    .ov-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    .ov-cell { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+    .ov-cell span { display: block; font-family: var(--font-mono); font-size: 9.5px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 2px; }
+    .ov-cell b { font-family: var(--font-mono); font-size: 13px; }
+    .ov-cell.hit { border-color: #fca5a5; background: #fef2f2; }
+    .ov-cell.hit b { color: #b91c1c; }
+    .ov-works { font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+    .modal-foot { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; padding: 14px 22px; border-top: 1px solid var(--line); background: var(--surface-muted); }
+    .btn-warn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border-color: #d97706; }
+    @media (max-width: 720px) {
+      .user-chip .uc-name { display: none; }
+      .ov-grid { grid-template-columns: 1fr; }
+      .modal-foot .btn { width: 100%; }
+    }
+
     .toast-status {
       position: fixed; left: 50%; bottom: 24px; z-index: 1000;
       transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
@@ -521,12 +572,17 @@
     <div class="mark"><img src="/logo.png" alt="Logo" /></div>
     <div class="titles">
       <h1>სამუშაოს ანგარიშის გენერატორი</h1>
-      <p>Brigade-Ops / Enterprise v3.5</p>
+      <p>Brigade-Ops / Enterprise v4.0</p>
     </div>
     <nav class="nav-tabs">
       <a class="nav-tab active" href="/">📋 ანგარიში</a>
       <a class="nav-tab" href="/admin">⚙️ ადმინ პანელი</a>
     </nav>
+    <div class="user-chip" id="userChip" hidden>
+      <span class="uc-avatar" id="ucAvatar"></span>
+      <span class="uc-name" id="ucName"></span>
+      <button type="button" class="uc-logout" onclick="logoutOperator()" title="გასვლა">⎋ გასვლა</button>
+    </div>
     <div class="topbar-status" id="netStatus">
       <span class="dot"></span>
       <span id="netStatusText">LIVE SYSTEM &bull; ONLINE</span>
@@ -811,6 +867,40 @@
     </footer>
   </div>
 
+  <!-- Operator login -->
+  <div class="login-screen" id="loginScreen" hidden>
+    <form class="login-card" onsubmit="event.preventDefault(); loginOperator();">
+      <img src="/logo.png" alt="" class="login-logo" />
+      <h2>სისტემაში შესვლა</h2>
+      <p>სამუშაოს ანგარიშის გენერატორი</p>
+      <label for="loginUser">მომხმარებელი</label>
+      <input type="text" id="loginUser" autocomplete="username" required />
+      <label for="loginPass">პაროლი</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required />
+      <div class="login-error" id="loginError" hidden></div>
+      <button type="submit" class="btn btn-primary" id="loginBtn">🔐 შესვლა</button>
+      <small class="login-note">შესვლა და მოქმედებები აღირიცხება (IP მისამართით).</small>
+    </form>
+  </div>
+
+  <!-- Overlap warning -->
+  <div class="modal-back" id="overlapModal" hidden>
+    <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="overlapTitle">
+      <div class="modal-head">
+        <span class="modal-icon">⚠️</span>
+        <div>
+          <h3 id="overlapTitle">სამუშაო დროის თანხვედრა</h3>
+          <p id="overlapSub"></p>
+        </div>
+      </div>
+      <div class="modal-body" id="overlapBody"></div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" id="overlapCancel">✖ გაუქმება — დავბრუნდე რედაქტირებაზე</button>
+        <button type="button" class="btn btn-warn" id="overlapConfirm">💾 მაინც შენახვა</button>
+      </div>
+    </div>
+  </div>
+
   <div id="statusMessage" class="toast-status" role="status" aria-live="polite">
     <span id="statusText"></span>
     <button type="button" class="toast-close" onclick="hideStatus()" aria-label="დახურვა">×</button>
@@ -847,10 +937,16 @@
     }
 
     const jsonFetch = async (url, options = {}) => {
-      const res = await fetch(url, options);
+      const res = await fetch(url, { credentials: 'same-origin', ...options });
       let payload = {};
       try { payload = await res.json(); } catch (_) { payload = {}; }
-      if (!res.ok) throw new Error(payload.error || payload.message || `შეცდომა ${res.status}`);
+      if (res.status === 401 && payload.login_required) showLoginScreen('სესია ამოიწურა — შედით თავიდან.');
+      if (!res.ok) {
+        const err = new Error(payload.error || payload.message || `შეცდომა ${res.status}`);
+        err.status = res.status;
+        err.payload = payload;
+        throw err;
+      }
       return payload;
     };
 
@@ -876,18 +972,79 @@
     window.addEventListener('online', updateNetStatus);
     window.addEventListener('offline', updateNetStatus);
 
-    /* ---------- Init ---------- */
-    window.addEventListener('DOMContentLoaded', () => {
-      $('dateInput').value = todayLocal();
-      updateNetStatus();
+    /* ---------- Operator session ---------- */
+    let currentOperator = null;
+    let appStarted = false;
+
+    function setOperator(user) {
+      currentOperator = user;
+      $('userChip').hidden = !user;
+      if (user) {
+        const name = user.display_name || user.username;
+        $('ucName').textContent = name;
+        $('ucAvatar').textContent = name.split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+      }
+    }
+
+    function showLoginScreen(msg = '') {
+      $('loginScreen').hidden = false;
+      $('loginError').hidden = !msg;
+      $('loginError').textContent = msg;
+      setTimeout(() => ($('loginUser').value ? $('loginPass') : $('loginUser')).focus(), 30);
+    }
+
+    async function loginOperator() {
+      const btn = $('loginBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ მოწმდება...';
+      try {
+        const res = await jsonFetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: $('loginUser').value.trim(), password: $('loginPass').value })
+        });
+        $('loginPass').value = '';
+        $('loginScreen').hidden = true;
+        setOperator(res.user);
+        startApp();
+      } catch (e) {
+        showLoginScreen(e.message);
+        $('loginPass').select();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔐 შესვლა';
+      }
+    }
+
+    async function logoutOperator() {
+      if (editingRecordId && !confirm('რედაქტირება დაუსრულებელია. გავიდე მაინც?')) return;
+      try { await jsonFetch('/api/logout', { method: 'POST' }); } catch (_) {}
+      location.reload();
+    }
+
+    function startApp() {
+      if (appStarted) { fetchServerRecords(); return; }
+      appStarted = true;
       loadBrigades();
       loadWorkTypes();
       loadAllMembers();
       loadCities();
       loadOptions();
       fetchServerRecords();
+    }
+
+    /* ---------- Init ---------- */
+    window.addEventListener('DOMContentLoaded', async () => {
+      $('dateInput').value = todayLocal();
+      updateNetStatus();
       addWork();
       renderMemberList();
+      try {
+        const me = await jsonFetch('/api/me');
+        setOperator(me.user);
+        if (me.login_required && !me.user) { showLoginScreen(); return; }
+      } catch (_) { /* server unreachable — startApp will show the errors */ }
+      startApp();
     });
 
     // Close the extra-member dropdown when clicking outside
@@ -1492,33 +1649,81 @@
         works
       };
 
+      submitRecord(record, false);
+    }
+
+    // Sends the record; on a time overlap (409) shows the warning and waits for the operator's choice
+    async function submitRecord(record, confirmOverlap) {
       isSaving = true;
       const btn = $('saveBtn');
       btn.disabled = true;
       btn.textContent = '⏳ ინახება...';
       const wasEditing = !!editingRecordId;
-
-      jsonFetch('/api/records/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(record)
-      })
-        .then(data => {
-          if (data.success) {
-            showStatus(`✨ ჩანაწერი ID ${inputId} ${wasEditing ? 'განახლდა' : 'შეინახა'}!`, 'success');
-            setEditMode(null);
-            fetchServerRecords();
-            clearForm(true, true);
-          } else {
-            showStatus(`❌ შეცდომა: ${data.error || 'უცნობი შეცდომა'}`, 'error');
-          }
-        })
-        .catch(err => showStatus(`❌ სერვერთან კავშირის შეცდომა: ${err.message || err}`, 'error'))
-        .finally(() => {
-          isSaving = false;
-          btn.disabled = false;
-          btn.textContent = editingRecordId ? '💾 განახლების შენახვა' : '💾 შენახვა';
+      let retry = false;
+      try {
+        const data = await jsonFetch('/api/records/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(confirmOverlap ? { ...record, confirm_overlap: true } : record)
         });
+        showStatus(`✨ ჩანაწერი ID ${record.id} ${wasEditing ? 'განახლდა' : 'შეინახა'}!` +
+          (data.overlaps_confirmed ? ' (დროის თანხვედრა დადასტურებულია)' : ''), data.overlaps_confirmed ? 'warning' : 'success');
+        setEditMode(null);
+        fetchServerRecords();
+        clearForm(true, true);
+      } catch (err) {
+        if (err.status === 409 && err.payload && err.payload.overlap) {
+          retry = await showOverlapModal(err.payload.conflicts || [], record);
+          if (!retry) {
+            showStatus('შენახვა გაუქმდა — გადაამოწმეთ სამუშაო დრო.', 'warning');
+            document.querySelector('.work-start-h')?.focus();
+          }
+        } else if (err.status !== 401) {
+          showStatus(`❌ შეცდომა: ${err.message || err}`, 'error');
+        }
+      } finally {
+        isSaving = false;
+        btn.disabled = false;
+        btn.textContent = editingRecordId ? '💾 განახლების შენახვა' : '💾 შენახვა';
+      }
+      if (retry) return submitRecord(record, true);   // same record object → same db_id, no duplicate
+    }
+
+    function showOverlapModal(conflicts, record) {
+      const d = formatDate(record.date);
+      $('overlapSub').textContent = `${conflicts.length} თანხვედრა · ჩანაწერი ID ${record.id} · ${d}`;
+      $('overlapBody').innerHTML = conflicts.map(c => {
+        const od = formatDate(c.other_date);
+        return `
+          <div class="ov-card">
+            <div class="ov-msg">
+              <b>ყურადღება!</b> თანამშრომელი <b>${safeAttr(c.name)}</b>${c.personal_id ? ` (${safeAttr(c.personal_id)})` : ''}
+              ${safeAttr(od)} თარიღში უკვე დაფიქსირებულია <b>#${safeAttr(c.other_brigade)} ბრიგადაში</b>${c.other_city ? ` (${safeAttr(c.other_city)})` : ''},
+              ID: <b>${safeAttr(c.other_id)}</b>, სამუშაო დრო: <b>${c.existing_times.map(safeAttr).join(', ')}</b>.
+              ახალი ჩანაწერის სამუშაო დრო ემთხვევა არსებულ ჩანაწერს. გადაამოწმეთ მონაცემები.
+            </div>
+            <div class="ov-grid">
+              <div class="ov-cell"><span>არსებული (ID ${safeAttr(c.other_id)})</span><b>${c.existing_times.map(safeAttr).join('<br>')}</b></div>
+              <div class="ov-cell"><span>ახალი (ID ${safeAttr(record.id)})</span><b>${c.new_times.map(safeAttr).join('<br>')}</b></div>
+              <div class="ov-cell hit"><span>თანხვედრა</span><b>${c.overlaps.map(safeAttr).join('<br>')}</b></div>
+            </div>
+            ${c.existing_works.length ? `<div class="ov-works">არსებული სამუშაო: ${c.existing_works.map(safeAttr).join(', ')}</div>` : ''}
+          </div>`;
+      }).join('');
+      $('overlapModal').hidden = false;
+      $('overlapCancel').focus();
+      return new Promise(resolve => {
+        const close = (val) => {
+          $('overlapModal').hidden = true;
+          $('overlapCancel').onclick = $('overlapConfirm').onclick = null;
+          document.removeEventListener('keydown', onKey);
+          resolve(val);
+        };
+        const onKey = (e) => { if (e.key === 'Escape') close(false); };
+        $('overlapCancel').onclick = () => close(false);
+        $('overlapConfirm').onclick = () => close(true);
+        document.addEventListener('keydown', onKey);
+      });
     }
 
     /* ---------- Edit / copy ---------- */
@@ -2110,6 +2315,7 @@
 
       fetch('/generate', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ records: recordsToExport, label: locationLabel() })
       })
@@ -2117,7 +2323,11 @@
           // Previously an error response was downloaded as a broken .xlsx
           if (!res.ok) {
             let msg = `სერვერის შეცდომა ${res.status}`;
-            try { const j = await res.json(); msg = j.error || j.message || msg; } catch (_) {}
+            try {
+              const j = await res.json();
+              msg = j.error || j.message || msg;
+              if (res.status === 401 && j.login_required) showLoginScreen('სესია ამოიწურა — შედით თავიდან.');
+            } catch (_) {}
             throw new Error(msg);
           }
           return res.blob();
