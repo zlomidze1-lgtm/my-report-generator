@@ -1496,13 +1496,96 @@ def api_bulk_absence():
         return jsonify({"error": str(e)}), 500
 
 
+# ---------------------------------------------------------------------------
+# დღის კომენტარი: ერთი ბრიგადის ერთი დღე (ქალაქი + ბრიგადა + თარიღი)
+# კომენტარი იწერება ამ დღის ყველა ჩანაწერის overall_comment ველში — Excel-ის „კომენტარი“ სვეტი სწორედ მას კითხულობს.
+# ---------------------------------------------------------------------------
+@app.route("/api/records/day-comment", methods=["POST"])
+def api_day_comment():
+    data = request.get_json(silent=True) or {}
+    items = data.get("items") or []
+    comment = str(data.get("comment") or "").strip()
+    if not isinstance(items, list) or not items:
+        return jsonify({"error": "მონიშნეთ მინიმუმ ერთი დღე"}), 400
+    if len(items) > 1000:
+        return jsonify({"error": "ერთდროულად მაქსიმუმ 1000 დღე"}), 400
+    if len(comment) > 200:
+        return jsonify({"error": "კომენტარი ძალიან გრძელია (მაქს. 200 სიმბოლო)"}), 400
+
+    keys = set()
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        city, brigade, day = str(it.get("city") or "").strip(), str(it.get("brigade") or "").strip(), str(it.get("date") or "").strip()
+        try:
+            datetime.strptime(day, "%Y-%m-%d")
+        except ValueError:
+            return jsonify({"error": f"არასწორი თარიღი: {day}"}), 400
+        if not brigade:
+            return jsonify({"error": "ბრიგადა არ არის მითითებული"}), 400
+        keys.add((city, brigade, day))
+
+    changes, unchanged, days_found = [], 0, set()
+    now_iso = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    try:
+        with db_cursor(commit=True) as cur:
+            for city, brigade, day in sorted(keys):
+                cur.execute("SELECT db_id, data FROM records WHERE created_at = %s FOR UPDATE;", (day,))
+                for row in cur.fetchall():
+                    rec = row["data"] if isinstance(row["data"], dict) else None
+                    # ზუსტი დამთხვევა: იგივე ქალაქი, იგივე ბრიგადა, იგივე დღე
+                    if not rec or str(rec.get("brigade") or "").strip() != brigade \
+                            or str(rec.get("city") or "").strip() != city or str(rec.get("date") or "") != day:
+                        continue
+                    days_found.add((city, brigade, day))
+                    old = str(rec.get("overall_comment") or "").strip()
+                    if old == comment:
+                        unchanged += 1
+                        continue
+                    rec["overall_comment"] = comment
+                    rec["updated_by"] = actor_name()
+                    rec["updated_at_ts"] = now_iso
+                    cur.execute("UPDATE records SET data = %s WHERE db_id = %s;", (Json(rec), row["db_id"]))
+                    changes.append((rec.get("id", ""), row["db_id"], old, city, brigade, day))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    for rid, dbid, old, city, brigade, day in changes:
+        log_activity("day_comment", rid, dbid,
+                     f"ბრ. {brigade} · {city} · {day}: კომენტარი „{old or '—'}“ → „{comment or '—'}“")
+    return jsonify({"success": True, "updated": len(changes), "unchanged": unchanged,
+                    "days": len(days_found), "days_missing": len(keys) - len(days_found),
+                    "updated_ids": [c[1] for c in changes]})
+
+
+def load_records_by_ids(db_ids):
+    """ჩანაწერები ბაზიდან — Excel ყოველთვის ბაზაში შენახულ ბოლო მნიშვნელობას აჩვენებს."""
+    out = {}
+    ids = [str(x) for x in dict.fromkeys(db_ids) if str(x).strip()]
+    with db_cursor() as cur:
+        for i in range(0, len(ids), 500):
+            chunk = ids[i:i + 500]
+            cur.execute("SELECT db_id, data FROM records WHERE db_id IN (" + ",".join(["%s"] * len(chunk)) + ");",
+                        tuple(chunk))
+            for r in cur.fetchall():
+                if isinstance(r["data"], dict):
+                    out[str(r["db_id"])] = r["data"]
+    return [out[i] for i in ids if i in out]
+
+
 @app.route("/generate", methods=["POST"])
 def generate():
     data = request.get_json(silent=True)
     if not data:
         return jsonify({"error": "მონაცემები არასწორია"}), 400
 
-    records = data.get("records", [])
+    if data.get("db_ids"):
+        try:
+            records = load_records_by_ids(data["db_ids"])
+        except Exception as e:
+            return jsonify({"error": f"ჩანაწერების წაკითხვა ვერ მოხერხდა: {e}"}), 500
+    else:
+        records = data.get("records", [])
     if not records:
         return jsonify({"error": "ჩანაწერები ვერ მოიძებნა"}), 400
 
