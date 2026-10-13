@@ -447,6 +447,23 @@
     .badge-att { font-family: var(--font-mono); font-weight: 700; }
     .badge-att.partial { color: #b45309; }
 
+    /* Day comments */
+    .dc-bar .dc-bulk-input { min-height: 36px; border-radius: 8px; padding: 6px 10px; border: 0; color: var(--ink); background: #fff; font-weight: 600; min-width: 220px; }
+    .dc-table td { vertical-align: middle; }
+    .dc-table tbody tr { cursor: pointer; }
+    .dc-table tbody tr.sel { background: #eef2ff; }
+    .dc-table input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+    .dc-table td.ids { text-align: left; max-width: 260px; }
+    .id-chip { display: inline-block; font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; padding: 2px 8px; margin: 2px 3px 2px 0; border-radius: 6px; background: var(--steel-soft); color: var(--primary); }
+    .dc-table td.cm { min-width: 260px; }
+    .dc-input { width: 100%; padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; font-size: 13.5px; background: #fff; min-height: 38px; }
+    .dc-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+    .dc-input.dirty { border-color: var(--warning); background: var(--warning-soft); }
+    .dc-mixed { display: block; font-size: 11px; color: #b45309; margin-top: 4px; text-align: left; }
+    .dc-save { min-height: 36px; padding: 6px 12px; font-size: 12.5px; }
+    .dc-table tr.just-updated { animation: flashOk 2.2s ease-out; }
+    .comment-hint { font-size: 11.5px; color: var(--primary); margin-top: 5px; }
+
     /* Records tabs */
     .rec-tabs { display: flex; gap: 6px; margin: -4px 0 14px; flex-wrap: wrap; }
     .rec-tab { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line-strong); background: #fff; font-weight: 700; font-size: 13.5px; cursor: pointer; color: var(--ink-soft); transition: background .15s, color .15s; }
@@ -556,6 +573,8 @@
       .abs-bar { position: static; }
       .abs-bar .abs-apply { margin-left: 0; width: 100%; }
       .abs-bar .abs-apply select { flex: 1; }
+      .dc-bar .dc-bulk-input { flex: 1; min-width: 0; }
+      .dc-filter .f-group .btn { width: 100%; }
       .filter-box .f-group { flex-direction: column; align-items: stretch; }
       .filter-box .filter-input, #filterSearchId { width: 100%; min-width: 0; }
       .filter-box .btn { width: 100%; margin-left: 0; }
@@ -572,7 +591,7 @@
     <div class="mark"><img src="/logo.png" alt="Logo" /></div>
     <div class="titles">
       <h1>სამუშაოს ანგარიშის გენერატორი</h1>
-      <p>Brigade-Ops / Enterprise v4.0</p>
+      <p>Brigade-Ops / Enterprise v4.1</p>
     </div>
     <nav class="nav-tabs">
       <a class="nav-tab active" href="/">📋 ანგარიში</a>
@@ -722,6 +741,7 @@
           <div class="form-group">
             <label for="overallComment">ზოგადი კომენტარი</label>
             <input list="overallCommentsList" id="overallComment" placeholder="-- აირჩიეთ ან ჩაწერეთ --" />
+            <div class="comment-hint" id="commentHint" hidden></div>
             <datalist id="overallCommentsList">
               <option value="საბონუსე"></option>
               <option value="დღიური ანაზღაურება"></option>
@@ -747,6 +767,7 @@
     <div class="rec-tabs" role="tablist">
       <button type="button" class="rec-tab active" data-rtab="list" onclick="switchRecTab('list')">📋 ჩანაწერები</button>
       <button type="button" class="rec-tab" data-rtab="absence" onclick="switchRecTab('absence')">🩺 გაცდენების რედაქტირება</button>
+      <button type="button" class="rec-tab" data-rtab="comments" onclick="switchRecTab('comments')">💬 დღის კომენტარები</button>
     </div>
 
     <div id="recTab-list">
@@ -860,6 +881,66 @@
         </div>
         <p class="abs-note">ცვლილება ინახება ჩანაწერებში და ავტომატურად აისახება Excel-ის გენერირებისას.</p>
       </div>
+    </div>
+
+    <!-- Day comments: one row = one brigade on one day in one region -->
+    <div id="recTab-comments" hidden>
+      <div class="filter-box dc-filter">
+        <div class="f-group">
+          <label for="dcCity">📍 რეგიონი:</label>
+          <select id="dcCity" class="filter-input" onchange="renderDayComments()"><option value="">ყველა</option></select>
+        </div>
+        <div class="f-group">
+          <label for="dcBrigade">👷 ბრიგადა:</label>
+          <select id="dcBrigade" class="filter-input" onchange="renderDayComments()"><option value="">ყველა</option></select>
+        </div>
+        <div class="f-group">
+          <label>📅 დღე:</label>
+          <input type="date" id="dcFrom" class="filter-input" onchange="renderDayComments()" />
+          <span style="color: var(--ink-faint); font-weight: bold;">→</span>
+          <input type="date" id="dcTo" class="filter-input" onchange="renderDayComments()" />
+          <button type="button" class="btn btn-ghost btn-sm" onclick="setDcPeriod('today')">დღეს</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="setDcPeriod('yesterday')">გუშინ</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="setDcPeriod('this')">ეს თვე</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="setDcPeriod('all')">ყველა</button>
+        </div>
+        <div class="f-group">
+          <label for="dcShow">ჩვენება:</label>
+          <select id="dcShow" class="filter-input" onchange="renderDayComments()">
+            <option value="">ყველა დღე</option>
+            <option value="empty">კომენტარის გარეშე</option>
+            <option value="filled">კომენტარით</option>
+            <option value="mixed">განსხვავებული კომენტარით</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="abs-bar dc-bar">
+        <span class="abs-sel">მონიშნულია: <b id="dcSelCount">0</b> / <span id="dcTotal">0</span> დღე</span>
+        <span class="abs-quick">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="dcSelect('all')">ყველა</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="dcSelect('none')">მოხსნა</button>
+        </span>
+        <span class="abs-apply">
+          <label for="dcBulkComment">მონიშნულებზე კომენტარი →</label>
+          <input id="dcBulkComment" list="overallCommentsList" class="dc-bulk-input" placeholder="საბონუსე, დღიური ანაზღაურება..." />
+          <button type="button" class="btn btn-primary btn-sm" id="dcBulkBtn" onclick="applyDcBulk()" disabled>✔ მინიჭება</button>
+        </span>
+      </div>
+
+      <p id="dcEmpty" class="abs-empty" hidden>ფილტრს არცერთი დღე არ შეესაბამება.</p>
+      <div class="table-responsive" id="dcTableWrap">
+        <table class="records-table dc-table">
+          <thead>
+            <tr>
+              <th class="chk"><input type="checkbox" id="dcCheckAll" title="ყველას მონიშვნა" onchange="dcSelect(this.checked ? 'all' : 'none')"></th>
+              <th>თარიღი</th><th>რეგიონი</th><th>ბრიგადა</th><th>ჩანაწერები (ID)</th><th>წევრები</th><th>კომენტარი</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="dcTbody"></tbody>
+        </table>
+      </div>
+      <p class="abs-note">კომენტარი ეკუთვნის <b>კონკრეტული რეგიონის, კონკრეტული ბრიგადის კონკრეტულ დღეს</b> — ინახება ამ დღის ყველა ჩანაწერში (ID) და Excel-ის „კომენტარი“ სვეტში აისახება მხოლოდ ამ ჩანაწერების ნამუშევარ სტრიქონებზე. ცარიელი მნიშვნელობა კომენტარს წაშლის.</p>
     </div>
 
     <footer>
@@ -1066,6 +1147,8 @@
           updateRecordCounter();
           absIndexDirty = true;
           if (absPerson) renderAbs();
+          if (!$('recTab-comments').hidden) { fillDcFilters(); renderDayComments(); }
+          syncDayCommentIntoForm();
         })
         .catch(() => {
           $('noRecordsHint').textContent = 'ჩანაწერების ჩატვირთვა ვერ მოხერხდა';
@@ -1286,7 +1369,29 @@
         });
     });
 
+    // A new record for a brigade-day that already has a comment inherits it (only if the field is empty / auto-filled)
+    function syncDayCommentIntoForm() {
+      const input = $('overallComment'), hint = $('commentHint');
+      const key = dayKey($('citySelect').value, $('brigadeSelect').value, $('dateInput').value);
+      const auto = input.dataset.auto === '1';
+      if (!key || editingRecordId) { if (auto) { input.value = ''; input.dataset.auto = ''; } hint.hidden = true; return; }
+      const g = dayGroups().get(key);
+      const existing = g && g.comment && !g.mixed ? g.comment : '';
+      if (existing && (!input.value.trim() || auto)) {
+        input.value = existing;
+        input.dataset.auto = '1';
+        hint.textContent = `📌 ამ დღის კომენტარი (ბრ. ${$('brigadeSelect').value}, ${formatDate($('dateInput').value)}) — უკვე მითითებულია სხვა ჩანაწერ(ებ)ში`;
+        hint.hidden = false;
+      } else {
+        if (auto && !existing) { input.value = ''; input.dataset.auto = ''; }
+        hint.hidden = !(auto && existing);
+      }
+    }
+    $('overallComment').addEventListener('input', () => { $('overallComment').dataset.auto = ''; $('commentHint').hidden = true; });
+    $('dateInput').addEventListener('change', syncDayCommentIntoForm);
+
     $('citySelect').addEventListener('change', function () {
+      syncDayCommentIntoForm();
       applyBrigadeDefaults($('brigadeSelect').value, true, this.value);
       loadBrigadeMembers($('brigadeSelect').value, this.value);
     });
@@ -1754,6 +1859,8 @@
       $('objectNameInput').value = rec.object_name || '';
       $('coefficientInput').value = rec.coefficient || '';
       $('overallComment').value = rec.overall_comment || '';
+      $('overallComment').dataset.auto = '';
+      $('commentHint').hidden = true;
       $('overallNote').value = rec.note || '';
       setSelectValue('carSelect', rec.car || '');
       setSelectValue('engineerSelect', rec.engineer || '');
@@ -1927,6 +2034,8 @@
       document.querySelectorAll('.rec-tab').forEach(t => t.classList.toggle('active', t.dataset.rtab === name));
       $('recTab-list').hidden = name !== 'list';
       $('recTab-absence').hidden = name !== 'absence';
+      $('recTab-comments').hidden = name !== 'comments';
+      if (name === 'comments') { fillDcFilters(); renderDayComments(); }
       if (name === 'absence') {
         if (!$('absNewStatus').options.length) fillAbsStatusSelect();
         if (absIndexDirty) buildAbsIndex();
@@ -2203,6 +2312,182 @@
       }
     }
 
+    /* ---------- Day comments (region + brigade + day) ---------- */
+    let dcSelected = new Set();
+    let dcVisible = [];
+    let dcJustUpdated = new Set();
+
+    const dayKey = (city, brigade, date) => (brigade && date) ? `${String(city || '').trim()}|${String(brigade).trim()}|${date}` : '';
+
+    function dayGroups() {
+      const map = new Map();
+      savedRecords.forEach(r => {
+        const key = dayKey(r.city, r.brigade, r.date);
+        if (!key) return;
+        let g = map.get(key);
+        if (!g) { g = { key, city: String(r.city || '').trim(), brigade: String(r.brigade).trim(), date: r.date, recs: [] }; map.set(key, g); }
+        g.recs.push(r);
+      });
+      map.forEach(g => {
+        const comments = [...new Set(g.recs.map(r => String(r.overall_comment || '').trim()))];
+        g.mixed = comments.length > 1;
+        g.comment = g.mixed ? '' : comments[0];
+        g.comments = comments;
+        const people = new Set();
+        g.recs.forEach(r => (r.members || []).forEach(m => people.add(personKey(m))));
+        g.people = people.size;
+      });
+      return map;
+    }
+
+    function fillDcFilters() {
+      const groups = [...dayGroups().values()];
+      const keepC = $('dcCity').value, keepB = $('dcBrigade').value;
+      const cities = [...new Set(groups.map(g => g.city))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ka'));
+      const brigades = [...new Set(groups.map(g => g.brigade))].sort((a, b) => (Number(a) - Number(b)) || a.localeCompare(b));
+      $('dcCity').innerHTML = '<option value="">ყველა</option>' + cities.map(c => `<option value="${safeAttr(c)}">${safeAttr(c)}</option>`).join('');
+      $('dcBrigade').innerHTML = '<option value="">ყველა</option>' + brigades.map(b => `<option value="${safeAttr(b)}">ბრიგადა ${safeAttr(b)}</option>`).join('');
+      if (cities.includes(keepC)) $('dcCity').value = keepC;
+      if (brigades.includes(keepB)) $('dcBrigade').value = keepB;
+    }
+
+    function setDcPeriod(kind) {
+      const d = new Date(), pad = (n) => String(n).padStart(2, '0');
+      const fmt = (x) => `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}`;
+      if (kind === 'all') { $('dcFrom').value = ''; $('dcTo').value = ''; }
+      else if (kind === 'today') { $('dcFrom').value = $('dcTo').value = fmt(d); }
+      else if (kind === 'yesterday') { d.setDate(d.getDate() - 1); $('dcFrom').value = $('dcTo').value = fmt(d); }
+      else { $('dcFrom').value = fmt(new Date(d.getFullYear(), d.getMonth(), 1)); $('dcTo').value = fmt(new Date(d.getFullYear(), d.getMonth() + 1, 0)); }
+      renderDayComments();
+    }
+
+    function renderDayComments() {
+      const city = $('dcCity').value, brigade = $('dcBrigade').value, show = $('dcShow').value;
+      let from = $('dcFrom').value, to = $('dcTo').value;
+      if (from && to && from > to) [from, to] = [to, from];
+      dcVisible = [...dayGroups().values()].filter(g =>
+        (!city || g.city === city) && (!brigade || g.brigade === brigade) &&
+        (!from || g.date >= from) && (!to || g.date <= to) &&
+        (!show || (show === 'empty' ? (!g.mixed && !g.comment) : show === 'filled' ? (!g.mixed && !!g.comment) : g.mixed))
+      ).sort((a, b) => b.date.localeCompare(a.date) || a.city.localeCompare(b.city, 'ka') || (Number(a.brigade) - Number(b.brigade)));
+      const keys = new Set(dcVisible.map(g => g.key));
+      dcSelected = new Set([...dcSelected].filter(k => keys.has(k)));
+
+      $('dcEmpty').hidden = dcVisible.length > 0;
+      $('dcTableWrap').hidden = !dcVisible.length;
+      $('dcTbody').innerHTML = dcVisible.map(g => `
+        <tr data-key="${safeAttr(g.key)}" class="${dcSelected.has(g.key) ? 'sel' : ''} ${dcJustUpdated.has(g.key) ? 'just-updated' : ''}">
+          <td class="chk"><input type="checkbox" class="dc-chk" ${dcSelected.has(g.key) ? 'checked' : ''} aria-label="მონიშვნა"></td>
+          <td style="white-space:nowrap; font-weight:700;">${safeAttr(formatDate(g.date))}</td>
+          <td>${safeAttr(g.city || '—')}</td>
+          <td style="font-weight:700;">${safeAttr(g.brigade)}</td>
+          <td class="ids">${g.recs.map(r => `<span class="id-chip">${safeAttr(r.id)}</span>`).join('')}</td>
+          <td>${g.people}</td>
+          <td class="cm">
+            <input class="dc-input" list="overallCommentsList" value="${safeAttr(g.comment)}" data-orig="${safeAttr(g.comment)}"
+                   placeholder="${g.mixed ? 'სხვადასხვა — ჩაწერეთ ერთიანი' : 'კომენტარი არ არის'}">
+            ${g.mixed ? `<span class="dc-mixed">⚠ ჩანაწერებში განსხვავებულია: ${g.comments.map(c => `„${safeAttr(c || '—')}“`).join(', ')}</span>` : ''}
+          </td>
+          <td><button type="button" class="btn btn-primary dc-save" disabled>💾 შენახვა</button></td>
+        </tr>`).join('');
+      dcJustUpdated.clear();
+      updateDcBar();
+    }
+
+    $('dcTbody').addEventListener('click', (e) => {
+      const tr = e.target.closest('tr[data-key]');
+      if (!tr) return;
+      if (e.target.closest('.dc-save')) return saveDcRow(tr);
+      if (e.target.closest('.dc-input')) return;
+      const k = tr.dataset.key;
+      if (dcSelected.has(k)) dcSelected.delete(k); else dcSelected.add(k);
+      tr.classList.toggle('sel', dcSelected.has(k));
+      tr.querySelector('.dc-chk').checked = dcSelected.has(k);
+      updateDcBar();
+    });
+    $('dcTbody').addEventListener('input', (e) => {
+      const inp = e.target.closest('.dc-input');
+      if (!inp) return;
+      const dirty = inp.value.trim() !== inp.dataset.orig || inp.closest('tr').querySelector('.dc-mixed');
+      inp.classList.toggle('dirty', !!dirty);
+      inp.closest('tr').querySelector('.dc-save').disabled = !dirty;
+    });
+    $('dcTbody').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.closest('.dc-input')) { e.preventDefault(); saveDcRow(e.target.closest('tr')); }
+    });
+    $('dcBulkComment').addEventListener('input', updateDcBar);
+
+    function dcSelect(mode) {
+      dcSelected = mode === 'all' ? new Set(dcVisible.map(g => g.key)) : new Set();
+      $('dcTbody').querySelectorAll('tr[data-key]').forEach(tr => {
+        const on = dcSelected.has(tr.dataset.key);
+        tr.classList.toggle('sel', on);
+        tr.querySelector('.dc-chk').checked = on;
+      });
+      updateDcBar();
+    }
+
+    function updateDcBar() {
+      const n = dcSelected.size, total = dcVisible.length;
+      $('dcSelCount').textContent = n;
+      $('dcTotal').textContent = total;
+      $('dcCheckAll').checked = n > 0 && n === total;
+      $('dcCheckAll').indeterminate = n > 0 && n < total;
+      $('dcBulkBtn').disabled = !n;
+    }
+
+    const groupItem = (g) => ({ city: g.city, brigade: g.brigade, date: g.date });
+
+    async function sendDayComment(groups, comment) {
+      const editing = editingRecordId && groups.some(g => g.recs.some(r => String(r.db_id || r.id) === String(editingRecordId)));
+      if (editing) {
+        showStatus('ერთ-ერთი ჩანაწერი ახლა ფორმაში რედაქტირდება — ჯერ შეინახეთ ან გააუქმეთ რედაქტირება.', 'error');
+        return false;
+      }
+      const res = await jsonFetch('/api/records/day-comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: groups.map(groupItem), comment })
+      });
+      groups.forEach(g => dcJustUpdated.add(g.key));
+      let text = comment ? `✅ კომენტარი „${comment}“ — ${res.days} დღე, ${res.updated} ჩანაწერი განახლდა` : `✅ კომენტარი წაიშალა — ${res.updated} ჩანაწერი`;
+      if (res.unchanged) text += ` · ${res.unchanged} უკვე ასე იყო`;
+      if (res.days_missing) text += ` · ${res.days_missing} დღე ვეღარ მოიძებნა`;
+      showStatus(text, res.days_missing ? 'warning' : 'success');
+      await fetchServerRecords();
+      return true;
+    }
+
+    async function saveDcRow(tr) {
+      const g = dcVisible.find(x => x.key === tr.dataset.key);
+      if (!g) return;
+      const btn = tr.querySelector('.dc-save');
+      const comment = tr.querySelector('.dc-input').value.trim();
+      if (!comment && g.comment && !confirm(`წაიშალოს კომენტარი „${g.comment}“ — ბრ. ${g.brigade}, ${g.city}, ${formatDate(g.date)}?`)) return;
+      btn.disabled = true;
+      btn.textContent = '⏳';
+      try { await sendDayComment([g], comment); }
+      catch (err) { showStatus(`❌ ${err.message || err}`, 'error'); btn.disabled = false; btn.textContent = '💾 შენახვა'; }
+    }
+
+    async function applyDcBulk() {
+      const groups = dcVisible.filter(g => dcSelected.has(g.key));
+      const comment = $('dcBulkComment').value.trim();
+      if (!groups.length) return;
+      const recs = groups.reduce((n, g) => n + g.recs.length, 0);
+      const msg = comment
+        ? `კომენტარი „${comment}“ მიენიჭება ${groups.length} დღეს (${recs} ჩანაწერი).`
+        : `${groups.length} დღეს (${recs} ჩანაწერი) კომენტარი წაეშლება.`;
+      if (!confirm(msg + '\n\nგავაგრძელო?')) return;
+      const btn = $('dcBulkBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ ინახება...';
+      try {
+        if (await sendDayComment(groups, comment)) { dcSelected = new Set(); $('dcBulkComment').value = ''; }
+      } catch (err) { showStatus(`❌ ${err.message || err}`, 'error'); }
+      finally { btn.textContent = '✔ მინიჭება'; updateDcBar(); }
+    }
+
     /* ---------- Records table ---------- */
     function getFilteredRecords() {
       const q = $('filterSearchId').value.trim().toLocaleLowerCase('ka-GE');
@@ -2317,7 +2602,7 @@
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ records: recordsToExport, label: locationLabel() })
+        body: JSON.stringify({ db_ids: recordsToExport.map(r => String(r.db_id || r.id)), label: locationLabel() })
       })
         .then(async res => {
           // Previously an error response was downloaded as a broken .xlsx
@@ -2386,6 +2671,9 @@
       }
 
       $('dateInput').value = todayLocal();
+      $('overallComment').dataset.auto = '';
+      $('commentHint').hidden = true;
+      syncDayCommentIntoForm();
 
       if (!keepStatus) hideStatus();
       $('idInput').focus();
