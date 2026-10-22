@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#141A2E" />
   <meta name="robots" content="noindex" />
   <title>ადმინ პანელი — Brigade-Ops</title>
 
@@ -11,259 +11,542 @@
   <link rel="apple-touch-icon" href="/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
 
   <style>
+    /* ===== Brigade-Ops design system v4.4 (shared by index + admin) ===== */
     :root {
-      --ink: #0f172a; --ink-soft: #475569; --ink-faint: #94a3b8;
-      --surface: rgba(255,255,255,.9); --surface-solid: #fff; --surface-muted: #f8fafc;
-      --line: #e2e8f0; --line-strong: #cbd5e1;
-      --primary: #2563eb; --primary-glow: rgba(37,99,235,.22);
-      --signal: #c7f33b; --signal-ink: #1a2e00; --signal-dim: #f7fbe9;
-      --steel-soft: #eef2ff;
-      --success: #10b981; --success-soft: #ecfdf5;
-      --danger: #ef4444; --danger-soft: #fef2f2;
-      --warning: #f59e0b; --warning-soft: #fffbeb;
-      --radius-lg: 20px; --radius-md: 14px; --radius-sm: 10px;
-      --shadow-subtle: 0 4px 20px -2px rgba(15,23,42,.04);
-      --shadow-card: 0 12px 32px -4px rgba(15,23,42,.06), 0 4px 12px -2px rgba(15,23,42,.03);
-      --font-body: 'Noto Sans Georgian', system-ui, sans-serif;
-      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --page: #F4F6FB;
+      --card: #FFFFFF;
+      --card-2: #F8F9FD;
+      --line: #E7EAF3;
+      --line-2: #D9DEEB;
+      --ink: #1C2333;
+      --ink-2: #4A5266;
+      --ink-3: #66708A;
+      --brand: #6E5BFF;
+      --brand-2: #5468FF;
+      --brand-ink: #4B3FD1;
+      --brand-soft: #F0EEFF;
+      --brand-line: #D9D3FF;
+      --grad: linear-gradient(135deg, #6847F2 0%, #4C5CEB 100%);
+      --grad-feature: linear-gradient(125deg, #6847F2 0%, #4F63EE 55%, #2C78DC 100%);
+      --grad-hero: linear-gradient(115deg, #F3F0FF 0%, #EEF3FF 55%, #EFF8FF 100%);
+      --tint: #F5F7FF;
+      --tint-line: #E2E7FA;
+      --th: #EEF1FF;
+      --th-ink: #565C86;
+      --ok: #15803D;   --ok-soft: #E8F7EE;   --ok-blob: #DDF5E6;
+      --bad: #C0263F;  --bad-soft: #FFE8EC;  --bad-blob: #FFE0E6;
+      --warn: #B45309; --warn-soft: #FFF4DE;
+      --info: #2563EB; --info-soft: #E8F0FF; --info-blob: #E1EBFF;
+      --mute: #6B7280; --mute-soft: #F1F2F6;
+      --nav: #141A2E;
+      --nav-2: #1E2640;
+      --nav-line: #2C3555;
+      --r-lg: 16px;
+      --r-md: 12px;
+      --r-sm: 10px;
+      --r-xs: 8px;
+      --shadow: 0 1px 2px rgba(20, 26, 46, .04), 0 6px 20px -8px rgba(20, 26, 46, .08);
+      --shadow-float: 0 18px 44px -14px rgba(20, 26, 46, .30), 0 3px 10px rgba(20, 26, 46, .06);
+      --focus: rgba(110, 91, 255, .24);
+      --font: 'Noto Sans Georgian', 'DejaVu Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'DejaVu Sans Mono', monospace;
+      --ink-faint: var(--ink-3);
+      --danger: var(--bad);
+      --bar-h: 64px;
+      color-scheme: light;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    button, input, select { font: inherit; color: inherit; }
-    img { display: block; max-width: 100%; }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    * { margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    img, svg { display: block; max-width: 100%; }
+    [hidden] { display: none !important; }
+
     body {
-      font-family: var(--font-body); color: var(--ink); line-height: 1.45; min-height: 100vh; padding-bottom: 110px;
-      background:
-        radial-gradient(circle at 8% 8%, rgba(55,103,255,.08), transparent 28%),
-        radial-gradient(circle at 92% 10%, rgba(199,243,59,.12), transparent 25%),
-        linear-gradient(180deg,#f8faff 0%,#f2f5fa 55%,#eef2f7 100%);
-      background-attachment: fixed;
+      font-family: var(--font);
+      font-size: 14.5px;
+      line-height: 1.5;
+      color: var(--ink);
+      background: var(--page);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
-    :focus-visible { outline: 3px solid var(--primary-glow); outline-offset: 2px; }
+    .mono, .num { font-family: var(--font-mono); }
 
-    /* Top bar (same as main page) */
+    .i {
+      width: 18px; height: 18px; flex-shrink: 0;
+      fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    ::selection { background: var(--brand-soft); }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+    }
+    th .sr-only { position: static; display: inline-block; }
+    .skip-link {
+      position: absolute; left: 12px; top: -60px; z-index: 3000;
+      background: var(--brand); color: #fff; padding: 8px 14px; border-radius: var(--r-sm);
+      font-weight: 600; text-decoration: none;
+    }
+    .skip-link:focus { top: 10px; }
+
+    .eyebrow { display: block; font-size: 12.5px; font-weight: 600; color: var(--brand); letter-spacing: .1px; line-height: 1.3; }
+
+    /* ---------- Top bar (navy, pill navigation) ---------- */
     .topbar {
-      position: sticky; top: 0; z-index: 100; min-height: 70px;
-      padding: 10px clamp(16px,4vw,52px); display: flex; align-items: center; gap: 14px;
-      background: rgba(15,23,42,.94); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
-      box-shadow: 0 10px 30px rgba(4,10,22,.15);
+      position: sticky; top: 0; z-index: 100;
+      height: var(--bar-h);
+      padding: 0 clamp(14px, 3vw, 36px);
+      display: flex; align-items: center; gap: 12px;
+      background: var(--nav); color: #fff;
+      box-shadow: 0 8px 24px -12px rgba(10, 14, 30, .45);
     }
-    .topbar::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--signal), #6b8cff, transparent); }
-    .topbar .mark { width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0; overflow: hidden; background: #fff; padding: 2px; }
-    .topbar .mark img { width: 100%; height: 100%; object-fit: contain; }
-    .topbar .titles h1 { font-size: 17px; font-weight: 800; color: #fff; line-height: 1.25; }
-    .topbar .titles p { font-family: var(--font-mono); font-size: 9.5px; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; }
-    .nav-tabs { display: flex; gap: 4px; margin-left: auto; background: rgba(255,255,255,.06); padding: 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); }
-    .nav-tab { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 9px; color: #cbd5e1; font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
-    .nav-tab:hover { background: rgba(255,255,255,.08); color: #fff; }
-    .nav-tab.active { background: var(--signal); color: var(--signal-ink); }
-    .logout { background: transparent; border: 1px solid rgba(255,255,255,.15); color: #cbd5e1; border-radius: 9px; padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer; display: none; }
-    .logout:hover { color: #fff; border-color: rgba(255,255,255,.35); }
+    .brand { display: flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; margin-right: 10px; min-width: 0; }
+    .brand .mark {
+      width: 40px; height: 40px; border-radius: 11px; background: #fff;
+      display: grid; place-items: center; overflow: hidden; flex-shrink: 0;
+    }
+    .brand .mark img { width: 34px; height: 34px; object-fit: contain; }
+    .brand .titles { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+    .brand-name { font-size: 15.5px; font-weight: 700; }
+    .brand-sub { font-size: 11.5px; color: #98A2C3; }
 
-    .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 22px 0; }
+    .nav-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .08); }
+    .nav-tab {
+      display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 9px;
+      color: #C3CAE0; font-size: 13.5px; font-weight: 600; text-decoration: none; white-space: nowrap;
+      transition: background-color .15s, color .15s;
+    }
+    .nav-tab:hover { color: #fff; background: rgba(255, 255, 255, .07); }
+    .nav-tab.active { color: #fff; background: var(--grad); box-shadow: 0 6px 16px -8px rgba(123, 92, 255, .9); }
+    .nav-tab:focus-visible { outline-color: #fff; }
 
-    .panel { background: var(--surface); border: 1px solid rgba(226,232,240,.8); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-card); }
-    .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
-    .panel-eyebrow { font-family: var(--font-mono); font-size: 10px; font-weight: 800; color: var(--primary); letter-spacing: 1.2px; background: var(--steel-soft); padding: 5px 10px; border-radius: 999px; }
-    .panel-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -.3px; }
-    .panel-head .spacer { margin-left: auto; }
+    .topbar-status {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px;
+      border-radius: 999px; border: 1px solid var(--nav-line); background: rgba(255, 255, 255, .04);
+      font-size: 12px; color: #C3CAE0; white-space: nowrap;
+    }
+    .topbar-status .dot { width: 7px; height: 7px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 3px rgba(52, 211, 153, .18); }
+    .topbar-status.offline { color: #fff; background: var(--bad); border-color: var(--bad); }
+    .topbar-status.offline .dot { background: #fff; box-shadow: none; }
 
-    .btn { padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 700; font-size: 13.5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--line-strong); background: var(--surface-solid); min-height: 42px; white-space: nowrap; transition: transform .15s, box-shadow .15s, background .15s, color .15s; }
-    .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px -4px rgba(15,23,42,.12); }
+    .user-chip { display: flex; align-items: center; gap: 8px; padding: 3px 4px 3px 4px; border-radius: 999px; background: rgba(255, 255, 255, .06); border: 1px solid var(--nav-line); }
+    .uc-avatar {
+      width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center;
+      background: var(--grad); color: #fff; font-size: 12px; font-weight: 700;
+    }
+    .uc-name { font-size: 13.5px; font-weight: 600; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .uc-logout {
+      display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px;
+      border: 0; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #DCE1F2;
+      font-size: 12.5px; font-weight: 600; cursor: pointer;
+    }
+    .uc-logout:hover { background: rgba(255, 255, 255, .16); color: #fff; }
+    .uc-logout .i { width: 15px; height: 15px; }
+    .uc-logout:focus-visible { outline-color: #fff; }
+
+    /* ---------- Layout ---------- */
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 24px clamp(14px, 3vw, 36px) 0; }
+
+    /* ---------- Cards ---------- */
+    .panel {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg);
+      box-shadow: var(--shadow); padding: 22px 24px 24px; margin-bottom: 16px; position: relative; min-width: 0;
+    }
+    .panel-head { display: flex; align-items: center; gap: 10px 14px; margin-bottom: 18px; flex-wrap: wrap; min-height: 36px; }
+    .panel-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -.1px; line-height: 1.25; }
+    .ph-text { display: flex; flex-direction: column; gap: 2px; }
+    .count-tag {
+      display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px;
+      background: var(--brand-soft); color: var(--brand-ink); font-size: 12.5px; font-weight: 700; white-space: nowrap;
+      font-family: var(--font-mono);
+    }
+
+    /* Hero (page / section header) */
+    .hero {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      padding: 22px 26px; margin-bottom: 14px;
+      background: var(--grad-hero); border: 1px solid #E3E5F8; border-radius: var(--r-lg); box-shadow: var(--shadow);
+    }
+    .hero-main { min-width: 0; }
+    .hero-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; font-size: 26px; font-weight: 800; letter-spacing: -.3px; line-height: 1.2; color: var(--ink); }
+    .hero-meta { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; color: var(--ink-3); }
+    .period-pill {
+      display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px;
+      background: #E7E3FF; color: var(--brand-ink); font-family: var(--font-mono); font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+    .btn.btn-hero { height: 44px; padding: 0 20px; border-radius: var(--r-md); font-size: 14.5px; }
+
+    /* KPI cards */
+    .kpis { display: grid; grid-template-columns: 1.15fr 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .kpi {
+      position: relative; overflow: hidden; min-width: 0;
+      display: flex; flex-direction: column; justify-content: space-between; gap: 10px; min-height: 104px;
+      padding: 16px 18px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
+    }
+    .kpi::after {
+      content: ""; position: absolute; width: 96px; height: 96px; right: -26px; top: -30px; border-radius: 50%;
+      background: var(--blob, var(--mute-soft)); pointer-events: none;
+    }
+    .kpi > * { position: relative; z-index: 1; }
+    .kpi-label { font-size: 13px; font-weight: 700; color: var(--ink); }
+    .kpi-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .kpi-value { font-family: var(--font-mono); font-size: 34px; font-weight: 700; line-height: 1; letter-spacing: -1px; color: var(--kc, var(--ink)); }
+    .kpi-row small { font-size: 12.5px; color: var(--ink-3); }
+    .kpi-green { --kc: #16A34A; --blob: var(--ok-blob); }
+    .kpi-red   { --kc: #E5364F; --blob: var(--bad-blob); }
+    .kpi-blue  { --kc: var(--info); --blob: var(--info-blob); }
+    .kpi-violet{ --kc: var(--brand); --blob: #EAE6FF; }
+    .kpi-grey  { --kc: #64748B; --blob: #ECEEF3; }
+    .kpi-featured { background: var(--grad-feature); border-color: transparent; color: #fff; box-shadow: 0 14px 30px -14px rgba(91, 107, 255, .75); --blob: rgba(255, 255, 255, .14); }
+    .kpi-featured .kpi-label { color: rgba(255, 255, 255, .95); }
+    .kpi-featured .kpi-value { color: #fff; }
+    .kpi-featured .kpi-row small { color: rgba(255, 255, 255, .85); }
+    .kpi-featured::before {
+      content: ""; position: absolute; width: 140px; height: 140px; right: 30px; bottom: -90px; border-radius: 50%;
+      background: rgba(255, 255, 255, .08); pointer-events: none;
+    }
+
+    /* Pill tabs */
+    .rec-tabs, .section-tabs {
+      display: inline-flex; gap: 4px; padding: 4px; margin-bottom: 14px; max-width: 100%; overflow-x: auto; scrollbar-width: none;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow);
+    }
+    .rec-tab, .section-tab {
+      display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; flex-shrink: 0;
+      border: 0; border-radius: 9px; background: transparent; cursor: pointer; white-space: nowrap;
+      font-size: 13.5px; font-weight: 600; color: var(--ink-2); transition: background-color .15s, color .15s;
+    }
+    .rec-tab:hover, .section-tab:hover { background: var(--card-2); color: var(--ink); }
+    .rec-tab.active, .section-tab.active { background: var(--brand-soft); color: var(--brand-ink); }
+    .tab-count, .section-tab .count {
+      display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 20px; padding: 0 6px;
+      border-radius: 999px; background: var(--mute-soft); color: var(--ink-2);
+      font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; margin-left: 0;
+    }
+    .section-tab .count:empty { display: none; }
+    .rec-tab.active .tab-count, .section-tab.active .count { background: var(--brand); color: #fff; }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 40px; padding: 0 16px; border-radius: var(--r-sm);
+      border: 1px solid var(--line-2); background: var(--card); color: var(--ink);
+      font-size: 14px; font-weight: 600; white-space: nowrap; cursor: pointer; text-decoration: none;
+      transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s, transform .15s;
+    }
+    .btn:hover:not(:disabled) { background: var(--card-2); border-color: #C7CDE0; }
+    .btn:active:not(:disabled) { transform: translateY(1px); }
     .btn:disabled { opacity: .5; cursor: not-allowed; }
-    .btn-primary { background: linear-gradient(135deg,#c7f33b,#a8dc1f); color: var(--signal-ink); border-color: #a8dc1f; }
-    .btn-success { background: linear-gradient(135deg,#10b981,#059669); color: #fff; border-color: #059669; }
-    .btn-danger { color: var(--danger); border-color: #fecaca; }
-    .btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
-    .btn-ghost { background: transparent; color: var(--ink-soft); }
-    .btn-outline { border-color: #c9d5ff; color: var(--primary); background: #f4f7ff; }
-    .btn-sm { min-height: 34px; padding: 6px 10px; font-size: 12px; }
+    .btn-sm { height: 34px; padding: 0 12px; font-size: 13px; border-radius: 9px; }
+    .btn-sm .i { width: 16px; height: 16px; }
 
-    .input { padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); font-size: 14px; background: #fff; min-height: 42px; width: 100%; transition: border-color .15s, box-shadow .15s; }
-    .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
-    .input.is-invalid { border-color: var(--danger); box-shadow: 0 0 0 4px rgba(239,68,68,.15); }
-    label.lbl { display: block; font-family: var(--font-mono); font-weight: 700; font-size: 10px; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: .9px; text-transform: uppercase; }
+    .btn-primary, .btn-export, .btn-success {
+      background: var(--grad); border-color: transparent; color: #fff;
+      box-shadow: 0 8px 18px -10px rgba(110, 91, 255, .95);
+    }
+    .btn-primary:hover:not(:disabled), .btn-export:hover:not(:disabled), .btn-success:hover:not(:disabled) {
+      background: var(--grad); border-color: transparent; filter: brightness(1.06); box-shadow: 0 10px 22px -10px rgba(110, 91, 255, 1);
+    }
+    .btn-outline { border-color: var(--brand-line); color: var(--brand-ink); background: var(--brand-soft); }
+    .btn-outline:hover:not(:disabled) { background: #E6E1FF; border-color: #C7BEFF; }
+    .btn-ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+    .btn-ghost:hover:not(:disabled) { background: var(--mute-soft); border-color: transparent; color: var(--ink); }
+    .btn-danger { color: var(--bad); border-color: #FFC9D2; background: var(--card); }
+    .btn-danger:hover:not(:disabled) { background: var(--bad-soft); border-color: #FFB3C0; }
+    .btn-warn { background: linear-gradient(135deg, #F59E0B, #D97706); border-color: transparent; color: #fff; }
+    .btn-warn:hover:not(:disabled) { background: linear-gradient(135deg, #F59E0B, #D97706); filter: brightness(1.05); }
+
+    .icon-btn {
+      width: 32px; height: 32px; display: inline-grid; place-items: center;
+      border: 1px solid var(--line); border-radius: 9px; background: var(--card); color: var(--ink-2); cursor: pointer;
+      transition: background-color .15s, color .15s, border-color .15s;
+    }
+    .icon-btn .i { width: 16px; height: 16px; }
+    .icon-btn:hover { background: var(--brand-soft); border-color: var(--brand-line); color: var(--brand-ink); }
+    .icon-btn.danger:hover { background: var(--bad-soft); border-color: #FFC9D2; color: var(--bad); }
+
+    /* ---------- Fields ---------- */
+    input[type=text], input[type=password], input[type=search], input[type=number], input[type=date], input:not([type]), select, textarea {
+      border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--card);
+      min-height: 40px; padding: 0 12px; font-size: 14px; width: 100%;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    textarea { padding: 10px 12px; }
+    input:hover, select:hover { border-color: #C3C9DC; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 4px var(--focus); }
+    ::placeholder { color: #8890A6; opacity: 1; }
+    input[type=date] { font-family: var(--font-mono); font-size: 13px; }
+    select {
+      appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 32px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%234A5266' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+    }
+    input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--brand); cursor: pointer; }
+    .is-invalid, .form-group .is-invalid { border-color: var(--bad) !important; box-shadow: 0 0 0 4px rgba(208, 44, 71, .14) !important; }
+
+    /* ---------- Status pills, plates ---------- */
+    .status, .ustate, .ab {
+      display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 700; white-space: nowrap; background: var(--mute-soft); color: var(--mute);
+    }
+    .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .plate {
+      display: inline-flex; align-items: stretch; height: 22px; overflow: hidden; border-radius: 5px;
+      border: 1.5px solid #1C2333; background: #fff; font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: .4px;
+    }
+    .plate i { display: inline-grid; place-items: center; padding: 0 4px; background: #1D4ED8; color: #fff; font-style: normal; font-size: 8.5px; letter-spacing: 0; }
+    .plate { padding-right: 6px; gap: 5px; }
+    .muted { color: var(--ink-3); }
+
+    /* ---------- Toast ---------- */
+    .toast-status {
+      position: fixed; left: 50%; bottom: 24px; z-index: 1000;
+      transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+      max-width: min(560px, calc(100vw - 28px)); width: max-content;
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 12px 12px 16px; border-radius: var(--r-md);
+      background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600;
+      border: 1px solid var(--line); border-left: 5px solid #22C55E; box-shadow: var(--shadow-float);
+      transition: opacity .2s, transform .2s;
+    }
+    .toast-status:not(.show) { visibility: hidden; transition: opacity .2s, transform .2s, visibility 0s .2s; }
+    .toast-status.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+    .toast-status.error { border-left-color: var(--bad); }
+    .toast-status.warning { border-left-color: #F59E0B; }
+    .toast-close {
+      margin-left: auto; width: 28px; height: 28px; border: 0; border-radius: 8px;
+      background: transparent; color: var(--ink-3); font-size: 18px; line-height: 1; cursor: pointer;
+    }
+    .toast-close:hover { background: var(--mute-soft); color: var(--ink); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+
+    /* ===== Admin panel ===== */
+    body { padding-bottom: 100px; }
+    .hidden { display: none !important; }
+    .logout { display: none; margin-left: auto; }
+    .topbar .logout { height: 34px; padding: 0 14px; border: 1px solid var(--nav-line); }
+
+    .panel-head .spacer { margin-left: auto; }
+    .hint-line { font-size: 13px; color: var(--ink-3); margin: -6px 0 16px; max-width: 90ch; }
+    .kpi-sep { color: var(--ink-3); font-weight: 500; margin: 0 6px; }
+
+    input.input, select.input { min-height: 40px; font-size: 14px; }
+    .input.mono { font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; letter-spacing: .3px; }
+    .input.is-invalid { border-color: var(--bad); box-shadow: 0 0 0 4px rgba(208, 44, 71, .14); }
+    label.lbl { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
 
     /* Login */
-    .login-box { max-width: 420px; margin: 8vh auto 0; text-align: center; }
-    .login-box .logo { width: 88px; height: 88px; margin: 0 auto 16px; }
-    .login-box h2 { font-size: 20px; margin-bottom: 6px; }
-    .login-box p { color: var(--ink-soft); font-size: 13.5px; margin-bottom: 20px; }
-    .login-box form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
-    .login-error { color: #991b1b; background: var(--danger-soft); border: 1px solid #fecaca; border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; display: none; }
+    .login-box { max-width: 420px; margin: 9vh auto 0; padding: 28px; border-radius: 20px; }
+    .login-box .login-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-weight: 800; font-size: 16px; }
+    .login-box .logo { width: 42px; height: 42px; border-radius: 11px; }
+    .login-box h2 { font-size: 24px; font-weight: 800; letter-spacing: -.3px; line-height: 1.2; }
+    .login-box p { color: var(--ink-3); font-size: 13.5px; margin: 4px 0 18px; }
+    .login-box form { display: flex; flex-direction: column; gap: 12px; }
+    .login-box .btn { height: 46px; width: 100%; font-size: 15px; border-radius: var(--r-md); }
+    .login-error { color: var(--bad); background: var(--bad-soft); border: 1px solid #FFC9D2; border-radius: var(--r-sm); padding: 10px 12px; font-size: 13.5px; display: none; }
 
-    /* Stats */
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 20px; }
-    .stat { background: var(--surface); border: 1px solid rgba(226,232,240,.8); border-radius: var(--radius-md); padding: 16px 18px; box-shadow: var(--shadow-subtle); }
-    .stat .k { font-family: var(--font-mono); font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--ink-faint); text-transform: uppercase; }
-    .stat .v { font-size: 26px; font-weight: 800; letter-spacing: -.5px; margin-top: 2px; }
-
-    /* Section tabs */
-    .section-tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
-    .section-tab { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line-strong); background: #fff; font-weight: 700; font-size: 13.5px; cursor: pointer; color: var(--ink-soft); }
-    .section-tab.active { background: var(--ink); color: var(--signal); border-color: var(--ink); }
-    .section-tab .count { font-family: var(--font-mono); font-size: 11px; opacity: .7; margin-left: 4px; }
-
-    /* Brigades layout */
-    .brigades-layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
-    .brigade-list { display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow-y: auto; margin: 0 -4px; padding: 0 4px; }
-    .brigade-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 12px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: #fff; cursor: pointer; text-align: left; transition: border-color .15s, background .15s; }
-    .brigade-btn:hover { border-color: var(--line-strong); background: var(--surface-muted); }
-    .brigade-btn.active { border-color: var(--primary); background: var(--steel-soft); box-shadow: inset 3px 0 0 var(--primary); }
-    .brigade-btn .num { font-family: var(--font-mono); font-weight: 800; font-size: 15px; min-width: 34px; height: 34px; border-radius: 9px; background: var(--ink); color: var(--signal); display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; }
+    /* Brigades */
+    .brigades-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; }
+    .brigades-layout > * { min-width: 0; }
+    .brigade-list { display: flex; flex-direction: column; gap: 6px; max-height: 62vh; overflow-y: auto; margin: 0 -4px; padding: 0 4px 2px; }
+    .brigade-btn {
+      display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; text-align: left; cursor: pointer;
+      border: 1px solid var(--line); border-radius: var(--r-md); background: var(--card);
+      transition: border-color .15s, background-color .15s, box-shadow .15s;
+    }
+    .brigade-btn:hover { border-color: var(--brand-line); background: #FBFAFF; }
+    .brigade-btn.active { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 3px var(--focus); }
+    .brigade-btn .num {
+      min-width: 36px; height: 36px; padding: 0 6px; border-radius: 10px; display: inline-grid; place-items: center;
+      background: var(--nav); color: #fff; font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+    }
+    .brigade-btn.active .num { background: var(--grad); }
     .brigade-btn .meta { flex: 1; min-width: 0; }
-    .brigade-btn .meta b { display: block; font-size: 13.5px; }
-    .brigade-btn .meta small { display: block; font-size: 11.5px; color: var(--ink-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brigade-btn .meta b { display: block; font-size: 13.5px; font-weight: 700; }
+    .brigade-btn .meta small { display: block; font-size: 12px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .add-brigade { display: flex; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
-    .add-brigade .input { font-family: var(--font-mono); font-weight: 600; }
+    .add-brigade .input { font-family: var(--font-mono); font-weight: 600; min-width: 0; }
 
-    .editor-empty { text-align: center; padding: 48px 20px; color: var(--ink-faint); border: 1.5px dashed var(--line-strong); border-radius: var(--radius-lg); font-size: 14px; }
-    .brigade-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .editor-empty { text-align: center; padding: 48px 20px; color: var(--ink-3); border: 1.5px dashed var(--line-2); border-radius: var(--r-lg); font-size: 14px; }
+    .brigade-title { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; margin-bottom: 16px; }
     .brigade-title h3 { font-size: 20px; font-weight: 800; }
-    .brigade-title .num-input { width: 110px; font-family: var(--font-mono); font-weight: 700; }
+    .brigade-title .num-input { width: 96px; font-family: var(--font-mono); font-size: 17px; font-weight: 700; }
     .brigade-title .spacer { margin-left: auto; }
 
-    .city-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-    .chip { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--steel-soft); color: var(--primary); }
-    .chip.tb { background: var(--signal-dim); color: #3f6212; }
+    .city-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; color: var(--ink-3); font-size: 13px; }
+    .chip {
+      display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px;
+      background: var(--brand-soft); color: var(--brand-ink); font-size: 12.5px; font-weight: 700;
+    }
+    .chip.tb { background: var(--ok-soft); color: var(--ok); }
 
-    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-md); background: #fff; }
-    table.mtable { width: 100%; border-collapse: collapse; min-width: 720px; }
-    table.mtable th { background: linear-gradient(180deg,#1e293b,#0f172a); color: var(--signal); font-family: var(--font-mono); font-size: 10px; font-weight: 800; letter-spacing: 1px; padding: 12px; text-transform: uppercase; text-align: left; white-space: nowrap; }
-    table.mtable td { padding: 6px 8px; border-top: 1px solid var(--line); vertical-align: middle; }
-    table.mtable td .input { min-height: 38px; padding: 8px 10px; font-size: 13.5px; border-color: transparent; background: transparent; }
-    table.mtable td .input:hover { border-color: var(--line); }
-    table.mtable td .input:focus { background: #fff; border-color: var(--primary); }
-    table.mtable td.pid .input { font-family: var(--font-mono); }
-    table.mtable tr.new-row td { background: var(--signal-dim); }
-    table.mtable tr.new-row td .input { border-color: var(--line-strong); background: #fff; }
-    table.mtable td.idx { width: 40px; text-align: center; font-family: var(--font-mono); color: var(--ink-faint); font-size: 12px; }
-    table.mtable td.acts { width: 1%; white-space: nowrap; }
-    .move-select { min-height: 34px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line-strong); background: #fff; font-size: 12px; cursor: pointer; }
-    .icon-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #fecaca; background: #fff; color: var(--danger); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; vertical-align: middle; }
-    .icon-btn:hover { background: var(--danger); color: #fff; }
-    .leader-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--warning); margin-right: 4px; }
+    .defaults-box { margin-bottom: 16px; padding: 6px 0; background: var(--tint); border: 1px solid var(--tint-line); border-radius: var(--r-md); }
+    .defaults-head, .defaults-line { display: grid; grid-template-columns: 140px minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: center; padding: 6px 14px; }
+    .defaults-head span { font-size: 12px; font-weight: 700; color: var(--th-ink); }
+    .defaults-line .chip { justify-self: start; }
+    .defaults-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
 
     .member-search { max-width: 320px; margin-bottom: 12px; }
 
-    /* Work types */
-    .wt-toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-    .wt-toolbar .input { flex: 1; min-width: 220px; }
-    .wt-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 8px; }
-    .wt-item { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm); }
-    .wt-item .input { border-color: transparent; min-height: 36px; padding: 6px 8px; }
-    .wt-item .input:hover { border-color: var(--line); }
-    .wt-item .n { font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); min-width: 22px; }
-    .icon-btn { flex-shrink: 0; }
+    /* Tables */
+    .table-wrap { position: relative; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--card); }
+    table.mtable { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 720px; font-size: 13.5px; }
+    table.mtable th {
+      padding: 11px 12px; background: var(--th); color: var(--th-ink); text-align: left; white-space: nowrap;
+      font-size: 12.5px; font-weight: 700; border-bottom: 1px solid var(--line);
+    }
+    table.mtable td { padding: 5px 8px; border-bottom: 1px solid #EEF0F6; vertical-align: middle; }
+    table.mtable tbody tr:last-child td { border-bottom: 0; }
+    table.mtable tbody tr:hover td { background: #FCFCFF; }
+    table.mtable td .input { min-height: 36px; padding: 0 9px; font-size: 13.5px; border-color: transparent; background-color: transparent; border-radius: 8px; }
+    table.mtable td .input:hover { border-color: var(--line-2); background-color: var(--card); }
+    table.mtable td .input:focus { background-color: var(--card); border-color: var(--brand); }
+    table.mtable td.pid .input { font-family: var(--font-mono); font-size: 13px; }
+    table.mtable tr.new-row td { background: var(--tint); border-top: 1px solid var(--tint-line); }
+    table.mtable tr.new-row td .input { border-color: var(--line-2); background-color: var(--card); }
+    table.mtable td.idx { width: 46px; text-align: center; color: var(--ink-3); font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+    table.mtable td.acts { width: 1%; white-space: nowrap; text-align: right; }
+    table.mtable td.acts > * + * { margin-left: 4px; }
+    .move-select { width: auto !important; min-height: 32px !important; font-size: 12.5px !important; padding: 0 26px 0 10px !important; border-radius: 8px !important; background-position: right 9px center; vertical-align: middle; }
+    .leader-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #F59E0B; margin-right: 5px; vertical-align: 1px; }
+    .icon-btn { vertical-align: middle; flex-shrink: 0; }
 
-    /* Cars / engineers cards */
+    /* Work types + tariffs (column colours mirror the Excel sheet) */
+    .wt-table { min-width: 760px; }
+    .wt-table td.tar { width: 140px; }
+    .wt-table td.tar .input { font-family: var(--font-mono); text-align: right; font-weight: 600; }
+    .wt-table th.th-worker, .wt-table th.th-brigade, .wt-table th.th-engineer { text-align: right; }
+    .wt-table th.th-worker::before, .wt-table th.th-brigade::before, .wt-table th.th-engineer::before {
+      content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; background: var(--c); vertical-align: 1px;
+    }
+    .wt-table th.th-worker { --c: #4D7A2F; }
+    .wt-table th.th-brigade { --c: #1F4E79; }
+    .wt-table th.th-engineer { --c: #7A4FA5; }
+    .wt-table tr.zero td:nth-child(2) .input { color: var(--ink-3); }
+    .zero-badge {
+      display: inline-flex; align-items: center; height: 20px; margin-left: 6px; padding: 0 8px; border-radius: 999px; vertical-align: middle; white-space: nowrap;
+      font-size: 11px; font-weight: 700; color: var(--warn); background: var(--warn-soft);
+    }
+
+    /* Cars / engineers */
+    .add-row { display: flex; gap: 8px; margin-bottom: 16px; max-width: 560px; }
+    .add-row .input { flex: 1; min-width: 0; }
     .list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
     .list-card {
-      background: #fff; border: 1px solid var(--line); border-radius: var(--radius-md);
-      padding: 12px 12px 12px 14px; display: flex; flex-direction: column; gap: 10px;
-      box-shadow: var(--shadow-subtle); transition: border-color .15s, box-shadow .15s;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px;
+      display: flex; flex-direction: column; gap: 8px; transition: border-color .15s, box-shadow .15s;
     }
-    .list-card:hover { border-color: var(--line-strong); box-shadow: 0 8px 22px -8px rgba(15,23,42,.14); }
-    .list-card.unused { background: var(--surface-muted); }
+    .list-card:hover { border-color: var(--brand-line); box-shadow: var(--shadow); }
+    .list-card.unused { background: var(--card-2); }
     .list-card .top { display: flex; align-items: center; gap: 10px; }
     .list-card .avatar {
-      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 14px; color: #fff; background: linear-gradient(135deg, #1F4E79, #2563eb);
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0; display: inline-grid; place-items: center;
+      background: var(--grad); color: #fff; font-size: 13px; font-weight: 700;
     }
-    .list-card.car .avatar { background: linear-gradient(135deg, #0f172a, #334155); font-size: 17px; }
-    .list-card .input { flex: 1; min-width: 0; min-height: 38px; padding: 7px 10px; font-weight: 700; border-color: transparent; background: transparent; }
-    .list-card .input:hover { border-color: var(--line); }
-    .list-card .input:focus { background: #fff; }
+    .list-card.car .avatar { background: var(--nav); }
+    .list-card .input { flex: 1; min-width: 0; min-height: 36px; padding: 0 8px; font-weight: 700; border-color: transparent; background-color: transparent; }
+    .list-card .input:hover { border-color: var(--line-2); }
+    .list-card .input:focus { background-color: var(--card); }
     .list-card.car .input { font-family: var(--font-mono); letter-spacing: .5px; }
     .usage-row { display: flex; flex-wrap: wrap; gap: 6px; padding-left: 48px; }
-    .utag { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--steel-soft); color: var(--primary); white-space: nowrap; }
+    .utag {
+      display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 9px; border-radius: 999px;
+      background: var(--brand-soft); color: var(--brand-ink); font-size: 11.5px; font-weight: 700; white-space: nowrap;
+    }
     .utag b { font-family: var(--font-mono); }
-    .utag.tb { background: var(--signal-dim); color: #3f6212; }
-    .utag.none { background: transparent; color: var(--ink-faint); font-weight: 500; padding-left: 0; }
-    .add-row { display: flex; gap: 10px; margin-bottom: 16px; }
-    .add-row .input { flex: 1; min-width: 0; }
-    .input.mono, .wt-item .input.mono { font-family: var(--font-mono); font-weight: 600; }
-    .hint-line { font-size: 12.5px; color: var(--ink-soft); margin: -6px 0 14px; }
-    .wt-table { min-width: 760px; }
-    .wt-table td.tar { width: 130px; }
-    .wt-table td.tar .input { font-family: var(--font-mono); text-align: right; }
-    .wt-table th.th-worker { background: #385723; color: #fff; }
-    .wt-table th.th-brigade { background: #1F4E79; color: #fff; }
-    .wt-table th.th-engineer { background: #5B3A7A; color: #fff; }
-    .wt-table tr.zero td:nth-child(2) .input { color: var(--ink-soft); }
-    .zero-badge { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 800; color: #92400e; background: var(--warning-soft); border: 1px solid #fde68a; border-radius: 999px; padding: 1px 7px; vertical-align: middle; white-space: nowrap; }
+    .utag.tb { background: var(--ok-soft); color: var(--ok); }
+    .utag.none { background: transparent; color: var(--ink-3); font-weight: 500; padding-left: 0; }
+
     /* Operators */
-    .mode-pill { font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px; }
-    .mode-pill.on { background: var(--success-soft); color: #047857; border: 1px solid #a7f3d0; }
-    .mode-pill.off { background: var(--warning-soft); color: #92400e; border: 1px solid #fde68a; }
-    .user-form { display: grid; grid-template-columns: 1fr 1.3fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 16px; padding: 14px; background: var(--surface-muted); border: 1px solid var(--line); border-radius: var(--radius-md); }
+    .mode-pill { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .mode-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .mode-pill.on { background: var(--ok-soft); color: var(--ok); }
+    .mode-pill.off { background: var(--warn-soft); color: var(--warn); }
+    .user-form {
+      display: grid; grid-template-columns: 1fr 1.3fr 1fr auto; gap: 12px; align-items: end; margin-bottom: 16px;
+      padding: 14px; background: var(--tint); border: 1px solid var(--tint-line); border-radius: var(--r-md);
+    }
     .users-table { min-width: 640px; }
     .users-table td { padding: 10px 12px; }
     .users-table .uname { font-family: var(--font-mono); font-weight: 700; }
-    .ustate { font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
-    .ustate.on { background: var(--success-soft); color: #047857; }
-    .ustate.off { background: #f1f5f9; color: #64748b; }
-    .users-table tr.inactive td { color: var(--ink-faint); }
-    .uactions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+    .ustate.on { background: var(--ok-soft); color: var(--ok); }
+    .ustate.off { background: var(--mute-soft); color: var(--mute); }
+    .users-table tr.inactive td { color: var(--ink-3); }
+    .uactions { display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; }
 
-    /* Activity */
-    .act-filters { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)) auto; gap: 10px; align-items: end; margin-bottom: 12px; }
+    /* Activity log */
+    .act-filters {
+      display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)) auto; gap: 12px; align-items: end; margin-bottom: 14px;
+      padding: 14px; background: var(--tint); border: 1px solid var(--tint-line); border-radius: var(--r-md);
+    }
     .act-btns { display: flex; gap: 6px; }
-    .act-summary { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 8px; }
+    .act-summary { font-size: 13px; color: var(--ink-3); margin-bottom: 8px; }
     .act-wrap { max-height: 62vh; overflow: auto; }
     .act-table { min-width: 980px; }
     .act-table th { position: sticky; top: 0; z-index: 1; }
     .act-table td { padding: 9px 12px; font-size: 13px; vertical-align: top; }
-    .act-table td.ts { white-space: nowrap; font-family: var(--font-mono); font-size: 12px; }
-    .act-table td.ip { font-family: var(--font-mono); font-size: 12px; white-space: nowrap; }
-    .act-table td.det { color: var(--ink-soft); max-width: 460px; line-height: 1.4; word-break: break-word; }
-    .act-table .fl { cursor: pointer; border-bottom: 1px dashed var(--line-strong); }
-    .act-table .fl:hover { color: var(--primary); border-color: var(--primary); }
-    .ab { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; background: #f1f5f9; color: #475569; }
-    .ab.login { background: #ecfdf5; color: #047857; } .ab.fail { background: #fef2f2; color: #b91c1c; }
-    .ab.create { background: #eff6ff; color: #1d4ed8; } .ab.update { background: #fffbeb; color: #b45309; }
-    .ab.delete { background: #fdf2f8; color: #9d174d; } .ab.admin { background: #f5f3ff; color: #6d28d9; }
-    .act-pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; font-size: 13px; color: var(--ink-soft); }
-    @media (max-width: 1100px) { .act-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); } .user-form { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 720px) { .act-filters, .user-form { grid-template-columns: 1fr; } }
+    .act-table td.ts, .act-table td.ip { white-space: nowrap; font-family: var(--font-mono); font-size: 12px; }
+    .act-table td.det { color: var(--ink-2); max-width: 460px; line-height: 1.45; word-break: break-word; }
+    .act-table .fl { cursor: pointer; border-bottom: 1px dashed var(--line-2); }
+    .act-table .fl:hover { color: var(--brand); border-color: var(--brand); }
+    .ab.login { background: var(--ok-soft); color: var(--ok); }
+    .ab.fail { background: var(--bad-soft); color: var(--bad); }
+    .ab.create { background: var(--info-soft); color: var(--info); }
+    .ab.update { background: var(--warn-soft); color: var(--warn); }
+    .ab.delete { background: #FDE8F3; color: #BE185D; }
+    .ab.admin { background: var(--brand-soft); color: var(--brand-ink); }
+    .act-pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; font-size: 13px; color: var(--ink-3); font-family: var(--font-mono); }
 
-    .defaults-box { margin-bottom: 16px; padding: 12px 14px; background: var(--surface-muted); border: 1px solid var(--line); border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 8px; }
-    .defaults-head, .defaults-line { display: grid; grid-template-columns: 130px 1fr 1fr; gap: 10px; align-items: center; }
-    .defaults-head span { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--ink-soft); letter-spacing: .6px; text-transform: uppercase; }
-    .defaults-line .chip { justify-self: start; }
-    @media (max-width: 720px) { .defaults-head { display: none; } .defaults-line { grid-template-columns: 1fr; } }
-    .defaults-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; padding: 14px; background: var(--surface-muted); border: 1px solid var(--line); border-radius: var(--radius-md); }
-
-    /* Save bar */
+    /* Unsaved-changes bar */
     .savebar {
-      position: fixed; left: 50%; bottom: 20px; z-index: 900; transform: translate(-50%, 140%);
-      display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;
-      padding: 12px 14px 12px 20px; border-radius: 16px; background: var(--ink); color: #fff;
-      box-shadow: 0 24px 50px -10px rgba(15,23,42,.45); transition: transform .25s;
-      max-width: calc(100vw - 24px);
+      position: fixed; left: 50%; bottom: 20px; z-index: 900; transform: translate(-50%, 160%);
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
+      padding: 10px 10px 10px 18px; border-radius: var(--r-lg); background: var(--nav); color: #fff;
+      box-shadow: var(--shadow-float); transition: transform .25s; max-width: calc(100vw - 24px);
     }
     .savebar.show { transform: translate(-50%, 0); }
     .savebar:not(.show) { visibility: hidden; transition: transform .25s, visibility 0s .25s; }
-    .savebar .msg { font-size: 13.5px; font-weight: 600; }
-    .savebar .msg .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--warning); margin-right: 8px; }
-    .savebar .btn-ghost { color: #cbd5e1; border-color: rgba(255,255,255,.2); }
+    .savebar .msg { font-size: 13.5px; font-weight: 600; margin-right: 6px; }
+    .savebar .msg .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #F59E0B; margin-right: 8px; vertical-align: 1px; box-shadow: 0 0 0 3px rgba(245, 158, 11, .25); }
+    .savebar .btn-ghost { color: #C3CAE0; }
+    .savebar .btn-ghost:hover:not(:disabled) { background: rgba(255, 255, 255, .08); color: #fff; }
+    .savebar .btn:focus-visible { outline-color: #fff; }
 
-    .tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); }
-    .tools .note { flex-basis: 100%; font-size: 12px; color: var(--ink-faint); }
+    /* Data tools */
+    .tools { margin-top: 30px; padding: 20px 22px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); }
+    .tools h2 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
+    .tools-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tools .note { margin-top: 10px; font-size: 12.5px; color: var(--ink-3); max-width: 90ch; }
 
-    /* Toast */
-    .toast { position: fixed; left: 50%; top: 86px; z-index: 1000; transform: translate(-50%, -10px); opacity: 0; pointer-events: none; max-width: min(560px, calc(100vw - 32px)); border-radius: var(--radius-md); padding: 12px 18px; font-size: 13.5px; font-weight: 600; box-shadow: 0 20px 40px -8px rgba(15,23,42,.25); transition: opacity .25s, transform .25s; }
+    /* Toast (top) */
+    .toast {
+      position: fixed; left: 50%; top: calc(var(--bar-h) + 14px); z-index: 1000;
+      transform: translate(-50%, -8px); opacity: 0; pointer-events: none;
+      max-width: min(560px, calc(100vw - 28px)); padding: 12px 16px; border-radius: var(--r-md);
+      background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600;
+      border: 1px solid var(--line); border-left: 5px solid #22C55E; box-shadow: var(--shadow-float); transition: opacity .2s, transform .2s;
+    }
     .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
-    .toast.success { background: var(--success-soft); color: #065f46; border: 1px solid #a7f3d0; }
-    .toast.error { background: var(--danger-soft); color: #991b1b; border: 1px solid #fecaca; }
-    .toast.warning { background: var(--warning-soft); color: #92400e; border: 1px solid #fde68a; }
+    .toast.error { border-left-color: var(--bad); }
+    .toast.warning { border-left-color: #F59E0B; }
 
-    .hidden { display: none !important; }
-
-    .brigades-layout > *, .panel, .table-wrap { min-width: 0; }
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .kpis { grid-template-columns: 1fr 1fr; }
+      .act-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .user-form { grid-template-columns: 1fr 1fr; }
+    }
     @media (max-width: 860px) {
       .brigades-layout { grid-template-columns: minmax(0, 1fr); }
       .brigade-list { max-height: none; flex-direction: row; overflow-x: auto; padding-bottom: 6px; }
@@ -271,78 +554,129 @@
       .brigade-btn .meta small { display: none; }
     }
     @media (max-width: 720px) {
+      :root { --bar-h: 58px; }
       body { overflow-x: hidden; }
-      .topbar { flex-wrap: wrap; padding: 12px 14px; }
-      .topbar .titles h1 { font-size: 15px; }
-      .nav-tabs { margin-left: 0; flex: 1; }
+      .topbar { height: auto; flex-wrap: wrap; padding: 9px 12px; gap: 8px; }
+      .brand { margin-right: auto; }
+      .brand-sub { display: none; }
+      .logout span { display: none; }
+      .topbar .logout { padding: 0 10px; }
+      .nav-tabs { order: 4; width: 100%; }
       .nav-tab { flex: 1; justify-content: center; }
-      .wrap { padding: 16px 10px 0; }
-      .panel { padding: 16px 12px; border-radius: 16px; }
-      .wt-list { grid-template-columns: 1fr; }
-      .savebar { bottom: 10px; width: calc(100vw - 20px); padding: 10px 12px; gap: 8px; flex-wrap: nowrap; }
-      .savebar .msg { font-size: 12px; flex: 1; }
-      .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .stat { padding: 10px 12px; }
-      .stat .v { font-size: 20px; }
-      .stat .k { font-size: 9px; letter-spacing: .4px; }
-      .section-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
-      .section-tab { flex-shrink: 0; }
+      .wrap { padding-top: 14px; }
+      .panel { padding: 16px 12px; border-radius: 14px; }
+      .hero { padding: 18px 16px; }
+      .hero-title { font-size: 22px; }
+      .btn.btn-hero { width: 100%; }
+      .kpis { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .kpi { padding: 12px; min-height: 84px; }
+      .kpi-label { font-size: 12px; }
+      .kpi-value { font-size: 26px; }
+      .kpi::after { width: 70px; height: 70px; right: -22px; top: -26px; }
+      .section-tabs { display: flex; }
+      .act-filters, .user-form { grid-template-columns: 1fr; }
+      .defaults-head { display: none; }
+      .defaults-line { grid-template-columns: 1fr; }
       .brigade-title .num-input { width: 80px; }
       .list-grid { grid-template-columns: 1fr; }
+      .tools { padding: 16px 12px; }
       .tools .btn { width: 100%; }
+      .savebar { bottom: 10px; width: calc(100vw - 20px); flex-wrap: nowrap; padding: 8px 8px 8px 14px; }
+      .savebar .msg { font-size: 12.5px; flex: 1; }
       #wtSearch { max-width: none !important; width: 100%; }
     }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="mark"><img src="/logo.png" alt="Logo" /></div>
-    <div class="titles">
-      <h1>ადმინ პანელი</h1>
-      <p>Brigade-Ops / Settings</p>
-    </div>
-    <nav class="nav-tabs">
-      <a class="nav-tab" href="/" onclick="return confirmLeave()">📋 ანგარიში</a>
-      <a class="nav-tab active" href="/admin">⚙️ ადმინ პანელი</a>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2.12 2.12 0 0 0-3-3L5 17v3z"/><path d="M13.5 8.5l2 2"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+      <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.01"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+      <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+      <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v3H3zM5 11h14"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></symbol>
+    </defs>
+  </svg>
+  <header class="topbar">
+    <a class="brand" href="/" onclick="return confirmLeave()" aria-label="Brigade-Ops — მთავარი">
+      <span class="mark"><img src="/logo.png" alt="" width="34" height="34" /></span>
+      <span class="titles">
+        <span class="brand-name">Brigade-Ops</span>
+        <span class="brand-sub">პარამეტრები</span>
+      </span>
+    </a>
+    <nav class="nav-tabs" aria-label="განყოფილებები">
+      <a class="nav-tab" href="/" onclick="return confirmLeave()">ანგარიში</a>
+      <a class="nav-tab active" href="/admin" aria-current="page">ადმინ პანელი</a>
     </nav>
-    <button type="button" class="logout" id="logoutBtn" onclick="logout()">გასვლა</button>
-  </div>
+    <button type="button" class="logout uc-logout" id="logoutBtn" onclick="logout()"><svg class="i" aria-hidden="true"><use href="#i-logout"/></svg><span>გასვლა</span></button>
+  </header>
 
-  <div class="wrap">
+  <main class="wrap">
     <!-- LOGIN -->
     <section class="panel login-box" id="loginView">
-      <img class="logo" src="/logo.png" alt="" />
+      <div class="login-brand"><img class="logo" src="/logo.png" alt="" width="40" height="40" /><span>Brigade-Ops</span></div>
       <h2>ადმინისტრატორის შესვლა</h2>
-      <p>ბრიგადების, წევრებისა და სამუშაოს ტიპების მართვა</p>
+      <p>ბრიგადები, ტარიფები, ოპერატორები და ჟურნალი.</p>
       <form onsubmit="event.preventDefault(); login();">
         <div>
           <label class="lbl" for="pwInput">პაროლი</label>
           <input type="password" id="pwInput" class="input" autocomplete="current-password" required autofocus />
         </div>
-        <div class="login-error" id="loginError"></div>
-        <button type="submit" class="btn btn-primary" id="loginBtn">🔐 შესვლა</button>
+        <div class="login-error" id="loginError" role="alert"></div>
+        <button type="submit" class="btn btn-primary" id="loginBtn">შესვლა</button>
       </form>
     </section>
 
     <!-- APP -->
     <div id="appView" class="hidden">
-      <div class="stats">
-        <div class="stat"><div class="k">ბრიგადები</div><div class="v" id="stBrigades">0</div></div>
-        <div class="stat"><div class="k">თანამშრომლები</div><div class="v" id="stMembers">0</div></div>
-        <div class="stat"><div class="k">ქალაქები</div><div class="v" id="stCities">0</div></div>
-        <div class="stat"><div class="k">სამუშაოს ტიპები</div><div class="v" id="stWorks">0</div></div>
-        <div class="stat"><div class="k">ავტომობილები</div><div class="v" id="stCars">0</div></div>
-        <div class="stat"><div class="k">ინჟინრები</div><div class="v" id="stEngineers">0</div></div>
+      <div class="hero">
+        <div class="hero-main">
+          <span class="eyebrow">ადმინისტრირება</span>
+          <h1 class="hero-title">პარამეტრები</h1>
+          <p class="hero-meta"><span class="period-pill">ბაზაში შენახული</span><span>ბრიგადები, ტარიფები, ოპერატორები და აქტივობის ჟურნალი</span></p>
+        </div>
+        <button type="button" class="btn btn-primary btn-hero" onclick="downloadBackup()"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg>სარეზერვო ასლი</button>
       </div>
 
-      <div class="section-tabs">
-        <button type="button" class="section-tab active" data-tab="brigades" onclick="switchTab('brigades')">👷 ბრიგადები <span class="count" id="tabCountB"></span></button>
-        <button type="button" class="section-tab" data-tab="works" onclick="switchTab('works')">🛠 სამუშაოები და ტარიფები <span class="count" id="tabCountW"></span></button>
-        <button type="button" class="section-tab" data-tab="cars" onclick="switchTab('cars')">🚗 ავტომობილები <span class="count" id="tabCountC"></span></button>
-        <button type="button" class="section-tab" data-tab="engineers" onclick="switchTab('engineers')">👷 ინჟინრები <span class="count" id="tabCountE"></span></button>
-        <button type="button" class="section-tab" data-tab="users" onclick="switchTab('users')">🔑 ოპერატორები <span class="count" id="tabCountU"></span></button>
-        <button type="button" class="section-tab" data-tab="activity" onclick="switchTab('activity')">📜 აქტივობა</button>
+      <div class="kpis" aria-label="შეჯამება">
+        <div class="kpi kpi-featured">
+          <span class="kpi-label">ბრიგადები</span>
+          <span class="kpi-row"><b class="kpi-value" id="stBrigades">0</b><small><span id="stCities">0</span> ქალაქში</small></span>
+        </div>
+        <div class="kpi kpi-green">
+          <span class="kpi-label">თანამშრომლები</span>
+          <span class="kpi-row"><b class="kpi-value" id="stMembers">0</b><small>სულ შემადგენლობა</small></span>
+        </div>
+        <div class="kpi kpi-violet">
+          <span class="kpi-label">სამუშაოს ტიპები</span>
+          <span class="kpi-row"><b class="kpi-value" id="stWorks">0</b><small>ტარიფით</small></span>
+        </div>
+        <div class="kpi kpi-grey">
+          <span class="kpi-label">ავტომობილი / ინჟინერი</span>
+          <span class="kpi-row"><b class="kpi-value"><span id="stCars">0</span><span class="kpi-sep">/</span><span id="stEngineers">0</span></b></span>
+        </div>
+      </div>
+
+      <div class="section-tabs" role="tablist" aria-label="პარამეტრების განყოფილებები">
+        <button type="button" class="section-tab active" role="tab" aria-selected="true" data-tab="brigades" onclick="switchTab('brigades')">ბრიგადები <span class="count" id="tabCountB"></span></button>
+        <button type="button" class="section-tab" role="tab" aria-selected="false" data-tab="works" onclick="switchTab('works')">სამუშაოები და ტარიფები <span class="count" id="tabCountW"></span></button>
+        <button type="button" class="section-tab" role="tab" aria-selected="false" data-tab="cars" onclick="switchTab('cars')">ავტომობილები <span class="count" id="tabCountC"></span></button>
+        <button type="button" class="section-tab" role="tab" aria-selected="false" data-tab="engineers" onclick="switchTab('engineers')">ინჟინრები <span class="count" id="tabCountE"></span></button>
+        <button type="button" class="section-tab" role="tab" aria-selected="false" data-tab="users" onclick="switchTab('users')">ოპერატორები <span class="count" id="tabCountU"></span></button>
+        <button type="button" class="section-tab" role="tab" aria-selected="false" data-tab="activity" onclick="switchTab('activity')">ჟურნალი</button>
+        <button type="button" class="section-tab" role="tab" aria-selected="false" data-tab="trash" onclick="switchTab('trash')">წაშლილები <span class="count" id="tabCountT"></span></button>
       </div>
 
       <!-- Brigades -->
@@ -350,13 +684,12 @@
         <div class="brigades-layout">
           <div class="panel">
             <div class="panel-head">
-              <span class="panel-eyebrow">// სია</span>
               <h2>ბრიგადები</h2>
             </div>
             <div class="brigade-list" id="brigadeList"></div>
             <form class="add-brigade" onsubmit="event.preventDefault(); addBrigade();">
-              <input type="text" id="newBrigadeInput" class="input" placeholder="ახალი ნომერი" maxlength="20" />
-              <button type="submit" class="btn btn-success">➕</button>
+              <input type="text" id="newBrigadeInput" class="input" placeholder="ახალი ნომერი" maxlength="20" aria-label="ახალი ბრიგადის ნომერი" />
+              <button type="submit" class="btn btn-outline" aria-label="ბრიგადის დამატება" title="ბრიგადის დამატება"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button>
             </form>
           </div>
 
@@ -368,17 +701,16 @@
       <section id="tab-works" class="hidden">
         <div class="panel">
           <div class="panel-head">
-            <span class="panel-eyebrow">// ტარიფები</span>
             <h2>შესრულებული სამუშაოები და ტარიფები</h2>
             <span class="spacer"></span>
-            <input type="search" id="wtSearch" class="input" placeholder="🔎 ძებნა..." oninput="renderWorkTypes()" style="max-width:240px;" />
+            <input type="search" id="wtSearch" class="input" placeholder="ძებნა" aria-label="სამუშაოს ძებნა" oninput="renderWorkTypes()" style="max-width:240px;" />
           </div>
-          <p class="hint-line">Excel-ში თანხა = ტარიფი × „რაოდ. კაცი“. ტარიფი ჩანაწერში ფიქსირდება შენახვის მომენტში — ცვლილება ძველ ჩანაწერებზე არ მოქმედებს.</p>
+          <p class="hint-line">Excel-ში თანხა = ტარიფი × „რაოდ. კაცი“. ტარიფი ჩანაწერში ფიქსირდება შენახვის მომენტში, ამიტომ ცვლილება უკვე შენახულ ჩანაწერებზე არ მოქმედებს.</p>
           <div class="table-wrap">
             <table class="mtable wt-table">
               <thead><tr>
-                <th>#</th><th>შესრულებული სამუშაო</th>
-                <th class="th-worker">ტარიფი მუშა</th><th class="th-brigade">ტარიფი ბრიგ.</th><th class="th-engineer">ტარიფი ინჟინერი</th><th></th>
+                <th scope="col">№</th><th scope="col">შესრულებული სამუშაო</th>
+                <th scope="col" class="th-worker">ტარიფი: მუშა</th><th scope="col" class="th-brigade">ტარიფი: ბრიგადა</th><th scope="col" class="th-engineer">ტარიფი: ინჟინერი</th><th scope="col"><span class="sr-only">წაშლა</span></th>
               </tr></thead>
               <tbody id="wtBody"></tbody>
             </table>
@@ -390,13 +722,12 @@
       <section id="tab-cars" class="hidden">
         <div class="panel">
           <div class="panel-head">
-            <span class="panel-eyebrow">// სია</span>
             <h2>ავტომობილები</h2>
           </div>
-          <p class="hint-line">ბრიგადის ნაგულისხმევი ავტომობილი ეთითება „ბრიგადები“ ტაბში — ფორმაში ავტომატურად შეივსება.</p>
+          <p class="hint-line">ბრიგადის ნაგულისხმევი ავტომობილი ეთითება „ბრიგადების“ განყოფილებაში და ფორმაში ავტომატურად ივსება.</p>
           <form class="add-row" onsubmit="event.preventDefault(); addListItem('cars');">
-            <input type="text" id="new-cars" class="input mono" placeholder="მაგ: CJ-752-JC" />
-            <button type="submit" class="btn btn-success">➕ დამატება</button>
+            <input type="text" id="new-cars" class="input mono" placeholder="მაგ: CJ-752-JC" aria-label="ახალი ავტომობილი" />
+            <button type="submit" class="btn btn-outline"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>დამატება</button>
           </form>
           <div class="list-grid" id="list-cars"></div>
         </div>
@@ -406,13 +737,12 @@
       <section id="tab-engineers" class="hidden">
         <div class="panel">
           <div class="panel-head">
-            <span class="panel-eyebrow">// სია</span>
             <h2>ინჟინრები საბონუსე სისტემაში</h2>
           </div>
-          <p class="hint-line">ბრიგადის ინჟინერი ეთითება „ბრიგადები“ ტაბში — ფორმაში ავტომატურად შეივსება.</p>
+          <p class="hint-line">ბრიგადის ინჟინერი ეთითება „ბრიგადების“ განყოფილებაში და ფორმაში ავტომატურად ივსება.</p>
           <form class="add-row" onsubmit="event.preventDefault(); addListItem('engineers');">
-            <input type="text" id="new-engineers" class="input" placeholder="გვარი სახელი" />
-            <button type="submit" class="btn btn-success">➕ დამატება</button>
+            <input type="text" id="new-engineers" class="input" placeholder="გვარი სახელი" aria-label="ახალი ინჟინერი" />
+            <button type="submit" class="btn btn-outline"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>დამატება</button>
           </form>
           <div class="list-grid" id="list-engineers"></div>
         </div>
@@ -422,7 +752,6 @@
       <section id="tab-users" class="hidden">
         <div class="panel">
           <div class="panel-head">
-            <span class="panel-eyebrow">// ანგარიშები</span>
             <h2>ოპერატორები</h2>
             <span class="spacer"></span>
             <span class="mode-pill" id="loginModePill"></span>
@@ -431,8 +760,8 @@
           <form class="user-form" onsubmit="event.preventDefault(); createUser();">
             <div><label class="lbl" for="nuUser">მომხმარებელი (login)</label><input type="text" id="nuUser" class="input mono" placeholder="მაგ: nino" autocomplete="off" /></div>
             <div><label class="lbl" for="nuName">სახელი, გვარი</label><input type="text" id="nuName" class="input" placeholder="მაგ: ნინო ბერიძე" autocomplete="off" /></div>
-            <div><label class="lbl" for="nuPass">პაროლი (მინ. 6)</label><input type="text" id="nuPass" class="input mono" autocomplete="new-password" /></div>
-            <button type="submit" class="btn btn-success">➕ დამატება</button>
+            <div><label class="lbl" for="nuPass">პაროლი (მინ. 10)</label><input type="text" id="nuPass" class="input mono" autocomplete="new-password" /></div>
+            <button type="submit" class="btn btn-outline"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>დამატება</button>
           </form>
           <div class="table-wrap">
             <table class="mtable users-table">
@@ -443,11 +772,28 @@
         </div>
       </section>
 
+      <!-- Deleted records -->
+      <section id="tab-trash" class="hidden">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>წაშლილი ჩანაწერები</h2>
+            <span class="spacer"></span>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="loadTrash()"><svg class="i" aria-hidden="true"><use href="#i-refresh"/></svg>განახლება</button>
+          </div>
+          <p class="hint-line">ოპერატორის მიერ წაშლილი ჩანაწერი აქ ინახება და შეგიძლიათ დააბრუნოთ. ნაჩვენებია ბოლო 500.</p>
+          <div class="table-wrap">
+            <table class="mtable users-table">
+              <thead><tr><th>წაშლის დრო</th><th>ვინ წაშალა</th><th>ID</th><th>თარიღი</th><th>ბრიგადა, ქალაქი</th><th>მისამართი</th><th><span class="sr-only">აღდგენა</span></th></tr></thead>
+              <tbody id="trashBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <!-- Activity log -->
       <section id="tab-activity" class="hidden">
         <div class="panel">
           <div class="panel-head">
-            <span class="panel-eyebrow">// ჟურნალი</span>
             <h2>აქტივობის ისტორია</h2>
             <span class="spacer"></span>
             <span class="hint-line" style="margin:0;" id="myIp"></span>
@@ -460,8 +806,8 @@
             <div><label class="lbl" for="afFrom">თარიღიდან</label><input type="date" id="afFrom" class="input" /></div>
             <div><label class="lbl" for="afTo">თარიღამდე</label><input type="date" id="afTo" class="input" /></div>
             <div class="act-btns">
-              <button type="submit" class="btn btn-primary">🔎 ძებნა</button>
-              <button type="button" class="btn btn-ghost" onclick="resetActivityFilters()">↺</button>
+              <button type="submit" class="btn btn-export"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg>ძებნა</button>
+              <button type="button" class="btn btn-ghost" onclick="resetActivityFilters()" title="ფილტრის გასუფთავება" aria-label="ფილტრის გასუფთავება"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
           </form>
           <div class="act-summary" id="actSummary"></div>
@@ -472,30 +818,33 @@
             </table>
           </div>
           <div class="act-pager">
-            <button type="button" class="btn btn-ghost btn-sm" id="actPrev" onclick="loadActivity(actOffset - ACT_LIMIT)">← წინა</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="actPrev" onclick="loadActivity(actOffset - ACT_LIMIT)">წინა</button>
             <span id="actPage"></span>
-            <button type="button" class="btn btn-ghost btn-sm" id="actNext" onclick="loadActivity(actOffset + ACT_LIMIT)">შემდეგი →</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="actNext" onclick="loadActivity(actOffset + ACT_LIMIT)">შემდეგი</button>
           </div>
-          <p class="hint-line" style="margin-top:12px;">ჟურნალი მხოლოდ ემატება — მისი შეცვლა ან წაშლა სისტემიდან შეუძლებელია (ბაზის დონეზეც დაბლოკილია). IP ფიქსირდება სერვერზე.</p>
+          <p class="hint-line" style="margin-top:12px;">ჟურნალში ჩანაწერი მხოლოდ ემატება. მისი შეცვლა ან წაშლა შეუძლებელია, ბაზის დონეზეც. IP ფიქსირდება სერვერზე.</p>
         </div>
       </section>
 
-      <div class="tools">
-        <button type="button" class="btn btn-primary btn-sm" onclick="downloadBackup()">💾 სრული სარეზერვო ასლი (ჩანაწერები + პარამეტრები)</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="exportConfig()">⬇️ config.json-ის ჩამოტვირთვა</button>
-        <button type="button" class="btn btn-danger btn-sm" onclick="resetConfig()">↺ config.json-ის საწყის მდგომარეობაზე დაბრუნება</button>
-        <div class="note">ცვლილებები ინახება მონაცემთა ბაზაში. config.json გამოიყენება მხოლოდ საწყის მონაცემებად პირველი გაშვებისას.</div>
-      </div>
+      <section class="tools" aria-labelledby="h-tools">
+        <h2 id="h-tools">მონაცემები</h2>
+        <div class="tools-row">
+          <button type="button" class="btn btn-outline btn-sm" onclick="downloadBackup()"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg>სრული სარეზერვო ასლი</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="exportConfig()"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg>config.json</button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="resetConfig()"><svg class="i" aria-hidden="true"><use href="#i-undo"/></svg>საწყის პარამეტრებზე დაბრუნება</button>
+        </div>
+        <p class="note">სარეზერვო ასლი შეიცავს ყველა ჩანაწერს, წაშლილებს და პარამეტრებს. ცვლილებები ინახება ბაზაში; config.json მხოლოდ პირველი გაშვების საწყისი მონაცემებია.</p>
+      </section>
     </div>
-  </div>
+  </main>
 
   <datalist id="positionsList"></datalist>
   <datalist id="citiesList"></datalist>
 
   <div class="savebar" id="saveBar">
-    <span class="msg"><span class="dot"></span><span id="saveBarText">შეუნახავი ცვლილებები</span></span>
+    <span class="msg"><span class="dot" aria-hidden="true"></span><span id="saveBarText">შეუნახავი ცვლილებები</span></span>
     <button type="button" class="btn btn-ghost btn-sm" onclick="discardChanges()">გაუქმება</button>
-    <button type="button" class="btn btn-primary btn-sm" id="saveBtn" onclick="saveConfig()">💾 შენახვა</button>
+    <button type="button" class="btn btn-primary btn-sm" id="saveBtn" onclick="saveConfig()">შენახვა</button>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -563,7 +912,7 @@
       if (!password) return;
       const btn = $('loginBtn');
       btn.disabled = true;
-      btn.textContent = '⏳ მოწმდება...';
+      btn.textContent = 'მოწმდება…';
       try {
         await api('/api/admin/login', { method: 'POST' });
         sessionStorage.setItem(PW_KEY, password);
@@ -572,7 +921,7 @@
         showLogin(e.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = '🔐 შესვლა';
+        btn.textContent = 'შესვლა';
       }
     }
 
@@ -673,18 +1022,18 @@
       if (err) { toast(err, 'error'); return; }
       const btn = $('saveBtn');
       btn.disabled = true;
-      btn.textContent = '⏳ ინახება...';
+      btn.textContent = 'ინახება…';
       try {
         const data = await api('/api/admin/config', { method: 'PUT', body: JSON.stringify(cfg) });
         cfg = normalizeCfg(data.config);
         setSnapshot();
         renderAll();
-        toast('✅ ცვლილებები შენახულია. მთავარ გვერდზე განახლება გამოჩნდება გვერდის გადატვირთვისას.');
+        toast('ცვლილებები შენახულია. მთავარ გვერდზე გამოჩნდება გვერდის განახლების შემდეგ.');
       } catch (e) {
-        toast(`❌ ${e.message}`, 'error');
+        toast(`${e.message}`, 'error');
       } finally {
         btn.disabled = false;
-        btn.textContent = '💾 შენახვა';
+        btn.textContent = 'შენახვა';
       }
     }
 
@@ -716,7 +1065,7 @@
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       } catch (e) {
-        toast(`❌ ${e.message}`, 'error');
+        toast(`${e.message}`, 'error');
       }
     }
 
@@ -735,9 +1084,9 @@
         a.download = `backup_${new Date().toISOString().slice(0, 10)}.json`;
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast('✅ სარეზერვო ასლი ჩამოიტვირთა. შეინახეთ უსაფრთხო ადგილას.');
+        toast('სარეზერვო ასლი ჩამოიტვირთა. შეინახეთ უსაფრთხო ადგილას.');
       } catch (e) {
-        toast(`❌ ${e.message}`, 'error');
+        toast(`${e.message}`, 'error');
       }
     }
 
@@ -751,7 +1100,7 @@
         renderAll();
         toast('პარამეტრები დაბრუნდა config.json-ის მდგომარეობაზე.', 'warning');
       } catch (e) {
-        toast(`❌ ${e.message}`, 'error');
+        toast(`${e.message}`, 'error');
       }
     }
 
@@ -851,53 +1200,52 @@
             <td class="pid"><input class="input" data-f="personal_id" value="${esc(m.personal_id)}" placeholder="პირადი #" inputmode="numeric"></td>
             <td class="acts">
               ${otherBrigades.length ? `<select class="move-select" data-move="${i}" title="სხვა ბრიგადაში გადაყვანა">
-                <option value="">↪ გადაყვანა</option>
+                <option value="">გადაყვანა</option>
                 ${otherBrigades.map(b => `<option value="${esc(b)}">ბრიგადა ${esc(b)}</option>`).join('')}
               </select>` : ''}
-              <button type="button" class="icon-btn" data-del="${i}" title="წაშლა">✖</button>
+              <button type="button" class="icon-btn danger" data-del="${i}" title="წაშლა" aria-label="წევრის წაშლა"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg></button>
             </td>
           </tr>`).join('');
 
       box.innerHTML = `
         <div class="brigade-title">
-          <span class="panel-eyebrow">// ბრიგადა</span>
-          <h3>№</h3>
-          <input class="input num-input" id="renameInput" value="${esc(key)}" maxlength="20" title="ნომრის შეცვლა">
-          <button type="button" class="btn btn-ghost btn-sm" onclick="renameBrigade()">✎ ნომრის შეცვლა</button>
+          <h3>ბრიგადა</h3>
+          <input class="input num-input" id="renameInput" value="${esc(key)}" maxlength="20" title="ნომრის შეცვლა" aria-label="ბრიგადის ნომერი">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="renameBrigade()"><svg class="i" aria-hidden="true"><use href="#i-edit"/></svg>ნომრის შეცვლა</button>
           <span class="spacer"></span>
-          <button type="button" class="btn btn-danger btn-sm" onclick="deleteBrigade()">🗑 ბრიგადის წაშლა</button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="deleteBrigade()"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg>ბრიგადის წაშლა</button>
         </div>
         ${cities.length ? '' : '<div class="city-chips"><span style="color:var(--ink-faint); font-size:12.5px;">ქალაქი ჯერ არ არის — წევრს ქალაქი მიუთითეთ</span></div>'}
         ${cities.length ? `<div class="defaults-box">
-          <div class="defaults-head"><span></span><span>🚗 ნაგულისხმევი ავტომობილი</span><span>👷 ინჟინერი საბონუსე სისტემაში</span></div>
+          <div class="defaults-head"><span>ქალაქი</span><span>ნაგულისხმევი ავტომობილი</span><span>ინჟინერი (საბონუსე სისტემა)</span></div>
           ${cities.map(c => {
             const d = (cfg.brigades[key].city_defaults || {})[c] || {};
             return `<div class="defaults-line">
-              <span class="chip ${c === TBILISI ? 'tb' : ''}">📍 ${esc(c)}</span>
+              <span class="chip ${c === TBILISI ? 'tb' : ''}">${esc(c)}</span>
               <select class="input" data-dcity="${esc(c)}" data-dfield="car">
-                <option value="">— არ არის —</option>
+                <option value="">არ არის</option>
                 ${cfg.cars.map(x => `<option value="${esc(x)}" ${x === d.car ? 'selected' : ''}>${esc(x)}</option>`).join('')}
               </select>
               <select class="input" data-dcity="${esc(c)}" data-dfield="engineer">
-                <option value="">— არ არის —</option>
+                <option value="">არ არის</option>
                 ${cfg.engineers.map(x => `<option value="${esc(x)}" ${x === d.engineer ? 'selected' : ''}>${esc(x)}</option>`).join('')}
               </select>
             </div>`;
           }).join('')}
         </div>` : ''}
-        ${members.length > 6 ? `<input type="search" class="input member-search" id="memberSearch" placeholder="🔎 წევრის ძებნა..." value="${esc(memberFilter)}">` : ''}
+        ${members.length > 6 ? `<input type="search" class="input member-search" id="memberSearch" placeholder="წევრის ძებნა" aria-label="წევრის ძებნა" value="${esc(memberFilter)}">` : ''}
         <div class="table-wrap">
           <table class="mtable">
-            <thead><tr><th>#</th><th>სახელი გვარი</th><th>თანამდებობა</th><th>ქალაქი</th><th>პირადი #</th><th></th></tr></thead>
+            <thead><tr><th scope="col">№</th><th scope="col">სახელი გვარი</th><th scope="col">თანამდებობა</th><th scope="col">ქალაქი</th><th scope="col">პირადი ნომერი</th><th scope="col"><span class="sr-only">მოქმედება</span></th></tr></thead>
             <tbody id="membersBody">
               ${rows || (members.length ? '<tr><td colspan="6" style="text-align:center; padding:16px; color:var(--ink-faint);">ვერ მოიძებნა</td></tr>' : '')}
               <tr class="new-row">
-                <td class="idx">＋</td>
+                <td class="idx" aria-hidden="true">+</td>
                 <td><input class="input" id="nmName" placeholder="სახელი გვარი *"></td>
                 <td><input class="input" id="nmPosition" list="positionsList" placeholder="თანამდებობა *" value="მუშა"></td>
                 <td><input class="input" id="nmCity" list="citiesList" placeholder="ქალაქი *" value="${esc(cities[0] || '')}"></td>
                 <td class="pid"><input class="input" id="nmPid" placeholder="პირადი #" inputmode="numeric"></td>
-                <td class="acts"><button type="button" class="btn btn-success btn-sm" onclick="addMember()">➕ დამატება</button></td>
+                <td class="acts"><button type="button" class="btn btn-outline btn-sm" onclick="addMember()"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>დამატება</button></td>
               </tr>
             </tbody>
           </table>
@@ -946,7 +1294,7 @@
         const nums = brigadeKeys().filter(k => /^\d+$/.test(k)).map(Number);
         inp.value = String((nums.length ? Math.max(...nums) : 0) + 1);
         inp.focus();
-        toast('შემოთავაზებულია შემდეგი ნომერი — დააჭირეთ ➕', 'warning');
+        toast('შემოთავაზებულია შემდეგი ნომერი. დააჭირეთ „დამატებას“.', 'warning');
         return;
       }
       if (cfg.brigades[key]) { toast(`ბრიგადა ${key} უკვე არსებობს.`, 'error'); inp.classList.add('is-invalid'); return; }
@@ -1057,14 +1405,14 @@
             <td><input class="input" data-f="name" value="${esc(w.name)}" placeholder="სამუშაოს დასახელება">
               ${isZero(w) ? '<span class="zero-badge" title="ყველა ტარიფი 0-ია">ტარიფი 0</span>' : ''}</td>
             ${TARIFF_FIELDS.map(f => `<td class="tar"><input class="input" data-f="${f}" value="${esc(fmtTariff(w[f]))}" inputmode="decimal"></td>`).join('')}
-            <td class="acts"><button type="button" class="icon-btn" data-wdel="${i}" title="წაშლა">✖</button></td>
+            <td class="acts"><button type="button" class="icon-btn danger" data-wdel="${i}" title="წაშლა" aria-label="სამუშაოს წაშლა"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg></button></td>
           </tr>`).join('')
         + (q && !items.length ? '<tr><td colspan="6" style="text-align:center; padding:16px; color:var(--ink-faint);">ვერ მოიძებნა</td></tr>' : '')
         + `<tr class="new-row">
-            <td class="idx">＋</td>
+            <td class="idx" aria-hidden="true">+</td>
             <td><input class="input" id="nwName" placeholder="ახალი სამუშაო *"></td>
             ${TARIFF_FIELDS.map(f => `<td class="tar"><input class="input" id="nw_${f}" placeholder="0" inputmode="decimal"></td>`).join('')}
-            <td class="acts"><button type="button" class="btn btn-success btn-sm" onclick="addWorkType()">➕</button></td>
+            <td class="acts"><button type="button" class="btn btn-outline btn-sm" onclick="addWorkType()"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>დამატება</button></td>
           </tr>`;
 
       body.querySelectorAll('tr[data-wi] .input').forEach(inp => {
@@ -1145,9 +1493,9 @@
             return `
               <div class="list-card ${kind === 'cars' ? 'car' : ''} ${used.length ? '' : 'unused'}">
                 <div class="top">
-                  <span class="avatar">${kind === 'cars' ? '🚗' : esc(initials(v))}</span>
+                  <span class="avatar">${kind === 'cars' ? '<svg class="i" aria-hidden="true"><use href="#i-car"/></svg>' : esc(initials(v))}</span>
                   <input class="input" data-li="${i}" value="${esc(v)}" title="შესაცვლელად დააჭირეთ">
-                  <button type="button" class="icon-btn" data-ldel="${i}" title="წაშლა">✖</button>
+                  <button type="button" class="icon-btn danger" data-ldel="${i}" title="წაშლა" aria-label="წაშლა: ${esc(v)}"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg></button>
                 </div>
                 <div class="usage-row">${tags}</div>
               </div>`;
@@ -1207,9 +1555,14 @@
       if (btn) selectBrigade(btn.dataset.key);
     });
     function switchTab(name) {
-      document.querySelectorAll('.section-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-      ['brigades', 'works', 'cars', 'engineers', 'users', 'activity'].forEach(t => $('tab-' + t).classList.toggle('hidden', name !== t));
+      document.querySelectorAll('.section-tab').forEach(t => {
+        const on = t.dataset.tab === name;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      ['brigades', 'works', 'cars', 'engineers', 'users', 'activity', 'trash'].forEach(t => $('tab-' + t).classList.toggle('hidden', name !== t));
       if (name === 'users') loadUsers();
+      if (name === 'trash') loadTrash();
       if (name === 'activity') { if (!$('afAction').options.length) initActivityFilters(); loadActivity(0); }
     }
 
@@ -1228,17 +1581,20 @@
         const data = await api('/api/admin/users');
         usersCache = data.users || [];
         renderUsers(data.login_required);
-      } catch (e) { toast(`❌ ${e.message}`, 'error'); }
+      } catch (e) { toast(`${e.message}`, 'error'); }
     }
 
     function renderUsers(required) {
       $('tabCountU').textContent = usersCache.length;
       const pill = $('loginModePill');
       pill.className = 'mode-pill ' + (required ? 'on' : 'off');
-      pill.textContent = required ? '🔒 შესვლა სავალდებულოა' : '🔓 შესვლა არ არის სავალდებულო';
-      $('usersHint').textContent = required
-        ? 'მთავარ გვერდზე მუშაობისთვის ოპერატორმა უნდა შეიყვანოს მომხმარებელი და პაროლი. ყველა მოქმედება აღირიცხება მისი სახელით და IP-ით.'
-        : 'ჯერ აქტიური ოპერატორი არ არის — მთავარი გვერდი ღიაა და მოქმედებები აღირიცხება მხოლოდ IP-ით. პირველი ოპერატორის დამატებისთანავე შესვლა გახდება სავალდებულო.';
+      pill.textContent = required ? 'შესვლა სავალდებულოა' : 'შესვლა არ არის სავალდებულო';
+      const anyActive = usersCache.some(u => u.active);
+      $('usersHint').textContent = !required
+        ? 'ღია რეჟიმი ჩართულია (ALLOW_OPEN_ACCESS=1) და აქტიური ოპერატორი არ არის — მთავარი გვერდი ღიაა. დაამატეთ ოპერატორი და გამორთეთ ღია რეჟიმი.'
+        : anyActive
+          ? 'მთავარ გვერდზე მუშაობისთვის ოპერატორმა უნდა შეიყვანოს მომხმარებელი და პაროლი. ყველა მოქმედება აღირიცხება მისი სახელით და IP-ით.'
+          : 'აქტიური ოპერატორი არ არის — მთავარ გვერდზე შესვლა ვერავინ შეძლებს. დაამატეთ ოპერატორი.';
       $('usersBody').innerHTML = usersCache.length ? usersCache.map(u => `
         <tr class="${u.active ? '' : 'inactive'}">
           <td class="uname">${esc(u.username)}</td>
@@ -1246,11 +1602,11 @@
           <td><span class="ustate ${u.active ? 'on' : 'off'}">${u.active ? 'აქტიური' : 'დაბლოკილი'}</span></td>
           <td style="font-family:var(--font-mono); font-size:12px;">${esc(fmtTs(u.last_login))}</td>
           <td><div class="uactions">
-            <button type="button" class="btn btn-ghost btn-sm" data-u="${esc(u.username)}" data-act="rename">✎ სახელი</button>
-            <button type="button" class="btn btn-ghost btn-sm" data-u="${esc(u.username)}" data-act="password">🔑 პაროლი</button>
-            <button type="button" class="btn btn-ghost btn-sm" data-u="${esc(u.username)}" data-act="toggle">${u.active ? '⛔ დაბლოკვა' : '✔ გააქტიურება'}</button>
-            <button type="button" class="btn btn-ghost btn-sm" data-u="${esc(u.username)}" data-act="log">📜 აქტივობა</button>
-            <button type="button" class="icon-btn" data-u="${esc(u.username)}" data-act="delete" title="წაშლა">✖</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-u="${esc(u.username)}" data-act="rename">სახელი</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-u="${esc(u.username)}" data-act="password">პაროლი</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-u="${esc(u.username)}" data-act="toggle">${u.active ? 'დაბლოკვა' : 'გააქტიურება'}</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-u="${esc(u.username)}" data-act="log">ჟურნალი</button>
+            <button type="button" class="icon-btn danger" data-u="${esc(u.username)}" data-act="delete" title="წაშლა" aria-label="ოპერატორის წაშლა: ${esc(u.username)}"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg></button>
           </div></td>
         </tr>`).join('')
         : '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--ink-faint);">ოპერატორები ჯერ არ არის</td></tr>';
@@ -1268,10 +1624,10 @@
           if (v === null) return;
           await api(`/api/admin/users/${enc}`, { method: 'PUT', body: JSON.stringify({ display_name: v }) });
         } else if (b.dataset.act === 'password') {
-          const v = prompt(`ახალი პაროლი — ${u.username} (მინ. 6 სიმბოლო).\nძველი სესიები გაუქმდება.`);
+          const v = prompt(`ახალი პაროლი — ${u.username} (მინ. 10 სიმბოლო).\nძველი სესიები გაუქმდება.`);
           if (!v) return;
           await api(`/api/admin/users/${enc}`, { method: 'PUT', body: JSON.stringify({ password: v }) });
-          toast('🔑 პაროლი შეიცვალა.');
+          toast('პაროლი შეიცვალა.');
         } else if (b.dataset.act === 'toggle') {
           if (u.active && !confirm(`დაიბლოკოს ${u.username}? სისტემაში შესვლას ვეღარ შეძლებს.`)) return;
           await api(`/api/admin/users/${enc}`, { method: 'PUT', body: JSON.stringify({ active: !u.active }) });
@@ -1285,7 +1641,7 @@
           return loadActivity(0);
         }
         loadUsers();
-      } catch (err) { toast(`❌ ${err.message}`, 'error'); }
+      } catch (err) { toast(`${err.message}`, 'error'); }
     });
 
     async function createUser() {
@@ -1295,10 +1651,42 @@
       try {
         await api('/api/admin/users', { method: 'POST', body: JSON.stringify(body) });
         $('nuUser').value = $('nuName').value = $('nuPass').value = '';
-        toast(`✅ ოპერატორი ${body.username} დაემატა. გადაეცით მომხმარებელი და პაროლი.`);
+        toast(`ოპერატორი ${body.username} დაემატა. გადაეცით მომხმარებელი და პაროლი.`);
         loadUsers();
-      } catch (err) { toast(`❌ ${err.message}`, 'error'); }
+      } catch (err) { toast(`${err.message}`, 'error'); }
     }
+
+    /* ---------- Deleted records ---------- */
+    let trashCache = [];
+    async function loadTrash() {
+      try {
+        const data = await api('/api/admin/trash');
+        trashCache = data.rows || [];
+        $('tabCountT').textContent = trashCache.length || '';
+        $('trashBody').innerHTML = trashCache.length ? trashCache.map((r, i) => `
+          <tr>
+            <td class="mono">${esc(fmtTs(r.deleted_at))}</td>
+            <td>${esc(r.deleted_by || '—')}<div class="mono" style="opacity:.6;font-size:11px">${esc(r.deleted_ip || '')}</div></td>
+            <td class="mono">${esc(r.id)}</td>
+            <td class="mono">${esc(r.date)}</td>
+            <td>ბრ. ${esc(r.brigade)} · ${esc(r.city)}</td>
+            <td>${esc(r.address)}</td>
+            <td><button type="button" class="btn btn-outline btn-sm" data-trash-idx="${i}"><svg class="i" aria-hidden="true"><use href="#i-undo"/></svg>აღდგენა</button></td>
+          </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;opacity:.6;padding:18px">წაშლილი ჩანაწერი არ არის</td></tr>';
+      } catch (e) { toast(`${e.message}`, 'error'); }
+    }
+    $('trashBody').addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-trash-idx]');
+      if (!btn) return;
+      const r = trashCache[Number(btn.dataset.trashIdx)];
+      if (!r || !confirm(`აღვადგინო ჩანაწერი ID ${r.id} (${r.date})?`)) return;
+      btn.disabled = true;
+      try {
+        await api('/api/admin/trash/restore', { method: 'POST', body: JSON.stringify({ db_id: r.db_id }) });
+        toast(`ჩანაწერი ${r.id} აღდგა`, 'success');
+        loadTrash();
+      } catch (err) { toast(`${err.message}`, 'error'); btn.disabled = false; }
+    });
 
     /* ---------- Activity log ---------- */
     const ACT_LIMIT = 100;
@@ -1311,6 +1699,7 @@
       config_save: ['პარამეტრების შენახვა', 'admin'], config_reset: ['პარამეტრების დაბრუნება', 'admin'],
       backup_download: ['სარეზერვო ასლი', 'admin'], user_create: ['ოპერატორის დამატება', 'admin'],
       user_update: ['ოპერატორის ცვლილება', 'admin'], user_delete: ['ოპერატორის წაშლა', 'admin'],
+      record_restore: ['ჩანაწერის აღდგენა', 'create'],
     };
 
     function initActivityFilters() {

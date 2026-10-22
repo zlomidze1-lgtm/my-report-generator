@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#141A2E" />
+  <meta name="color-scheme" content="light" />
   <title>სამუშაოს ანგარიშის გენერატორი</title>
 
   <link rel="icon" type="image/png" href="/logo.png" />
@@ -11,669 +12,898 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
 
   <style>
+    /* ===== Brigade-Ops design system v4.4 (shared by index + admin) ===== */
     :root {
-      --ink: #0f172a;
-      --ink-soft: #475569;
-      --ink-faint: #94a3b8;
-      --surface: rgba(255, 255, 255, 0.88);
-      --surface-solid: #ffffff;
-      --surface-muted: #f8fafc;
-      --line: #e2e8f0;
-      --line-strong: #cbd5e1;
-      --primary: #2563eb;
-      --primary-glow: rgba(37, 99, 235, 0.22);
-      --signal: #c7f33b;
-      --signal-ink: #1a2e00;
-      --signal-dim: #f7fbe9;
-      --steel-soft: #eef2ff;
-      --success: #10b981;
-      --success-soft: #ecfdf5;
-      --danger: #ef4444;
-      --danger-soft: #fef2f2;
-      --warning: #f59e0b;
-      --warning-soft: #fffbeb;
-      --radius-lg: 20px;
-      --radius-md: 14px;
-      --radius-sm: 10px;
-      --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
-      --shadow-card: 0 12px 32px -4px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
-      --font-body: 'Noto Sans Georgian', 'Plus Jakarta Sans', system-ui, sans-serif;
-      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --page: #F4F6FB;
+      --card: #FFFFFF;
+      --card-2: #F8F9FD;
+      --line: #E7EAF3;
+      --line-2: #D9DEEB;
+      --ink: #1C2333;
+      --ink-2: #4A5266;
+      --ink-3: #66708A;
+      --brand: #6E5BFF;
+      --brand-2: #5468FF;
+      --brand-ink: #4B3FD1;
+      --brand-soft: #F0EEFF;
+      --brand-line: #D9D3FF;
+      --grad: linear-gradient(135deg, #6847F2 0%, #4C5CEB 100%);
+      --grad-feature: linear-gradient(125deg, #6847F2 0%, #4F63EE 55%, #2C78DC 100%);
+      --grad-hero: linear-gradient(115deg, #F3F0FF 0%, #EEF3FF 55%, #EFF8FF 100%);
+      --tint: #F5F7FF;
+      --tint-line: #E2E7FA;
+      --th: #EEF1FF;
+      --th-ink: #565C86;
+      --ok: #15803D;   --ok-soft: #E8F7EE;   --ok-blob: #DDF5E6;
+      --bad: #C0263F;  --bad-soft: #FFE8EC;  --bad-blob: #FFE0E6;
+      --warn: #B45309; --warn-soft: #FFF4DE;
+      --info: #2563EB; --info-soft: #E8F0FF; --info-blob: #E1EBFF;
+      --mute: #6B7280; --mute-soft: #F1F2F6;
+      --nav: #141A2E;
+      --nav-2: #1E2640;
+      --nav-line: #2C3555;
+      --r-lg: 16px;
+      --r-md: 12px;
+      --r-sm: 10px;
+      --r-xs: 8px;
+      --shadow: 0 1px 2px rgba(20, 26, 46, .04), 0 6px 20px -8px rgba(20, 26, 46, .08);
+      --shadow-float: 0 18px 44px -14px rgba(20, 26, 46, .30), 0 3px 10px rgba(20, 26, 46, .06);
+      --focus: rgba(110, 91, 255, .24);
+      --font: 'Noto Sans Georgian', 'DejaVu Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'DejaVu Sans Mono', monospace;
+      --ink-faint: var(--ink-3);
+      --danger: var(--bad);
+      --bar-h: 64px;
+      color-scheme: light;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    *, *::before, *::after { box-sizing: border-box; }
+    * { margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
     button, input, select, textarea { font: inherit; color: inherit; }
-    img { display: block; max-width: 100%; }
+    img, svg { display: block; max-width: 100%; }
+    [hidden] { display: none !important; }
 
     body {
-      font-family: var(--font-body);
+      font-family: var(--font);
+      font-size: 14.5px;
+      line-height: 1.5;
       color: var(--ink);
-      background:
-        radial-gradient(circle at 8% 8%, rgba(55,103,255,.08), transparent 28%),
-        radial-gradient(circle at 92% 10%, rgba(199,243,59,.12), transparent 25%),
-        linear-gradient(180deg,#f8faff 0%,#f2f5fa 55%,#eef2f7 100%);
-      background-attachment: fixed;
+      background: var(--page);
       min-height: 100vh;
-      line-height: 1.45;
-      padding-bottom: 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mono, .num { font-family: var(--font-mono); }
+
+    .i {
+      width: 18px; height: 18px; flex-shrink: 0;
+      fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
     }
 
-    :focus-visible { outline: 3px solid var(--primary-glow); outline-offset: 2px; }
+    :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    ::selection { background: var(--brand-soft); }
 
-    /* ---------- Top bar ---------- */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+    }
+    th .sr-only { position: static; display: inline-block; }
+    .skip-link {
+      position: absolute; left: 12px; top: -60px; z-index: 3000;
+      background: var(--brand); color: #fff; padding: 8px 14px; border-radius: var(--r-sm);
+      font-weight: 600; text-decoration: none;
+    }
+    .skip-link:focus { top: 10px; }
+
+    .eyebrow { display: block; font-size: 12.5px; font-weight: 600; color: var(--brand); letter-spacing: .1px; line-height: 1.3; }
+
+    /* ---------- Top bar (navy, pill navigation) ---------- */
     .topbar {
       position: sticky; top: 0; z-index: 100;
-      min-height: 70px;
-      padding: 10px clamp(16px,4vw,52px);
-      display: flex; align-items: center; gap: 14px;
-      background: rgba(15, 23, 42, 0.94);
-      backdrop-filter: blur(20px) saturate(150%);
-      -webkit-backdrop-filter: blur(20px) saturate(150%);
-      box-shadow: 0 10px 30px rgba(4,10,22,.15);
+      height: var(--bar-h);
+      padding: 0 clamp(14px, 3vw, 36px);
+      display: flex; align-items: center; gap: 12px;
+      background: var(--nav); color: #fff;
+      box-shadow: 0 8px 24px -12px rgba(10, 14, 30, .45);
     }
-    .topbar::after {
-      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--signal), #6b8cff, transparent);
+    .brand { display: flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; margin-right: 10px; min-width: 0; }
+    .brand .mark {
+      width: 40px; height: 40px; border-radius: 11px; background: #fff;
+      display: grid; place-items: center; overflow: hidden; flex-shrink: 0;
     }
-    .topbar .mark {
-      width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; background: #fff; padding: 2px;
-    }
-    .topbar .mark img { width: 100%; height: 100%; object-fit: contain; border-radius: 10px; }
-    .topbar .titles h1 { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -0.2px; line-height: 1.25; }
-    .topbar .titles p { font-family: var(--font-mono); font-size: 9.5px; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; }
+    .brand .mark img { width: 34px; height: 34px; object-fit: contain; }
+    .brand .titles { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+    .brand-name { font-size: 15.5px; font-weight: 700; }
+    .brand-sub { font-size: 11.5px; color: #98A2C3; }
 
-    .nav-tabs { display: flex; gap: 4px; margin-left: auto; background: rgba(255,255,255,.06); padding: 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); }
+    .nav-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .08); }
     .nav-tab {
-      display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 9px;
-      color: #cbd5e1; font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap;
-      transition: background .15s, color .15s;
+      display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 9px;
+      color: #C3CAE0; font-size: 13.5px; font-weight: 600; text-decoration: none; white-space: nowrap;
+      transition: background-color .15s, color .15s;
     }
-    .nav-tab:hover { background: rgba(255,255,255,.08); color: #fff; }
-    .nav-tab.active { background: var(--signal); color: var(--signal-ink); }
+    .nav-tab:hover { color: #fff; background: rgba(255, 255, 255, .07); }
+    .nav-tab.active { color: #fff; background: var(--grad); box-shadow: 0 6px 16px -8px rgba(123, 92, 255, .9); }
+    .nav-tab:focus-visible { outline-color: #fff; }
 
     .topbar-status {
-      display: flex; align-items: center; gap: 10px;
-      color: #f8fafc; background: rgba(30, 41, 59, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 6px 14px; border-radius: 999px;
-      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px;
+      margin-left: auto; display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px;
+      border-radius: 999px; border: 1px solid var(--nav-line); background: rgba(255, 255, 255, .04);
+      font-size: 12px; color: #C3CAE0; white-space: nowrap;
     }
-    .topbar-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
-    .topbar-status.offline .dot { background: var(--danger); animation: none; }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(16,185,129,.7); }
-      70% { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
-      100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+    .topbar-status .dot { width: 7px; height: 7px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 3px rgba(52, 211, 153, .18); }
+    .topbar-status.offline { color: #fff; background: var(--bad); border-color: var(--bad); }
+    .topbar-status.offline .dot { background: #fff; box-shadow: none; }
+
+    .user-chip { display: flex; align-items: center; gap: 8px; padding: 3px 4px 3px 4px; border-radius: 999px; background: rgba(255, 255, 255, .06); border: 1px solid var(--nav-line); }
+    .uc-avatar {
+      width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center;
+      background: var(--grad); color: #fff; font-size: 12px; font-weight: 700;
     }
-
-    .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 22px 0; }
-
-    /* ---------- Edit banner ---------- */
-    .edit-banner {
-      display: none; align-items: center; gap: 12px; flex-wrap: wrap;
-      margin-bottom: 18px; padding: 14px 18px;
-      border-radius: var(--radius-md);
-      background: linear-gradient(135deg, #fffbeb, #fef3c7);
-      border: 1px solid #fde68a; color: #92400e;
-      font-weight: 600; font-size: 14px;
+    .uc-name { font-size: 13.5px; font-weight: 600; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .uc-logout {
+      display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px;
+      border: 0; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #DCE1F2;
+      font-size: 12.5px; font-weight: 600; cursor: pointer;
     }
-    .edit-banner.show { display: flex; }
-    .edit-banner strong { font-family: var(--font-mono); }
-    .edit-banner .btn { margin-left: auto; min-height: 38px; padding: 8px 14px; font-size: 13px; }
+    .uc-logout:hover { background: rgba(255, 255, 255, .16); color: #fff; }
+    .uc-logout .i { width: 15px; height: 15px; }
+    .uc-logout:focus-visible { outline-color: #fff; }
 
-    /* ---------- Panels ---------- */
+    /* ---------- Layout ---------- */
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 24px clamp(14px, 3vw, 36px) 0; }
+
+    /* ---------- Cards ---------- */
     .panel {
-      background: var(--surface);
-      border: 1px solid rgba(226,232,240,.8);
-      border-radius: var(--radius-lg);
-      padding: 26px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow-card);
-      position: relative;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg);
+      box-shadow: var(--shadow); padding: 22px 24px 24px; margin-bottom: 16px; position: relative; min-width: 0;
     }
-    .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-    .panel-eyebrow {
-      font-family: var(--font-mono); font-size: 10px; font-weight: 800;
-      color: var(--primary); letter-spacing: 1.2px;
-      background: var(--steel-soft); padding: 5px 10px; border-radius: 999px;
+    .panel-head { display: flex; align-items: center; gap: 10px 14px; margin-bottom: 18px; flex-wrap: wrap; min-height: 36px; }
+    .panel-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -.1px; line-height: 1.25; }
+    .ph-text { display: flex; flex-direction: column; gap: 2px; }
+    .count-tag {
+      display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px;
+      background: var(--brand-soft); color: var(--brand-ink); font-size: 12.5px; font-weight: 700; white-space: nowrap;
+      font-family: var(--font-mono);
     }
-    .panel-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
-    .panel-head .pill { margin-left: auto; }
 
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-    .form-grid + .form-grid { margin-top: 16px; }
-
-    .form-group { display: flex; flex-direction: column; min-width: 0; }
-    .form-group label {
-      font-family: var(--font-mono); font-weight: 700; font-size: 10px;
-      color: var(--ink-soft); margin-bottom: 7px; letter-spacing: 0.9px; text-transform: uppercase;
+    /* Hero (page / section header) */
+    .hero {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      padding: 22px 26px; margin-bottom: 14px;
+      background: var(--grad-hero); border: 1px solid #E3E5F8; border-radius: var(--r-lg); box-shadow: var(--shadow);
     }
-    .form-group label .req { color: var(--danger); }
-    .form-group input, .form-group select {
-      padding: 11px 14px;
-      border: 1px solid var(--line-strong);
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      background: var(--surface-solid);
-      width: 100%;
-      min-height: 48px;
+    .hero-main { min-width: 0; }
+    .hero-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; font-size: 26px; font-weight: 800; letter-spacing: -.3px; line-height: 1.2; color: var(--ink); }
+    .hero-meta { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; color: var(--ink-3); }
+    .period-pill {
+      display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px;
+      background: #E7E3FF; color: var(--brand-ink); font-family: var(--font-mono); font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+    .btn.btn-hero { height: 44px; padding: 0 20px; border-radius: var(--r-md); font-size: 14.5px; }
+
+    /* KPI cards */
+    .kpis { display: grid; grid-template-columns: 1.15fr 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .kpi {
+      position: relative; overflow: hidden; min-width: 0;
+      display: flex; flex-direction: column; justify-content: space-between; gap: 10px; min-height: 104px;
+      padding: 16px 18px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
+    }
+    .kpi::after {
+      content: ""; position: absolute; width: 96px; height: 96px; right: -26px; top: -30px; border-radius: 50%;
+      background: var(--blob, var(--mute-soft)); pointer-events: none;
+    }
+    .kpi > * { position: relative; z-index: 1; }
+    .kpi-label { font-size: 13px; font-weight: 700; color: var(--ink); }
+    .kpi-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .kpi-value { font-family: var(--font-mono); font-size: 34px; font-weight: 700; line-height: 1; letter-spacing: -1px; color: var(--kc, var(--ink)); }
+    .kpi-row small { font-size: 12.5px; color: var(--ink-3); }
+    .kpi-green { --kc: #16A34A; --blob: var(--ok-blob); }
+    .kpi-red   { --kc: #E5364F; --blob: var(--bad-blob); }
+    .kpi-blue  { --kc: var(--info); --blob: var(--info-blob); }
+    .kpi-violet{ --kc: var(--brand); --blob: #EAE6FF; }
+    .kpi-grey  { --kc: #64748B; --blob: #ECEEF3; }
+    .kpi-featured { background: var(--grad-feature); border-color: transparent; color: #fff; box-shadow: 0 14px 30px -14px rgba(91, 107, 255, .75); --blob: rgba(255, 255, 255, .14); }
+    .kpi-featured .kpi-label { color: rgba(255, 255, 255, .95); }
+    .kpi-featured .kpi-value { color: #fff; }
+    .kpi-featured .kpi-row small { color: rgba(255, 255, 255, .85); }
+    .kpi-featured::before {
+      content: ""; position: absolute; width: 140px; height: 140px; right: 30px; bottom: -90px; border-radius: 50%;
+      background: rgba(255, 255, 255, .08); pointer-events: none;
+    }
+
+    /* Pill tabs */
+    .rec-tabs, .section-tabs {
+      display: inline-flex; gap: 4px; padding: 4px; margin-bottom: 14px; max-width: 100%; overflow-x: auto; scrollbar-width: none;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow);
+    }
+    .rec-tab, .section-tab {
+      display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; flex-shrink: 0;
+      border: 0; border-radius: 9px; background: transparent; cursor: pointer; white-space: nowrap;
+      font-size: 13.5px; font-weight: 600; color: var(--ink-2); transition: background-color .15s, color .15s;
+    }
+    .rec-tab:hover, .section-tab:hover { background: var(--card-2); color: var(--ink); }
+    .rec-tab.active, .section-tab.active { background: var(--brand-soft); color: var(--brand-ink); }
+    .tab-count, .section-tab .count {
+      display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 20px; padding: 0 6px;
+      border-radius: 999px; background: var(--mute-soft); color: var(--ink-2);
+      font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; margin-left: 0;
+    }
+    .section-tab .count:empty { display: none; }
+    .rec-tab.active .tab-count, .section-tab.active .count { background: var(--brand); color: #fff; }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 40px; padding: 0 16px; border-radius: var(--r-sm);
+      border: 1px solid var(--line-2); background: var(--card); color: var(--ink);
+      font-size: 14px; font-weight: 600; white-space: nowrap; cursor: pointer; text-decoration: none;
+      transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s, transform .15s;
+    }
+    .btn:hover:not(:disabled) { background: var(--card-2); border-color: #C7CDE0; }
+    .btn:active:not(:disabled) { transform: translateY(1px); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-sm { height: 34px; padding: 0 12px; font-size: 13px; border-radius: 9px; }
+    .btn-sm .i { width: 16px; height: 16px; }
+
+    .btn-primary, .btn-export, .btn-success {
+      background: var(--grad); border-color: transparent; color: #fff;
+      box-shadow: 0 8px 18px -10px rgba(110, 91, 255, .95);
+    }
+    .btn-primary:hover:not(:disabled), .btn-export:hover:not(:disabled), .btn-success:hover:not(:disabled) {
+      background: var(--grad); border-color: transparent; filter: brightness(1.06); box-shadow: 0 10px 22px -10px rgba(110, 91, 255, 1);
+    }
+    .btn-outline { border-color: var(--brand-line); color: var(--brand-ink); background: var(--brand-soft); }
+    .btn-outline:hover:not(:disabled) { background: #E6E1FF; border-color: #C7BEFF; }
+    .btn-ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+    .btn-ghost:hover:not(:disabled) { background: var(--mute-soft); border-color: transparent; color: var(--ink); }
+    .btn-danger { color: var(--bad); border-color: #FFC9D2; background: var(--card); }
+    .btn-danger:hover:not(:disabled) { background: var(--bad-soft); border-color: #FFB3C0; }
+    .btn-warn { background: linear-gradient(135deg, #F59E0B, #D97706); border-color: transparent; color: #fff; }
+    .btn-warn:hover:not(:disabled) { background: linear-gradient(135deg, #F59E0B, #D97706); filter: brightness(1.05); }
+
+    .icon-btn {
+      width: 32px; height: 32px; display: inline-grid; place-items: center;
+      border: 1px solid var(--line); border-radius: 9px; background: var(--card); color: var(--ink-2); cursor: pointer;
+      transition: background-color .15s, color .15s, border-color .15s;
+    }
+    .icon-btn .i { width: 16px; height: 16px; }
+    .icon-btn:hover { background: var(--brand-soft); border-color: var(--brand-line); color: var(--brand-ink); }
+    .icon-btn.danger:hover { background: var(--bad-soft); border-color: #FFC9D2; color: var(--bad); }
+
+    /* ---------- Fields ---------- */
+    input[type=text], input[type=password], input[type=search], input[type=number], input[type=date], input:not([type]), select, textarea {
+      border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--card);
+      min-height: 40px; padding: 0 12px; font-size: 14px; width: 100%;
       transition: border-color .15s, box-shadow .15s;
     }
-    #idInput { font-family: var(--font-mono); font-weight: 600; }
-    .form-group input:focus, .form-group select:focus {
-      border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-glow);
+    textarea { padding: 10px 12px; }
+    input:hover, select:hover { border-color: #C3C9DC; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 4px var(--focus); }
+    ::placeholder { color: #8890A6; opacity: 1; }
+    input[type=date] { font-family: var(--font-mono); font-size: 13px; }
+    select {
+      appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 32px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%234A5266' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
     }
-    .form-group .is-invalid, .is-invalid { border-color: var(--danger) !important; box-shadow: 0 0 0 4px rgba(239,68,68,.15) !important; }
+    input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--brand); cursor: pointer; }
+    .is-invalid, .form-group .is-invalid { border-color: var(--bad) !important; box-shadow: 0 0 0 4px rgba(208, 44, 71, .14) !important; }
 
-    /* ---------- Members ---------- */
+    /* ---------- Status pills, plates ---------- */
+    .status, .ustate, .ab {
+      display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 700; white-space: nowrap; background: var(--mute-soft); color: var(--mute);
+    }
+    .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .plate {
+      display: inline-flex; align-items: stretch; height: 22px; overflow: hidden; border-radius: 5px;
+      border: 1.5px solid #1C2333; background: #fff; font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: .4px;
+    }
+    .plate i { display: inline-grid; place-items: center; padding: 0 4px; background: #1D4ED8; color: #fff; font-style: normal; font-size: 8.5px; letter-spacing: 0; }
+    .plate { padding-right: 6px; gap: 5px; }
+    .muted { color: var(--ink-3); }
+
+    /* ---------- Toast ---------- */
+    .toast-status {
+      position: fixed; left: 50%; bottom: 24px; z-index: 1000;
+      transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+      max-width: min(560px, calc(100vw - 28px)); width: max-content;
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 12px 12px 16px; border-radius: var(--r-md);
+      background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600;
+      border: 1px solid var(--line); border-left: 5px solid #22C55E; box-shadow: var(--shadow-float);
+      transition: opacity .2s, transform .2s;
+    }
+    .toast-status:not(.show) { visibility: hidden; transition: opacity .2s, transform .2s, visibility 0s .2s; }
+    .toast-status.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+    .toast-status.error { border-left-color: var(--bad); }
+    .toast-status.warning { border-left-color: #F59E0B; }
+    .toast-close {
+      margin-left: auto; width: 28px; height: 28px; border: 0; border-radius: 8px;
+      background: transparent; color: var(--ink-3); font-size: 18px; line-height: 1; cursor: pointer;
+    }
+    .toast-close:hover { background: var(--mute-soft); color: var(--ink); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+
+    /* ===== Main page ===== */
+    body { padding-bottom: 0; }
+
+    /* Edit mode */
+    .edit-banner {
+      display: none; position: sticky; top: calc(var(--bar-h) + 10px); z-index: 60;
+      align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 14px; padding: 10px 12px 10px 16px;
+      background: #FFF7E6; border: 1px solid #FCD9A0; border-left: 5px solid #F59E0B; border-radius: var(--r-md);
+      font-size: 14px; color: #7A4A06; box-shadow: var(--shadow);
+    }
+    .edit-banner.show { display: flex; }
+    .edit-banner strong { font-family: var(--font-mono); font-weight: 700; color: var(--ink); }
+    .edit-banner .btn { margin-left: auto; }
+
+    .panel-note { margin-left: auto; font-size: 12.5px; color: var(--ink-3); }
+    .form-group { display: flex; flex-direction: column; min-width: 0; }
+    .form-group label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+    .req { color: var(--bad); margin-left: 1px; }
+
+    .form-grid { display: grid; gap: 14px 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .form-grid + .form-grid { margin-top: 14px; }
+    .fg-place { grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, 1fr); }
+    .fg-notes { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); margin-top: 18px; }
+
+    /* Slip: ID, date, brigade, region in a tinted box */
+    .slip {
+      display: grid; grid-template-columns: 1.1fr 1fr 0.9fr 1.2fr; gap: 14px;
+      padding: 14px; margin-bottom: 16px;
+      background: var(--tint); border: 1px solid var(--tint-line); border-radius: var(--r-md);
+    }
+    .slip input, .slip select { min-height: 46px; font-size: 16px; font-weight: 600; }
+    #idInput { font-family: var(--font-mono); font-size: 17px; font-weight: 700; letter-spacing: .5px; }
+
+    /* Brigade members */
     .members-section { z-index: 40; }
     .works-section { z-index: 10; }
+    .members-toolbar { display: flex; gap: 4px; flex-wrap: wrap; margin-left: auto; }
 
-    .members-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-    .members-toolbar .btn { min-height: 34px; padding: 6px 12px; font-size: 12px; }
-
+    /* Brigade member cards — v4.1 look, kept as it was */
     .members-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 10px; }
-    .members-empty { color: var(--ink-faint); font-size: 13.5px; grid-column: 1 / -1; }
-
+    .members-empty { color: #94a3b8; font-size: 13.5px; grid-column: 1 / -1; }
     .member-item {
       display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
       padding: 11px 12px 11px 14px;
-      background: var(--surface-solid); border: 1px solid var(--line); border-left: 4px solid var(--success);
-      border-radius: var(--radius-md); box-shadow: var(--shadow-subtle);
+      background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #10b981;
+      border-radius: 14px; box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
       transition: border-color .15s, background .15s, opacity .15s;
     }
-    .member-item.extra-member { border-left-color: #84cc16; background: var(--signal-dim); }
-    .member-item.is-absent { border-left-color: var(--danger); background: #fffafa; }
-    .member-item.is-absent .member-name { color: var(--ink-soft); text-decoration: line-through; text-decoration-color: rgba(239,68,68,.5); }
+    .member-item.extra-member { border-left-color: #84cc16; background: #f7fbe9; }
+    .member-item.is-absent { border-left-color: #ef4444; background: #fffafa; }
+    .member-item.is-absent .member-name { color: #475569; text-decoration: line-through; text-decoration-color: rgba(239, 68, 68, .5); }
     .member-item .member-name { font-weight: 700; font-size: 13.5px; flex: 1 1 140px; line-height: 1.3; min-width: 0; }
-    .member-item .position-tag { font-size: 11px; color: var(--ink-faint); font-weight: 500; display: block; text-decoration: none; }
+    .member-item .position-tag { font-size: 11px; color: #94a3b8; font-weight: 500; display: block; text-decoration: none; }
     .member-item .extra-badge {
       display: inline-block; margin-top: 3px; font-family: var(--font-mono); font-size: 9.5px; font-weight: 800;
       color: #3f6212; background: #ecfccb; border-radius: 999px; padding: 2px 8px; letter-spacing: .4px;
     }
-    .absent-toggle { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11px; font-weight: 700; color: var(--ink-soft); white-space: nowrap; }
-    .absent-toggle input { width: 20px; height: 20px; accent-color: var(--danger); cursor: pointer; }
-    .member-note {
-      width: 130px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-strong);
-      font-size: 13px; background: #fff; min-height: 36px;
+    .absent-toggle { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11px; font-weight: 700; color: #475569; white-space: nowrap; }
+    .absent-toggle input { width: 20px; height: 20px; accent-color: #ef4444; cursor: pointer; }
+    input.member-note {
+      width: 130px; min-height: 36px; padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e1;
+      font-size: 13px; background: #fff;
     }
-    .member-note:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
-
+    input.member-note:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, .22); }
     .btn-remove-member {
-      border: none; background: #fee2e2; color: var(--danger); width: 28px; height: 28px;
+      border: none; background: #fee2e2; color: #ef4444; width: 28px; height: 28px;
       border-radius: 50%; font-size: 12px; font-weight: bold; cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center;
       transition: background .15s, color .15s; flex-shrink: 0;
     }
-    .btn-remove-member:hover { background: var(--danger); color: #fff; }
+    .btn-remove-member:hover { background: #ef4444; color: #fff; }
 
-    .add-extra-row {
-      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-      margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line);
-      position: relative; z-index: 50;
+    .btn-icon-danger {
+      width: 32px; height: 32px; display: inline-grid; place-items: center;
+      border: 1px solid transparent; border-radius: 9px; background: transparent; color: var(--ink-3); cursor: pointer;
     }
-    .add-extra-row .hint { width: 100%; font-size: 12px; color: var(--ink-faint); margin-top: -4px; }
+    .btn-icon-danger:hover { background: var(--bad-soft); border-color: #FFC9D2; color: var(--bad); }
+    .btn-icon-danger .i { width: 16px; height: 16px; }
+
+    .add-extra-row { display: flex; gap: 8px 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; position: relative; z-index: 50; }
+    .add-extra-row .hint { width: 100%; font-size: 12px; color: var(--ink-3); }
     .extra-member-picker { position: relative; flex: 1; min-width: 260px; }
-    .extra-member-input {
-      width: 100%; min-height: 48px; padding: 10px 40px;
-      border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
-      background: var(--surface-solid); font-size: 14px; outline: none; transition: border-color .15s, box-shadow .15s;
-    }
-    .extra-member-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
-    .extra-search-icon { position: absolute; left: 13px; top: 11px; font-size: 20px; color: var(--ink-faint); pointer-events: none; }
+    .extra-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; }
+    input.extra-member-input { padding: 0 40px 0 38px; }
     .extra-clear {
-      position: absolute; right: 8px; top: 10px; width: 28px; height: 28px; border-radius: 50%;
-      border: 0; background: transparent; font-size: 20px; line-height: 1; color: var(--ink-faint); cursor: pointer;
+      position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
+      width: 30px; height: 30px; display: grid; place-items: center;
+      border: 0; border-radius: 8px; background: transparent; color: var(--ink-3); cursor: pointer;
     }
-    .extra-clear:hover { background: var(--surface-muted); color: var(--ink); }
+    .extra-clear .i { width: 15px; height: 15px; }
+    .extra-clear:hover { background: var(--mute-soft); color: var(--ink); }
 
     .extra-member-results {
-      display: none; position: absolute; z-index: 9999;
-      top: calc(100% + 6px); left: 0; right: 0;
-      max-height: 300px; overflow-y: auto; padding: 6px;
-      border: 1px solid var(--line-strong); border-radius: var(--radius-md);
-      background: #fff; box-shadow: 0 20px 50px rgba(15,23,42,0.2);
+      display: none; position: absolute; z-index: 9999; top: calc(100% + 6px); left: 0; right: 0;
+      max-height: 320px; overflow-y: auto; padding: 6px;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-float);
     }
     .extra-member-results.open { display: block; }
     .extra-result {
-      width: 100%; display: flex; flex-direction: column; gap: 2px;
-      padding: 10px 12px; border: 0; border-radius: 8px; background: transparent;
-      text-align: left; cursor: pointer;
+      width: 100%; display: flex; flex-direction: column; gap: 1px; padding: 8px 10px;
+      border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer;
     }
-    .extra-result:hover, .extra-result.active { background: var(--steel-soft); }
-    .extra-result .r-name { font-weight: 700; font-size: 13px; }
-    .extra-result .r-meta { font-size: 11px; color: var(--ink-soft); }
-    .extra-empty { padding: 12px; color: var(--ink-faint); font-size: 12px; text-align: center; }
+    .extra-result:hover, .extra-result.active { background: var(--brand-soft); }
+    .extra-result .r-name { font-weight: 700; font-size: 14px; }
+    .extra-result .r-meta { font-size: 12px; color: var(--ink-3); }
+    .extra-empty { padding: 12px; color: var(--ink-3); font-size: 13px; text-align: center; }
 
-    /* ---------- Works ---------- */
-    #workContainer { border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-subtle); }
-    .work-item { display: flex; flex-wrap: wrap; align-items: stretch; background: var(--surface-solid); transition: background .15s; }
-    .work-item:hover { background: #fbfcfe; }
+    /* Works */
+    #workContainer { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+    .work-item { display: flex; align-items: stretch; background: var(--card); }
     .work-item + .work-item { border-top: 1px solid var(--line); }
-    .work-item.invalid { background: var(--danger-soft); box-shadow: inset 4px 0 0 var(--danger); }
+    .work-item.invalid { background: #FFF7F8; box-shadow: inset 3px 0 0 var(--bad); }
 
-    .field-cell { display: flex; flex-direction: column; justify-content: center; padding: 10px 14px; border-left: 1px solid var(--line); }
-    .field-cell:first-child { border-left: none; }
-    .field-cell .cell-label {
-      font-family: var(--font-mono); font-size: 9px; color: var(--primary);
-      font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px;
+    .field-cell { display: flex; flex-direction: column; justify-content: center; padding: 6px 12px; border-left: 1px solid var(--line); min-width: 0; }
+    .field-cell:first-child { border-left: 0; }
+    .field-cell .cell-label { font-size: 12px; font-weight: 700; color: var(--th-ink); line-height: 1.3; }
+    .work-item:first-child .field-cell { padding-top: 0; }
+    .work-item:first-child .cell-label {
+      display: flex; align-items: center; height: 34px; margin: 0 -12px 6px; padding: 0 12px;
+      background: var(--th); border-bottom: 1px solid var(--line);
     }
-    .cell-num { width: 44px; align-items: center; font-family: var(--font-mono); font-weight: 800; color: var(--ink-faint); font-size: 13px; }
-    .cell-type { flex: 2; min-width: 210px; }
-    .cell-time { min-width: 128px; align-items: center; }
-    .cell-dur { width: 112px; align-items: center; }
-    .cell-dur .dur { white-space: nowrap; flex-direction: column; justify-content: center; }
-    .cell-dur .dur { font-family: var(--font-mono); font-weight: 700; font-size: 13px; color: var(--ink-soft); min-height: 38px; display: flex; align-items: center; }
-    .cell-qty { width: 110px; }
-    .cell-comment { flex: 1.4; min-width: 160px; }
-    .cell-actions { justify-content: center; align-items: center; width: 60px; }
+    .work-item:first-child .cell-num .cell-label { justify-content: center; align-self: stretch; }
+    .work-item:first-child .field-cell { justify-content: flex-start; }
+    .work-item:first-child .cell-actions::before {
+      content: ""; display: block; align-self: stretch; height: 34px; margin: 0 -6px 6px;
+      background: var(--th); border-bottom: 1px solid var(--line);
+    }
+    .work-item:first-child .cell-actions .btn-icon-danger { margin-top: 3px; }
+    .work-item:first-child .work-num { margin-top: 9px; }
+    .work-item + .work-item .cell-label { display: none; }
 
-    .work-item input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; min-height: 38px; }
-    .work-item input:focus { box-shadow: inset 0 -2px 0 var(--primary); }
+    .cell-num { width: 48px; align-items: center; flex-shrink: 0; }
+    .work-num { font-family: var(--font-mono); font-weight: 700; color: var(--ink-3); font-size: 13px; }
+    .cell-type { flex: 2.2; min-width: 220px; }
+    .cell-time { flex-shrink: 0; width: 150px; }
+    .cell-dur { width: 96px; flex-shrink: 0; }
+    .cell-dur .dur { min-height: 38px; display: flex; flex-direction: column; justify-content: center; font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+    .next-day { display: block; font-family: var(--font); font-size: 11px; color: var(--brand); font-weight: 700; line-height: 1.1; }
+    .cell-qty { width: 104px; flex-shrink: 0; }
+    .cell-comment { flex: 1.5; min-width: 150px; }
+    .cell-actions { width: 52px; flex-shrink: 0; align-items: center; padding: 0 6px; }
+    .work-item:first-child .cell-actions .cell-label { width: calc(100% + 12px); }
 
-    .time-inputs { display: flex; align-items: center; gap: 4px; }
+    .work-item input { border: 0; border-radius: 0; background: transparent; min-height: 38px; padding: 0; font-size: 14.5px; }
+    .work-item input:hover { border: 0; }
+    .work-item input:focus { box-shadow: inset 0 -2px 0 var(--brand); border: 0; }
+    .work-item .work-qty { font-family: var(--font-mono); font-weight: 700; }
+
+    .time-inputs { display: flex; align-items: center; gap: 3px; color: var(--ink-3); }
     .time-inputs select {
-      padding: 6px; border: 1px solid var(--line-strong); border-radius: 6px;
-      background: #fff; font-family: var(--font-mono); font-size: 14px; min-height: 40px; cursor: pointer;
+      width: 58px; min-height: 34px; padding: 0 18px 0 8px; font-family: var(--font-mono); font-size: 13px; font-weight: 600;
+      border-radius: 8px; background-position: right 6px center; background-size: 9px 6px;
     }
-    .time-inputs select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
 
-    .btn-icon-danger {
-      width: 32px; height: 32px; border-radius: 50%; border: 1px solid #fecaca; background: #fff;
-      color: var(--danger); cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center;
-      transition: background .15s, color .15s;
-    }
-    .btn-icon-danger:hover { background: var(--danger); color: #fff; }
+    .works-footer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+    .works-total { margin-left: auto; font-size: 13px; color: var(--ink-2); }
+    .works-total strong { color: var(--ink); font-weight: 700; font-family: var(--font-mono); }
+    .comment-hint { font-size: 12px; color: var(--brand-ink); margin-top: 5px; }
 
-    .works-footer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
-    .works-total { margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
-    .works-total strong { color: var(--ink); }
-
-    /* ---------- Buttons ---------- */
-    .btn {
-      padding: 12px 20px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px;
-      cursor: pointer; transition: transform .15s, box-shadow .15s, background .15s, color .15s;
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      border: 1px solid var(--line-strong); background: var(--surface-solid); color: var(--ink);
-      min-height: 48px; white-space: nowrap;
-    }
-    .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px -4px rgba(15,23,42,.12); }
-    .btn:active:not(:disabled) { transform: translateY(0); }
-    .btn:disabled { opacity: .55; cursor: not-allowed; }
-    .btn-primary { background: linear-gradient(135deg,#c7f33b,#a8dc1f); color: var(--signal-ink); border-color: #a8dc1f; }
-    .btn-success { background: linear-gradient(135deg,#10b981,#059669); color: #fff; border-color: #059669; }
-    .btn-danger { background: #fff; color: var(--danger); border-color: #fecaca; }
-    .btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
-    .btn-ghost { background: transparent; color: var(--ink-soft); }
-    .btn-outline { border-color: #c9d5ff; color: var(--primary); background: #f4f7ff; }
-    .btn-sm { min-height: 34px; padding: 6px 10px; font-size: 12px; }
-
+    /* Save bar */
     .actions {
-      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px;
-      padding: 18px 0 0; align-items: center;
+      position: sticky; bottom: 0; z-index: 50;
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      padding: 12px 0;
+      background: rgba(255, 255, 255, .97);
+      box-shadow: 0 0 0 100vmax rgba(255, 255, 255, .97);
+      border-top: 1px solid var(--line);
+      border-image: linear-gradient(var(--line), var(--line)) 1 / 1px 0 0 0 / 0 100vmax;
+      clip-path: inset(0 -100vmax 0 -100vmax);
     }
-
-    .pill {
-      border-radius: 999px; background: var(--ink); color: var(--signal);
-      padding: 7px 14px; font-size: 12px; font-family: var(--font-mono); font-weight: 700; white-space: nowrap;
-    }
-    .pill.sm { padding: 4px 12px; font-size: 11px; }
-    .actions .pill { margin-left: auto; }
-
-    /* ---------- Toast ---------- */
-    /* User chip */
-    .user-chip { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 6px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); color: #f8fafc; }
-    .user-chip[hidden] { display: none; }
-    .uc-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--signal); color: var(--signal-ink); font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
-    .uc-name { font-size: 13px; font-weight: 700; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .uc-logout { border: 0; background: rgba(255,255,255,.1); color: #e2e8f0; border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
-    .uc-logout:hover { background: rgba(255,255,255,.2); color: #fff; }
-
-    /* Login screen */
-    .login-screen { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 16px;
-      background: radial-gradient(circle at 20% 10%, rgba(55,103,255,.25), transparent 40%), radial-gradient(circle at 85% 90%, rgba(199,243,59,.18), transparent 40%), #0f172a; }
-    .login-screen[hidden] { display: none; }
-    .login-card { width: 100%; max-width: 380px; background: #fff; border-radius: 20px; padding: 28px 26px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 30px 80px -20px rgba(0,0,0,.5); }
-    .login-logo { width: 64px; height: 64px; margin: 0 auto 4px; }
-    .login-card h2 { text-align: center; font-size: 20px; }
-    .login-card p { text-align: center; color: var(--ink-soft); font-size: 13px; margin-bottom: 8px; }
-    .login-card label { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--ink-soft); letter-spacing: .9px; text-transform: uppercase; margin-top: 6px; }
-    .login-card input { padding: 11px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); font-size: 14px; min-height: 46px; }
-    .login-card input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
-    .login-card .btn { margin-top: 10px; }
-    .login-error { background: var(--danger-soft); color: #991b1b; border: 1px solid #fecaca; border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; }
-    .login-error[hidden] { display: none; }
-    .login-note { text-align: center; color: var(--ink-faint); font-size: 11.5px; margin-top: 6px; }
-
-    /* Overlap modal */
-    .modal-back { position: fixed; inset: 0; z-index: 1500; background: rgba(15,23,42,.55); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 16px; }
-    .modal-back[hidden] { display: none; }
-    .modal { width: 100%; max-width: 680px; max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: #fff; border-radius: 18px; box-shadow: 0 40px 90px -20px rgba(0,0,0,.45); overflow: hidden; }
-    .modal-head { display: flex; gap: 14px; align-items: flex-start; padding: 20px 22px 14px; background: linear-gradient(135deg, #fffbeb, #fef3c7); border-bottom: 1px solid #fde68a; }
-    .modal-icon { font-size: 28px; line-height: 1; }
-    .modal-head h3 { font-size: 17px; color: #92400e; }
-    .modal-head p { font-size: 13px; color: #92400e; margin-top: 2px; }
-    .modal-body { padding: 16px 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-    .ov-card { border: 1px solid #fde68a; border-left: 4px solid var(--warning); border-radius: 12px; padding: 12px 14px; background: #fffdf5; }
-    .ov-msg { font-size: 13.5px; line-height: 1.5; }
-    .ov-msg b { color: var(--ink); }
-    .ov-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-    .ov-cell { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
-    .ov-cell span { display: block; font-family: var(--font-mono); font-size: 9.5px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 2px; }
-    .ov-cell b { font-family: var(--font-mono); font-size: 13px; }
-    .ov-cell.hit { border-color: #fca5a5; background: #fef2f2; }
-    .ov-cell.hit b { color: #b91c1c; }
-    .ov-works { font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
-    .modal-foot { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; padding: 14px 22px; border-top: 1px solid var(--line); background: var(--surface-muted); }
-    .btn-warn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border-color: #d97706; }
-    @media (max-width: 720px) {
-      .user-chip .uc-name { display: none; }
-      .ov-grid { grid-template-columns: 1fr; }
-      .modal-foot .btn { width: 100%; }
-    }
-
-    .toast-status {
-      position: fixed; left: 50%; bottom: 24px; z-index: 1000;
-      transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
-      max-width: min(560px, calc(100vw - 32px)); width: max-content;
-      border-radius: var(--radius-md); padding: 14px 18px 14px 20px;
-      font-size: 13.5px; font-weight: 600;
-      box-shadow: 0 20px 40px -8px rgba(15,23,42,.25);
-      transition: opacity .25s, transform .25s;
-      display: flex; align-items: center; gap: 12px;
-    }
-    .toast-status.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
-    .toast-status.success { background: var(--success-soft); color: #065f46; border: 1px solid #a7f3d0; }
-    .toast-status.error { background: var(--danger-soft); color: #991b1b; border: 1px solid #fecaca; }
-    .toast-status.warning { background: var(--warning-soft); color: #92400e; border: 1px solid #fde68a; }
-    .toast-close { border: 0; background: transparent; cursor: pointer; font-size: 18px; line-height: 1; opacity: .6; margin-left: auto; color: inherit; }
-    .toast-close:hover { opacity: 1; }
+    .actions #saveBtn { min-width: 170px; height: 46px; font-size: 15px; border-radius: var(--r-md); }
+    .actions-meta { margin-left: auto; display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 999px; background: var(--brand-soft); color: var(--brand-ink); font-size: 12.5px; font-weight: 700; }
 
     .inline-alert {
-      display: none; border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 16px;
-      font-size: 13.5px; font-weight: 500;
-      background: var(--warning-soft); color: #92400e; border: 1px solid #fde68a;
+      display: none; border-radius: var(--r-md); padding: 12px 16px; margin-bottom: 14px;
+      font-size: 14px; background: var(--warn-soft); color: var(--warn); border: 1px solid #FCD9A0;
     }
 
-    /* ---------- Records ---------- */
-    h2.section-title {
-      font-size: 12px; font-weight: 800; margin: 40px 0 16px; display: flex; align-items: center; gap: 12px;
-      font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-soft);
-    }
-    h2.section-title .pill { text-transform: none; letter-spacing: 0; }
+    /* ---------- Archive (saved records) ---------- */
+    .records { margin-top: 36px; }
+    .records .hero-title .count-tag { font-size: 12px; }
 
     .filter-box {
-      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-      background: var(--surface); border: 1px solid rgba(226,232,240,.8);
-      border-radius: var(--radius-lg); padding: 16px 20px;
-      box-shadow: var(--shadow-card); margin-bottom: 18px;
+      display: flex; align-items: flex-end; gap: 12px 14px; flex-wrap: wrap;
+      padding: 14px 16px; margin-bottom: 14px;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
     }
-    .filter-box .f-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .filter-box label { font-family: var(--font-mono); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-soft); }
-    .filter-input {
-      border: 1px solid var(--line-strong); background: #fff; border-radius: var(--radius-sm);
-      padding: 9px 12px; font-size: 13.5px; min-height: 42px; outline: none;
+    .filter-box.filter-grid {
+      display: grid; grid-template-columns: minmax(220px, 1.6fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(180px, 1.3fr) auto;
+      align-items: end; background: var(--tint); border-color: var(--tint-line);
     }
-    .filter-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
-    #filterSearchId { font-family: var(--font-mono); font-weight: 600; min-width: 240px; }
-    .filter-box .btn { margin-left: auto; }
+    .filter-box .f-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; position: relative; }
+    .filter-box label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+    .filter-input, input.filter-input, select.filter-input { width: 100%; min-height: 38px; font-size: 13.5px; padding: 0 10px; }
+    select.filter-input { padding-right: 30px; }
+    .input-icon { position: relative; }
+    .input-icon .f-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; width: 16px; height: 16px; }
+    #filterSearchId { padding-left: 34px; }
+    .f-pair { display: flex; gap: 8px; }
+    .f-pair select { min-width: 0; }
+    .f-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .range-dash { color: var(--ink-3); align-self: center; }
+
+    /* Generic filter rows (absence / comments tabs) */
+    .abs-filter, .dc-filter { background: var(--tint); border-color: var(--tint-line); }
+    .abs-filter .f-group, .dc-filter .f-group { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .abs-filter .filter-input, .dc-filter .filter-input { width: auto; }
 
     .table-responsive {
-      width: 100%; overflow: auto; -webkit-overflow-scrolling: touch;
-      max-height: min(620px, 70vh); overscroll-behavior: contain;
-      border-radius: var(--radius-lg); border: 1px solid var(--line);
-      box-shadow: var(--shadow-card); background: #fff;
+      position: relative; width: 100%; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+      max-height: min(660px, 74vh);
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
     }
-    table.records-table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    table.records-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; font-size: 13.5px; }
     table.records-table th {
-      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-      color: var(--signal); font-family: var(--font-mono);
-      font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px;
-      padding: 14px; text-transform: uppercase; text-align: center; white-space: nowrap;
       position: sticky; top: 0; z-index: 2;
+      padding: 11px 14px; background: var(--th); color: var(--th-ink);
+      font-size: 12.5px; font-weight: 700; text-align: center; white-space: nowrap;
+      border-bottom: 1px solid var(--line);
     }
-    table.records-table td { padding: 12px 14px; border-top: 1px solid var(--line); font-size: 13.5px; text-align: center; vertical-align: middle; }
-    table.records-table tbody tr { transition: background .12s; }
-    table.records-table tbody tr:hover { background: #f8fafc; }
-    table.records-table tbody tr.editing { background: #fffbeb; box-shadow: inset 4px 0 0 var(--warning); }
-    table.records-table td.addr { text-align: left; max-width: 260px; }
-    table.records-table td.addr small { display: block; color: var(--ink-faint); font-size: 11.5px; }
-    .row-actions { display: inline-flex; gap: 6px; }
-    .badge-att { font-family: var(--font-mono); font-weight: 700; }
-    .badge-att.partial { color: #b45309; }
+    table.records-table th.left, table.records-table td.left { text-align: left; }
+    table.records-table td { padding: 11px 14px; border-bottom: 1px solid #EEF0F6; text-align: center; vertical-align: middle; }
+    table.records-table tbody tr:last-child td { border-bottom: 0; }
+    table.records-table tbody tr { transition: background-color .12s; }
+    table.records-table tbody tr:hover { background: #FAFAFF; }
+    table.records-table tbody tr > td:first-child { box-shadow: inset 3px 0 0 transparent; }
+    table.records-table tbody tr.att-full > td:first-child { box-shadow: inset 3px 0 0 #22C55E; }
+    table.records-table tbody tr.att-partial > td:first-child { box-shadow: inset 3px 0 0 #F43F5E; }
+    table.records-table tbody tr.editing { background: #FFF7E6; }
+    table.records-table tbody tr.editing > td:first-child { box-shadow: inset 3px 0 0 #F59E0B; }
+    td.mono { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+    td.rid b { display: block; font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--ink); }
+    td.rid small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; }
+    td.rid { text-align: left !important; }
+    table.records-table td.addr { text-align: left; max-width: 280px; }
+    table.records-table td.addr small, td.car small { display: block; margin-top: 3px; color: var(--ink-3); font-size: 11.5px; }
+    td.car { white-space: nowrap; }
+    .row-actions { display: inline-flex; gap: 4px; }
+    .badge-att.full { background: var(--ok-soft); color: var(--ok); }
+    .badge-att.partial { background: var(--bad-soft); color: var(--bad); }
 
-    /* Day comments */
-    .dc-bar .dc-bulk-input { min-height: 36px; border-radius: 8px; padding: 6px 10px; border: 0; color: var(--ink); background: #fff; font-weight: 600; min-width: 220px; }
-    .dc-table td { vertical-align: middle; }
-    .dc-table tbody tr { cursor: pointer; }
-    .dc-table tbody tr.sel { background: #eef2ff; }
-    .dc-table input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
-    .dc-table td.ids { text-align: left; max-width: 260px; }
-    .id-chip { display: inline-block; font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; padding: 2px 8px; margin: 2px 3px 2px 0; border-radius: 6px; background: var(--steel-soft); color: var(--primary); }
-    .dc-table td.cm { min-width: 260px; }
-    .dc-input { width: 100%; padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; font-size: 13.5px; background: #fff; min-height: 38px; }
-    .dc-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
-    .dc-input.dirty { border-color: var(--warning); background: var(--warning-soft); }
-    .dc-mixed { display: block; font-size: 11px; color: #b45309; margin-top: 4px; text-align: left; }
-    .dc-save { min-height: 36px; padding: 6px 12px; font-size: 12.5px; }
-    .dc-table tr.just-updated { animation: flashOk 2.2s ease-out; }
-    .comment-hint { font-size: 11.5px; color: var(--primary); margin-top: 5px; }
-
-    /* Records tabs */
-    .rec-tabs { display: flex; gap: 6px; margin: -4px 0 14px; flex-wrap: wrap; }
-    .rec-tab { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line-strong); background: #fff; font-weight: 700; font-size: 13.5px; cursor: pointer; color: var(--ink-soft); transition: background .15s, color .15s; }
-    .rec-tab:hover { color: var(--ink); }
-    .rec-tab.active { background: var(--ink); color: var(--signal); border-color: var(--ink); }
+    #noRecordsHint, .abs-empty {
+      padding: 36px 20px; text-align: center; font-size: 14px; color: var(--ink-3);
+      background: var(--card); border: 1.5px dashed var(--line-2); border-radius: var(--r-lg);
+    }
 
     /* Absence editor */
-    .abs-filter .abs-person-group { flex: 1 1 340px; }
-    .abs-filter .extra-member-picker { min-width: 240px; }
-    .abs-empty { text-align: center; padding: 36px 20px; border: 1.5px dashed var(--line-strong); border-radius: var(--radius-lg); font-size: 13.5px; color: var(--ink-faint); }
+    .abs-filter .abs-person-group { flex: 1 1 360px; }
+    .abs-filter .abs-person-group .extra-member-picker { min-width: 240px; }
     .abs-person-card {
-      display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 12px;
-      padding: 14px 18px; background: var(--surface); border: 1px solid rgba(226,232,240,.8);
-      border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);
+      display: flex; align-items: center; gap: 12px 14px; flex-wrap: wrap; margin-bottom: 12px;
+      padding: 14px 16px; background: var(--grad-hero); border: 1px solid #E3E5F8; border-radius: var(--r-lg); box-shadow: var(--shadow);
     }
-    .abs-avatar { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; background: linear-gradient(135deg, #1F4E79, #2563eb); }
-    .abs-who b { display: block; font-size: 15px; }
-    .abs-who small { color: var(--ink-soft); font-family: var(--font-mono); font-size: 11.5px; }
+    .abs-avatar {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; display: inline-grid; place-items: center;
+      background: var(--grad); color: #fff; font-weight: 700;
+    }
+    .abs-who b { display: block; font-size: 16px; font-weight: 800; }
+    .abs-who small { color: var(--ink-3); font-size: 12.5px; font-family: var(--font-mono); }
     .abs-stats { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
-    .abs-stats .st { cursor: pointer; }
-    .abs-stats .st:hover { filter: brightness(.95); box-shadow: 0 0 0 2px rgba(15,23,42,.08); }
 
-    .st { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; white-space: nowrap; border: 1px solid transparent; }
+    .st {
+      display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px;
+      border-radius: 999px; border: 1px solid transparent; font-size: 12.5px; font-weight: 700; white-space: nowrap; line-height: 1;
+    }
+    button.st { cursor: pointer; font-family: inherit; }
+    button.st:hover { border-color: currentColor; }
     .st b { font-family: var(--font-mono); }
-    .st.present { background: var(--success-soft); color: #047857; border-color: #a7f3d0; }
-    .st.r0 { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }   /* შვებულება */
-    .st.r1 { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }   /* ბიულეტინი */
-    .st.r2 { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }   /* სავარაუდო ბიულეტინი */
-    .st.r3 { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }   /* უხელფასო შვებულება */
-    .st.r4 { background: #fdf2f8; color: #9d174d; border-color: #fbcfe8; }   /* არასაპატიო */
-    .st.r5 { background: #ecfeff; color: #0e7490; border-color: #a5f3fc; }   /* საპატიო */
-    .st.rx { background: #f1f5f9; color: #475569; border-color: #e2e8f0; }
+    .st.present { background: var(--ok-soft); color: var(--ok); }
+    .st.r0 { background: #E8F0FF; color: #1D4ED8; }   /* შვებულება */
+    .st.r1 { background: var(--bad-soft); color: var(--bad); } /* ბიულეტინი */
+    .st.r2 { background: #FFF1E6; color: #C2410C; }   /* სავარაუდო ბიულეტინი */
+    .st.r3 { background: #F1ECFF; color: #6D28D9; }   /* უხელფასო შვებულება */
+    .st.r4 { background: #FDE8F3; color: #BE185D; }   /* არასაპატიო */
+    .st.r5 { background: #E0F7FA; color: #0E7490; }   /* საპატიო */
+    .st.rx { background: var(--mute-soft); color: var(--ink-2); }
+
+    .abs-view { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; padding: 4px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); }
+    .abs-view .lbl { font-size: 12.5px; font-weight: 600; color: var(--ink-3); padding: 0 8px; }
+    .abs-view button { height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+    .abs-view button b { margin-left: 6px; display: inline-flex; min-width: 20px; height: 18px; padding: 0 5px; align-items: center; justify-content: center; border-radius: 999px; background: var(--mute-soft); font-family: var(--font-mono); font-size: 11px; }
+    .abs-view button.active { background: var(--brand-soft); color: var(--brand-ink); }
+    .abs-view button.active b { background: var(--brand); color: #fff; }
 
     .abs-bar {
-      display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; margin-bottom: 12px;
-      padding: 10px 14px; background: var(--ink); color: #e2e8f0; border-radius: var(--radius-md);
-      position: sticky; top: 78px; z-index: 5; box-shadow: 0 12px 28px -12px rgba(15,23,42,.45);
+      position: sticky; top: calc(var(--bar-h) + 10px); z-index: 5;
+      display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; margin-bottom: 12px;
+      padding: 8px 10px 8px 16px; border-radius: var(--r-md); background: var(--nav); color: #DCE1F2; font-size: 13.5px;
+      box-shadow: 0 12px 26px -14px rgba(20, 26, 46, .6);
     }
-    .abs-bar .abs-sel b { color: var(--signal); font-family: var(--font-mono); font-size: 15px; }
-    .abs-bar .abs-quick { display: inline-flex; gap: 6px; }
-    .abs-bar .btn-ghost { color: #cbd5e1; border-color: rgba(255,255,255,.18); background: transparent; }
-    .abs-bar .btn-ghost:hover { color: #fff; }
+    .abs-bar .abs-sel b { color: #fff; font-family: var(--font-mono); font-size: 16px; font-weight: 700; }
+    .abs-bar .abs-quick { display: inline-flex; gap: 2px; flex-wrap: wrap; }
+    .abs-bar .btn-ghost { color: #C3CAE0; }
+    .abs-bar .btn-ghost:hover:not(:disabled) { background: rgba(255, 255, 255, .08); color: #fff; }
+    .abs-bar .btn:focus-visible { outline-color: #fff; }
     .abs-bar .abs-apply { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap; }
-    .abs-bar label { font-size: 12.5px; font-weight: 700; }
-    .abs-bar select { min-height: 36px; border-radius: 8px; padding: 6px 10px; border: 0; color: var(--ink); background: #fff; font-weight: 600; cursor: pointer; }
-    .abs-table th.chk, .abs-table td.chk { width: 46px; }
-    .abs-table input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
-    .abs-table tbody tr { cursor: pointer; }
-    .abs-table tbody tr.sel { background: #eef2ff; }
-    .abs-table tbody tr.sel:hover { background: #e0e7ff; }
-    .abs-table tbody tr.just-updated { animation: flashOk 2.2s ease-out; }
-    @keyframes flashOk { 0% { background: #bbf7d0; } 100% { background: transparent; } }
-    .abs-note { font-size: 12px; color: var(--ink-faint); margin-top: 10px; }
-    .abs-view { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-    .abs-view .lbl { font-family: var(--font-mono); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--ink-soft); margin-right: 4px; }
-    .abs-view button { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line-strong); background: #fff; font-weight: 700; font-size: 13px; cursor: pointer; color: var(--ink-soft); }
-    .abs-view button b { font-family: var(--font-mono); margin-left: 4px; color: var(--ink-faint); }
-    .abs-view button.active { background: var(--steel-soft); border-color: var(--primary); color: var(--primary); }
-    .abs-view button.active b { color: var(--primary); }
-    .abs-table td.work { text-align: left; min-width: 240px; }
-    .wk { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; line-height: 1.35; padding: 1px 0; }
-    .wk span { font-family: var(--font-mono); font-weight: 700; white-space: nowrap; color: var(--ink); }
-    .wk span small { color: var(--ink-faint); font-weight: 500; }
-    .wk-hours { font-size: 11px; color: var(--ink-faint); font-family: var(--font-mono); margin-top: 2px; }
-    .wk-none { color: var(--ink-faint); font-size: 12px; }
+    .abs-bar label { font-size: 13px; color: #AEB6CF; }
+    .abs-bar select, .abs-bar .dc-bulk-input { min-height: 34px; width: auto; border-color: transparent; font-size: 13.5px; }
+    .abs-bar .dc-bulk-input { min-width: 240px; }
+    .abs-table th.chk, .abs-table td.chk, .dc-table th.chk, .dc-table td.chk { width: 46px; }
+    .abs-table tbody tr, .dc-table tbody tr { cursor: pointer; }
+    .abs-table tbody tr.sel, .dc-table tbody tr.sel { background: var(--brand-soft); }
+    .abs-table tbody tr.sel:hover, .dc-table tbody tr.sel:hover { background: #E8E4FF; }
+    .abs-table tbody tr.just-updated, .dc-table tr.just-updated { animation: flashOk 2s ease-out; }
+    @keyframes flashOk { 0% { background: #D7F5E2; } 100% { background: transparent; } }
+    .abs-note { font-size: 12.5px; color: var(--ink-3); margin-top: 10px; max-width: 90ch; }
+    .abs-table td.work { text-align: left; min-width: 250px; }
+    .wk { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; line-height: 1.45; }
+    .wk span { font-family: var(--font-mono); font-weight: 700; white-space: nowrap; }
+    .wk span small { color: var(--ink-3); font-weight: 500; }
+    .wk-hours { font-size: 12px; color: var(--ink-3); margin-top: 2px; font-family: var(--font-mono); }
+    .wk-none { color: var(--ink-3); font-size: 12.5px; }
 
-    #noRecordsHint {
-      text-align: center; padding: 36px; border: 1.5px dashed var(--line-strong);
-      border-radius: var(--radius-lg); font-family: var(--font-mono); font-size: 13px; color: var(--ink-faint);
+    /* Day comments */
+    .dc-table td.ids { text-align: left; max-width: 280px; }
+    .id-chip {
+      display: inline-flex; align-items: center; height: 22px; margin: 2px 4px 2px 0; padding: 0 8px; border-radius: 999px;
+      background: var(--brand-soft); color: var(--brand-ink); font-family: var(--font-mono); font-size: 11.5px; font-weight: 700;
     }
+    .dc-table td.cm { min-width: 260px; text-align: left; }
+    input.dc-input { min-height: 36px; font-size: 13.5px; padding: 0 10px; }
+    input.dc-input.dirty { border-color: #F59E0B; background: #FFFBF0; }
+    .dc-mixed { display: block; font-size: 12px; color: var(--warn); margin-top: 4px; }
 
-    footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); text-align: center; font-size: 12px; color: var(--ink-faint); }
-    footer strong { color: var(--ink); }
+    /* Login */
+    .login-screen {
+      position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 16px;
+      background: radial-gradient(circle at 15% 10%, rgba(123, 92, 255, .35), transparent 40%), radial-gradient(circle at 85% 90%, rgba(59, 163, 255, .28), transparent 42%), var(--nav);
+    }
+    .login-card {
+      width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 6px;
+      padding: 28px 28px 24px; background: var(--card); border-radius: 20px; box-shadow: 0 30px 80px -24px rgba(0, 0, 0, .55);
+    }
+    .login-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-weight: 800; font-size: 16px; }
+    .login-logo { width: 42px; height: 42px; border-radius: 11px; }
+    .login-card h2 { font-size: 24px; font-weight: 800; letter-spacing: -.3px; line-height: 1.2; }
+    .login-card p { color: var(--ink-3); font-size: 13.5px; margin-bottom: 8px; }
+    .login-card label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-top: 8px; }
+    .login-card input { min-height: 44px; }
+    .login-card .btn { margin-top: 14px; height: 46px; width: 100%; font-size: 15px; border-radius: var(--r-md); }
+    .login-error { background: var(--bad-soft); color: var(--bad); border: 1px solid #FFC9D2; border-radius: var(--r-sm); padding: 10px 12px; font-size: 13.5px; margin-top: 8px; }
+    .login-note { color: var(--ink-3); font-size: 12px; margin-top: 10px; text-align: center; }
 
-    /* ---------- Mobile ---------- */
+    /* Overlap modal */
+    .modal-back { position: fixed; inset: 0; z-index: 1500; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(20, 26, 46, .55); backdrop-filter: blur(3px); }
+    .modal {
+      width: 100%; max-width: 700px; max-height: calc(100vh - 32px); display: flex; flex-direction: column;
+      background: var(--card); border-radius: 20px; box-shadow: var(--shadow-float); overflow: hidden;
+    }
+    .modal-head { display: flex; gap: 12px; align-items: flex-start; padding: 20px 22px 16px; background: linear-gradient(115deg, #FFF7E6, #FFF1D6); border-bottom: 1px solid #FCD9A0; }
+    .modal-icon { width: 28px; height: 28px; color: #D97706; margin-top: 1px; }
+    .modal-head h3 { font-size: 18px; font-weight: 800; color: var(--ink); }
+    .modal-head p { font-size: 13px; color: #92400E; margin-top: 2px; font-family: var(--font-mono); }
+    .modal-body { padding: 16px 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .ov-card { border: 1px solid var(--line); border-left: 4px solid #F59E0B; border-radius: var(--r-md); padding: 12px 14px; background: #FFFDF8; }
+    .ov-msg { font-size: 13.5px; line-height: 1.55; }
+    .ov-msg b { font-weight: 700; }
+    .ov-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    .ov-cell { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 10px; }
+    .ov-cell span { display: block; font-size: 11.5px; font-weight: 600; color: var(--ink-3); margin-bottom: 2px; }
+    .ov-cell b { font-family: var(--font-mono); font-size: 13.5px; font-weight: 700; }
+    .ov-cell.hit { border-color: #FFC9D2; background: var(--bad-soft); }
+    .ov-cell.hit b { color: var(--bad); }
+    .ov-works { font-size: 12.5px; color: var(--ink-3); margin-top: 8px; }
+    .modal-foot { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; padding: 14px 22px; border-top: 1px solid var(--line); background: var(--card-2); }
+
+    footer {
+      display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      margin-top: 44px; padding: 18px 0 30px; border-top: 1px solid var(--line);
+      font-size: 12px; color: var(--ink-3);
+    }
+    footer strong { color: var(--ink); font-weight: 700; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 1100px) {
+      .kpis { grid-template-columns: 1fr 1fr; }
+      .filter-box.filter-grid { grid-template-columns: 1fr 1fr 1fr; }
+      .filter-box.filter-grid .f-search { grid-column: 1 / -1; }
+      .cell-type { min-width: 180px; }
+      .cell-comment { min-width: 120px; }
+      .cell-time { width: 140px; }
+    }
+    @media (max-width: 960px) {
+      .slip { grid-template-columns: 1fr 1fr; }
+      .fg-place, .form-grid { grid-template-columns: 1fr 1fr; }
+      .fg-place .fg-wide { grid-column: 1 / -1; }
+      .work-item { flex-wrap: wrap; }
+      .work-item .cell-label { display: block !important; height: auto !important; margin: 0 0 2px !important; padding: 0 !important; background: none !important; border: 0 !important; }
+      .work-item:first-child .field-cell { padding-top: 6px; }
+      .cell-type { flex: 1 1 calc(100% - 100px); border-left: 1px solid var(--line); }
+      .cell-actions { order: 3; border-left: 1px solid var(--line); }
+      .cell-time, .cell-dur, .cell-qty, .cell-comment { order: 4; border-top: 1px solid var(--line); }
+      .cell-time:nth-of-type(3) { border-left: 0; }
+      .cell-comment { flex: 1 1 100%; border-left: 0; }
+      .cell-qty { flex: 1; }
+    }
     @media (max-width: 720px) {
-      .topbar { padding: 12px 14px; }
-      .topbar .titles h1 { font-size: 15px; }
-      .topbar-status { display: none; }
-      .topbar { flex-wrap: wrap; }
-      .nav-tabs { margin-left: 0; width: 100%; }
+      :root { --bar-h: 58px; }
+      .topbar { height: auto; flex-wrap: wrap; padding: 9px 12px 9px; gap: 8px; }
+      .brand { margin-right: auto; }
+      .brand-sub { display: none; }
+      .topbar-status { order: 2; margin-left: 0; }
+      .topbar-status:not(.offline) { display: none; }
+      .user-chip { order: 3; }
+      .uc-name { display: none; }
+      .uc-logout span { display: none; }
+      .uc-logout { padding: 0 9px; }
+      .nav-tabs { order: 4; width: 100%; }
       .nav-tab { flex: 1; justify-content: center; }
-      .area-sub { width: 100%; }
-      .wrap { padding: 16px 10px 0; }
-      .panel { padding: 18px 14px; border-radius: 16px; }
-      .form-grid { grid-template-columns: 1fr; gap: 14px; }
+      .edit-banner, .abs-bar { top: 8px; }
+      .wrap { padding-top: 14px; }
+      .panel { padding: 16px 14px 18px; border-radius: 14px; }
+      .panel-note { margin-left: 0; width: 100%; }
+      .slip { padding: 10px; gap: 10px; }
+      .slip input, .slip select { font-size: 15px; min-height: 42px; }
+      .form-grid, .fg-place, .fg-notes { grid-template-columns: 1fr; }
+      .members-toolbar { margin-left: 0; width: 100%; }
       .members-list { grid-template-columns: 1fr; }
-      .member-note { flex: 1 1 120px; }
+      input.member-note { flex: 1 1 120px; }
       .add-extra-row { flex-direction: column; align-items: stretch; }
-      .extra-member-picker { width: 100%; min-width: 100%; }
-      .work-item { flex-direction: column; }
-      .field-cell { border-left: none; border-top: 1px solid var(--line); padding: 10px 12px; width: 100%; }
-      .field-cell:first-child { border-top: none; }
-      .cell-num { flex-direction: row; justify-content: space-between; }
-      .cell-time, .cell-dur { align-items: flex-start; }
-      .cell-actions { align-items: flex-end; }
-      .actions { flex-direction: column; align-items: stretch; gap: 10px; }
-      .actions .btn { width: 100%; }
-      .actions .pill { margin-left: 0; text-align: center; }
-      .filter-box { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px; }
-      .rec-tabs { flex-wrap: nowrap; overflow-x: auto; }
-      .rec-tab { flex-shrink: 0; }
-      .abs-filter .extra-member-picker { min-width: 0; width: 100%; }
+      .extra-member-picker { min-width: 0; width: 100%; }
+      .cell-time { flex: 1 1 50%; width: auto; }
+      .cell-dur { flex: 1 1 40%; border-left: 0 !important; }
+      .actions { gap: 8px; }
+      .actions #saveBtn { flex: 1; min-width: 0; }
+      .actions-meta { display: none; }
+      .hero { padding: 18px 16px; }
+      .hero-title { font-size: 22px; }
+      .btn.btn-hero { width: 100%; }
+      .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+      .kpi-featured { grid-column: 1 / -1; min-height: 88px; }
+      .kpi { padding: 12px; min-height: 84px; }
+      .kpi-label { font-size: 12px; }
+      .kpi-value { font-size: 26px; }
+      .kpi:not(.kpi-featured) .kpi-row { flex-direction: column; gap: 2px; align-items: flex-start; }
+      .kpi::after { width: 70px; height: 70px; right: -22px; top: -26px; }
+      .rec-tabs { display: flex; }
+      .filter-box.filter-grid { grid-template-columns: 1fr 1fr; padding: 12px; }
+      .filter-box.filter-grid .f-area { grid-column: 1 / -1; }
+      .f-actions { grid-column: 1 / -1; }
+      .f-actions .btn { width: 100%; }
+      .abs-filter, .dc-filter { flex-direction: column; align-items: stretch; padding: 12px; }
+      .abs-filter .f-group, .dc-filter .f-group { flex-direction: row; flex-wrap: wrap; }
+      .abs-filter .f-group > label, .dc-filter .f-group > label { width: 100%; }
+      .abs-filter .filter-input, .dc-filter .filter-input { flex: 1; min-width: 0; }
       .abs-filter .abs-person-group { flex: none; }
-      .abs-filter .f-group .btn { width: 100%; }
+      .abs-filter .abs-person-group .extra-member-picker { min-width: 0; }
+      .abs-filter .f-group .btn, .dc-filter .f-group .btn { flex: 1; }
+      .area-sub { width: 100%; }
       .abs-stats { margin-left: 0; }
       .abs-bar { position: static; }
       .abs-bar .abs-apply { margin-left: 0; width: 100%; }
-      .abs-bar .abs-apply select { flex: 1; }
-      .dc-bar .dc-bulk-input { flex: 1; min-width: 0; }
-      .dc-filter .f-group .btn { width: 100%; }
-      .filter-box .f-group { flex-direction: column; align-items: stretch; }
-      .filter-box .filter-input, #filterSearchId { width: 100%; min-width: 0; }
-      .filter-box .btn { width: 100%; margin-left: 0; }
-      .toast-status { bottom: 14px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .abs-bar .abs-apply select, .abs-bar .dc-bulk-input { flex: 1; min-width: 0; }
+      .ov-grid { grid-template-columns: 1fr; }
+      .modal-foot .btn { width: 100%; }
+      .toast-status { bottom: 84px; }
+      footer { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="mark"><img src="/logo.png" alt="Logo" /></div>
-    <div class="titles">
-      <h1>სამუშაოს ანგარიშის გენერატორი</h1>
-      <p>Brigade-Ops / Enterprise v4.1</p>
-    </div>
-    <nav class="nav-tabs">
-      <a class="nav-tab active" href="/">📋 ანგარიში</a>
-      <a class="nav-tab" href="/admin">⚙️ ადმინ პანელი</a>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2.12 2.12 0 0 0-3-3L5 17v3z"/><path d="M13.5 8.5l2 2"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+      <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.01"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+      <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+    </defs>
+  </svg>
+  <a class="skip-link" href="#mainForm">ფორმაზე გადასვლა</a>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Brigade-Ops — მთავარი">
+      <span class="mark"><img src="/logo.png" alt="" width="34" height="34" /></span>
+      <span class="titles">
+        <span class="brand-name">Brigade-Ops</span>
+        <span class="brand-sub">სამუშაოს ანგარიში</span>
+      </span>
+    </a>
+    <nav class="nav-tabs" aria-label="განყოფილებები">
+      <a class="nav-tab active" href="/" aria-current="page">ანგარიში</a>
+      <a class="nav-tab" href="/admin">ადმინ პანელი</a>
     </nav>
+    <div class="topbar-status" id="netStatus" role="status">
+      <span class="dot" aria-hidden="true"></span>
+      <span id="netStatusText">ონლაინ</span>
+    </div>
     <div class="user-chip" id="userChip" hidden>
-      <span class="uc-avatar" id="ucAvatar"></span>
+      <span class="uc-avatar" id="ucAvatar" aria-hidden="true"></span>
       <span class="uc-name" id="ucName"></span>
-      <button type="button" class="uc-logout" onclick="logoutOperator()" title="გასვლა">⎋ გასვლა</button>
+      <button type="button" class="uc-logout" onclick="logoutOperator()" title="გასვლა" aria-label="გასვლა"><svg class="i" aria-hidden="true"><use href="#i-logout"/></svg><span>გასვლა</span></button>
     </div>
-    <div class="topbar-status" id="netStatus">
-      <span class="dot"></span>
-      <span id="netStatusText">LIVE SYSTEM &bull; ONLINE</span>
-    </div>
-  </div>
+  </header>
 
-  <div class="wrap">
-    <div class="edit-banner" id="editBanner">
-      ✏️ <span>რედაქტირების რეჟიმი — ჩანაწერი ID <strong id="editBannerId"></strong></span>
-      <button type="button" class="btn btn-ghost" onclick="cancelEdit()">✖ რედაქტირების გაუქმება</button>
+  <main class="wrap">
+    <div class="edit-banner" id="editBanner" role="status">
+      <svg class="i" aria-hidden="true"><use href="#i-edit"/></svg>
+      <span>რედაქტირდება ჩანაწერი <strong id="editBannerId"></strong></span>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="cancelEdit()"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg>რედაქტირების გაუქმება</button>
     </div>
 
     <form id="mainForm" autocomplete="off" onsubmit="event.preventDefault(); saveRecord();">
-      <section class="panel">
+      <section class="panel sheet" aria-labelledby="h-order">
         <div class="panel-head">
-          <span class="panel-eyebrow">// 01</span>
-          <h2>ძირითადი ინფორმაცია</h2>
+          <div class="ph-text"><span class="eyebrow">ნარიადი</span><h2 id="h-order">ძირითადი ინფორმაცია</h2></div>
+          <span class="panel-note"><span class="req">*</span> სავალდებულო ველი</span>
         </div>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="idInput">ID <span class="req">*</span></label>
-            <input type="text" id="idInput" placeholder="მაგ: 123456" required />
+        <div class="slip">
+          <div class="form-group slip-id">
+            <label for="idInput">ID <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="idInput" placeholder="123456" required inputmode="numeric" autocomplete="off" />
           </div>
           <div class="form-group">
-            <label for="brigadeSelect">ბრიგადის ნომერი <span class="req">*</span></label>
-            <select id="brigadeSelect" required>
-              <option value="">-- აირჩიეთ --</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="citySelect">რეგიონი (ქალაქი) <span class="req">*</span></label>
-            <select id="citySelect" required>
-              <option value="">-- აირჩიეთ ბრიგადა --</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="dateInput">თარიღი <span class="req">*</span></label>
+            <label for="dateInput">თარიღი <span class="req" aria-hidden="true">*</span></label>
             <input type="date" id="dateInput" required />
           </div>
           <div class="form-group">
-            <label for="addressInput">მისამართი <span class="req">*</span></label>
+            <label for="brigadeSelect">ბრიგადა <span class="req" aria-hidden="true">*</span></label>
+            <select id="brigadeSelect" required>
+              <option value="">აირჩიეთ</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="citySelect">რეგიონი <span class="req" aria-hidden="true">*</span></label>
+            <select id="citySelect" required>
+              <option value="">ჯერ ბრიგადა</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid fg-place">
+          <div class="form-group fg-wide">
+            <label for="addressInput">მისამართი <span class="req" aria-hidden="true">*</span></label>
             <input type="text" id="addressInput" placeholder="მაგ: ლეონიძის 12" required />
           </div>
           <div class="form-group">
             <label for="objectNameInput">ობიექტის დასახელება</label>
-            <input type="text" id="objectNameInput" placeholder="ჩაწერეთ ობიექტის დასახელება" />
+            <input type="text" id="objectNameInput" />
           </div>
           <div class="form-group">
-            <label for="coefficientInput">ქალაქის კოეფიციენტი (გადაადგილება)</label>
-            <input type="text" id="coefficientInput" placeholder="ჩაწერეთ თავისუფლად" />
+            <label for="coefficientInput">ქალაქის კოეფიციენტი</label>
+            <input type="text" id="coefficientInput" placeholder="გადაადგილება" />
           </div>
         </div>
 
-        <div class="form-grid">
+        <div class="form-grid fg-crew">
           <div class="form-group">
-            <label for="carSelect">🚗 ავტომობილი</label>
+            <label for="carSelect">ავტომობილი</label>
             <select id="carSelect">
-              <option value="">-- აირჩიეთ --</option>
+              <option value="">არ არის</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="ganwesiInput">📄 განწესი</label>
+            <label for="ganwesiInput">განწესი</label>
             <input type="text" id="ganwesiInput" placeholder="მაგ: 12/0699" />
           </div>
           <div class="form-group">
-            <label for="engineerSelect">👷 ინჟინერი საბონუსე სისტემაში</label>
+            <label for="engineerSelect">ინჟინერი (საბონუსე სისტემა)</label>
             <select id="engineerSelect">
-              <option value="">-- აირჩიეთ --</option>
+              <option value="">არ არის</option>
             </select>
           </div>
         </div>
@@ -688,59 +918,56 @@
         <option value="საპატიო"></option>
       </datalist>
 
-      <section class="panel members-section">
+      <section class="panel members-section" aria-labelledby="h-members">
         <div class="panel-head">
-          <span class="panel-eyebrow">// 02</span>
-          <h2>ბრიგადის წევრები</h2>
-          <span class="pill sm" id="memberCount">0 წევრი</span>
-        </div>
-
-        <div class="members-toolbar" id="membersToolbar" style="display:none;">
-          <button type="button" class="btn btn-ghost" onclick="setAllAbsent(false)">✔ ყველა გამოცხადდა</button>
-          <button type="button" class="btn btn-ghost" onclick="reloadBrigadeMembers()">↻ ბრიგადის სიის თავიდან ჩატვირთვა</button>
+          <div class="ph-text"><span class="eyebrow">შემადგენლობა</span><h2 id="h-members">ბრიგადის წევრები</h2></div>
+          <span class="count-tag" id="memberCount">0 წევრი</span>
+          <div class="members-toolbar" id="membersToolbar" style="display:none;">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="setAllAbsent(false)"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>ყველა გამოცხადდა</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="reloadBrigadeMembers()"><svg class="i" aria-hidden="true"><use href="#i-refresh"/></svg>სიის თავიდან ჩატვირთვა</button>
+          </div>
         </div>
 
         <div id="membersContainer" class="members-list"></div>
 
         <div class="add-extra-row">
           <div class="extra-member-picker" id="extraPicker">
-            <span class="extra-search-icon">⌕</span>
+            <svg class="i extra-search-icon" aria-hidden="true"><use href="#i-search"/></svg>
             <input
               type="text"
-              id="extraMemberInput"
+              id="extraMemberInput" aria-label="წევრის დამატება სხვა ბრიგადიდან"
               class="extra-member-input"
-              placeholder="სხვა ბრიგადიდან: სახელი ან პირადი #..."
+              placeholder="სხვა ბრიგადიდან — სახელი ან პირადი ნომერი"
               role="combobox" aria-expanded="false" aria-controls="extraMemberResults"
               oninput="searchExtraMembers(this.value)"
               onkeydown="handleExtraMemberKeydown(event)"
               onfocus="if (this.value) searchExtraMembers(this.value)"
             />
-            <button type="button" class="extra-clear" title="გასუფთავება" onclick="clearExtraMemberSearch(true)">×</button>
+            <button type="button" class="extra-clear" title="გასუფთავება" aria-label="გასუფთავება" onclick="clearExtraMemberSearch(true)"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
             <div id="extraMemberResults" class="extra-member-results" role="listbox"></div>
           </div>
-          <button type="button" class="btn btn-outline" id="extraMemberAddBtn" onclick="addExtraMember()" disabled>➕ დამატება</button>
-          <div class="hint">↑ ↓ ისრებით აირჩიეთ, Enter — დამატება</div>
+          <button type="button" class="btn btn-outline" id="extraMemberAddBtn" onclick="addExtraMember()" disabled><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>დამატება</button>
+          <div class="hint">ისრებით აირჩიეთ, Enter-ით დაამატეთ</div>
         </div>
       </section>
 
-      <section class="panel works-section">
+      <section class="panel works-section" aria-labelledby="h-works">
         <div class="panel-head">
-          <span class="panel-eyebrow">// 03</span>
-          <h2>სამუშაოები</h2>
+          <div class="ph-text"><span class="eyebrow">შესრულება</span><h2 id="h-works">სამუშაოები</h2></div>
+          <span class="works-total" id="worksTotal"></span>
         </div>
 
         <datalist id="workTypesList"></datalist>
 
         <div id="workContainer"></div>
         <div class="works-footer">
-          <button type="button" class="btn btn-success" onclick="addWork(); focusLastWork();">➕ სამუშაოს დამატება</button>
-          <span class="works-total" id="worksTotal"></span>
+          <button type="button" class="btn btn-outline" onclick="addWork(); focusLastWork();"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>სამუშაოს დამატება</button>
         </div>
 
-        <div class="form-grid" style="margin-top: 22px;">
+        <div class="form-grid fg-notes">
           <div class="form-group">
             <label for="overallComment">ზოგადი კომენტარი</label>
-            <input list="overallCommentsList" id="overallComment" placeholder="-- აირჩიეთ ან ჩაწერეთ --" />
+            <input list="overallCommentsList" id="overallComment" placeholder="აირჩიეთ ან ჩაწერეთ" />
             <div class="comment-hint" id="commentHint" hidden></div>
             <datalist id="overallCommentsList">
               <option value="საბონუსე"></option>
@@ -748,56 +975,88 @@
               <option value="ღამის სამუშაო"></option>
             </datalist>
           </div>
-        </div>
-        <div class="form-group" style="margin-top: 16px;">
-          <label for="overallNote">შენიშვნა</label>
-          <input type="text" id="overallNote" placeholder="მაგ: მოცდენა მასალის გამო, სართულების დაბურღვა..." />
+          <div class="form-group fg-wide">
+            <label for="overallNote">შენიშვნა</label>
+            <input type="text" id="overallNote" placeholder="მაგ: მოცდენა მასალის გამო" />
+          </div>
         </div>
       </section>
 
       <div class="actions">
-        <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveRecord()">💾 შენახვა</button>
-        <button type="button" class="btn btn-ghost" onclick="clearForm()">🔄 გასუფთავება</button>
-        <span class="pill" id="recordCounter">ჩანაწერები: 0</span>
+        <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveRecord()">შენახვა</button>
+        <button type="button" class="btn btn-ghost" onclick="clearForm()">ფორმის გასუფთავება</button>
+        <span class="actions-meta" id="recordCounter">ჩანაწერები: 0</span>
       </div>
     </form>
 
-    <h2 class="section-title">// 04 &nbsp;შენახული ჩანაწერები <span class="pill sm" id="filteredCounter" style="display:none;"></span></h2>
-
-    <div class="rec-tabs" role="tablist">
-      <button type="button" class="rec-tab active" data-rtab="list" onclick="switchRecTab('list')">📋 ჩანაწერები</button>
-      <button type="button" class="rec-tab" data-rtab="absence" onclick="switchRecTab('absence')">🩺 გაცდენების რედაქტირება</button>
-      <button type="button" class="rec-tab" data-rtab="comments" onclick="switchRecTab('comments')">💬 დღის კომენტარები</button>
+    <section class="records" aria-labelledby="h-records">
+    <div class="hero">
+      <div class="hero-main">
+        <span class="eyebrow">არქივი</span>
+        <h2 class="hero-title" id="h-records">შენახული ჩანაწერები <span class="count-tag" id="filteredCounter" style="display:none;"></span></h2>
+        <p class="hero-meta"><span class="period-pill" id="recPeriod">მთელი პერიოდი</span><span id="recScope">ყველა ლოკაცია — თარიღის მიხედვით, უახლესი ზემოთ</span></p>
+      </div>
+      <button type="button" class="btn btn-primary btn-hero" id="generateBtn" onclick="generateExcel()"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg>Excel</button>
     </div>
 
-    <div id="recTab-list">
-    <div class="filter-box">
-      <div class="f-group">
-        <label for="filterSearchId">🔎 ძებნა:</label>
-        <input type="search" id="filterSearchId" class="filter-input" placeholder="ID, მისამართი, ბრიგადა..." oninput="renderRecordsTable()" />
+    <div class="kpis" aria-label="შეჯამება">
+      <div class="kpi kpi-featured">
+        <span class="kpi-label">ჩანაწერები პერიოდში</span>
+        <span class="kpi-row"><b class="kpi-value" id="kpiTotal">0</b><small id="kpiTotalSub">ფილტრის მიხედვით</small></span>
       </div>
+      <div class="kpi kpi-green">
+        <span class="kpi-label">თბილისი</span>
+        <span class="kpi-row"><b class="kpi-value" id="kpiTb">0</b></span>
+      </div>
+      <div class="kpi kpi-blue">
+        <span class="kpi-label">რეგიონები</span>
+        <span class="kpi-row"><b class="kpi-value" id="kpiRg">0</b></span>
+      </div>
+      <div class="kpi kpi-red">
+        <span class="kpi-label">გაცდენით</span>
+        <span class="kpi-row"><b class="kpi-value" id="kpiAbs">0</b></span>
+      </div>
+    </div>
 
+    <div class="rec-tabs" role="tablist" aria-label="ჩანაწერების ხედები">
+      <button type="button" class="rec-tab active" role="tab" aria-selected="true" aria-controls="recTab-list" data-rtab="list" onclick="switchRecTab('list')">ჩანაწერები <span class="tab-count" id="recTabCount">0</span></button>
+      <button type="button" class="rec-tab" role="tab" aria-selected="false" aria-controls="recTab-absence" data-rtab="absence" onclick="switchRecTab('absence')">გაცდენების რედაქტირება</button>
+      <button type="button" class="rec-tab" role="tab" aria-selected="false" aria-controls="recTab-comments" data-rtab="comments" onclick="switchRecTab('comments')">დღის კომენტარები</button>
+    </div>
+
+    <div id="recTab-list" role="tabpanel">
+    <div class="filter-box filter-grid">
+      <div class="f-group f-search">
+        <label for="filterSearchId">ძებნა</label>
+        <div class="input-icon">
+          <svg class="i f-icon" aria-hidden="true"><use href="#i-search"/></svg>
+          <input type="search" id="filterSearchId" class="filter-input" placeholder="ID, მისამართი ან ბრიგადა" oninput="renderRecordsTable()" />
+        </div>
+      </div>
       <div class="f-group">
-        <label>📅 თარიღი:</label>
+        <label for="filterStartDate">თარიღიდან</label>
         <input type="date" id="filterStartDate" class="filter-input" onchange="renderRecordsTable()" />
-        <span style="color: var(--ink-faint); font-weight: bold;">→</span>
+      </div>
+      <div class="f-group">
+        <label for="filterEndDate">თარიღამდე</label>
         <input type="date" id="filterEndDate" class="filter-input" onchange="renderRecordsTable()" />
       </div>
-
-      <div class="f-group">
-        <label for="filterArea">📍 ლოკაცია:</label>
-        <select id="filterArea" class="filter-input" onchange="onAreaChange()">
-          <option value="">ყველა</option>
-          <option value="tbilisi">თბილისი</option>
-          <option value="region">რეგიონი</option>
-        </select>
-        <select id="filterRegionCity" class="filter-input area-sub" style="display:none;" onchange="renderRecordsTable()">
-          <option value="">ყველა რეგიონი</option>
-        </select>
+      <div class="f-group f-area">
+        <label for="filterArea">ლოკაცია</label>
+        <div class="f-pair">
+          <select id="filterArea" class="filter-input" onchange="onAreaChange()">
+            <option value="">ყველა</option>
+            <option value="tbilisi">თბილისი</option>
+            <option value="region">რეგიონი</option>
+          </select>
+          <select id="filterRegionCity" class="filter-input area-sub" style="display:none;" onchange="renderRecordsTable()" aria-label="რეგიონი">
+            <option value="">ყველა რეგიონი</option>
+          </select>
+        </div>
       </div>
-
-      <button type="button" class="btn btn-ghost btn-sm" onclick="resetFilter()">🔄 ფილტრის გასუფთავება</button>
-      <button type="button" class="btn btn-success" id="generateBtn" onclick="generateExcel()" style="margin-left:0;">📥 Excel-ის გენერირება</button>
+      <div class="f-actions">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="resetFilter()">გასუფთავება</button>
+      </div>
     </div>
 
     <div id="recordsListWrap">
@@ -806,8 +1065,8 @@
         <table class="records-table" id="recordsTable">
           <thead>
             <tr>
-              <th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>თარიღი</th><th>მისამართი</th>
-              <th>წევრები</th><th>სამუშაოები</th><th>მოქმედება</th>
+              <th scope="col" class="left">ჩანაწერი</th><th scope="col" class="left">ადგილი</th><th scope="col" class="left">თარიღი</th><th scope="col" class="left">მისამართი</th>
+              <th scope="col" class="left">ავტომობილი</th><th scope="col" class="left">დასწრება</th><th scope="col">სამუშაო</th><th scope="col"><span class="sr-only">მოქმედება</span></th>
             </tr>
           </thead>
           <tbody id="recordsTbody"></tbody>
@@ -817,40 +1076,40 @@
     </div>
 
     <!-- Absence bulk editor -->
-    <div id="recTab-absence" hidden>
+    <div id="recTab-absence" role="tabpanel" hidden>
       <div class="filter-box abs-filter">
         <div class="f-group abs-person-group">
-          <label for="absPersonInput">👤 პიროვნება:</label>
+          <label for="absPersonInput">პიროვნება</label>
           <div class="extra-member-picker" id="absPicker">
-            <span class="extra-search-icon">⌕</span>
-            <input type="text" id="absPersonInput" class="extra-member-input" placeholder="სახელი, გვარი ან პირადი #..."
+            <svg class="i extra-search-icon" aria-hidden="true"><use href="#i-search"/></svg>
+            <input type="text" id="absPersonInput" class="extra-member-input" placeholder="სახელი, გვარი ან პირადი ნომერი"
                    autocomplete="off" oninput="searchAbsPerson(this.value)" onkeydown="absPersonKeydown(event)"
                    onfocus="if (this.value && !absPerson) searchAbsPerson(this.value)" />
-            <button type="button" class="extra-clear" title="გასუფთავება" onclick="clearAbsPerson()">×</button>
+            <button type="button" class="extra-clear" title="გასუფთავება" aria-label="გასუფთავება" onclick="clearAbsPerson()"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
             <div id="absPersonResults" class="extra-member-results" role="listbox"></div>
           </div>
         </div>
         <div class="f-group">
-          <label>📅 პერიოდი:</label>
-          <input type="date" id="absFrom" class="filter-input" onchange="renderAbs()" />
-          <span style="color: var(--ink-faint); font-weight: bold;">→</span>
-          <input type="date" id="absTo" class="filter-input" onchange="renderAbs()" />
+          <label for="absFrom">პერიოდი</label>
+          <input type="date" id="absFrom" class="filter-input" onchange="renderAbs()" aria-label="პერიოდის დასაწყისი" />
+          <span class="range-dash" aria-hidden="true">–</span>
+          <input type="date" id="absTo" class="filter-input" onchange="renderAbs()" aria-label="პერიოდის დასასრული" />
           <button type="button" class="btn btn-ghost btn-sm" onclick="setAbsPeriod('prev')">წინა თვე</button>
           <button type="button" class="btn btn-ghost btn-sm" onclick="setAbsPeriod('this')">მიმდინარე თვე</button>
           <button type="button" class="btn btn-ghost btn-sm" onclick="setAbsPeriod('all')">მთელი პერიოდი</button>
         </div>
       </div>
 
-      <div id="absEmpty" class="abs-empty">აირჩიეთ პიროვნება — გამოჩნდება ყველა ჩანაწერი (ID), სადაც ის ფიგურირებს არჩეულ პერიოდში.</div>
+      <div id="absEmpty" class="abs-empty">აირჩიეთ პიროვნება და გამოჩნდება ყველა ჩანაწერი, სადაც ის ფიგურირებს არჩეულ პერიოდში.</div>
 
       <div id="absContent" hidden>
         <div class="abs-person-card" id="absPersonCard"></div>
 
         <div class="abs-view" id="absViewBar" role="group" aria-label="ჩვენება">
-          <span class="lbl">ჩვენება:</span>
+          <span class="lbl">ჩვენება</span>
           <button type="button" class="active" data-view="all">ყველა დღე <b id="absCntAll">0</b></button>
-          <button type="button" data-view="worked">🛠 ნამუშევარი <b id="absCntWorked">0</b></button>
-          <button type="button" data-view="absent">🩺 გაცდენა <b id="absCntAbsent">0</b></button>
+          <button type="button" data-view="worked">ნამუშევარი <b id="absCntWorked">0</b></button>
+          <button type="button" data-view="absent">გაცდენა <b id="absCntAbsent">0</b></button>
         </div>
 
         <div class="abs-bar" id="absBar">
@@ -862,9 +1121,9 @@
             <button type="button" class="btn btn-ghost btn-sm" onclick="absSelect('none')">მოხსნა</button>
           </span>
           <span class="abs-apply">
-            <label for="absNewStatus">ახალი სტატუსი →</label>
+            <label for="absNewStatus">ახალი სტატუსი</label>
             <select id="absNewStatus"></select>
-            <button type="button" class="btn btn-primary btn-sm" id="absApplyBtn" onclick="applyAbs()" disabled>✔ გამოყენება</button>
+            <button type="button" class="btn btn-primary btn-sm" id="absApplyBtn" onclick="applyAbs()" disabled>გამოყენება</button>
           </span>
         </div>
 
@@ -873,7 +1132,7 @@
             <thead>
               <tr>
                 <th class="chk"><input type="checkbox" id="absCheckAll" title="ყველას მონიშვნა" onchange="absSelect(this.checked ? 'all' : 'none')"></th>
-                <th>თარიღი</th><th>ID</th><th>ბრიგადა</th><th>ქალაქი</th><th>მისამართი</th><th>მიმდინარე სტატუსი</th><th>ნამუშევარი (კაცზე / ჯამი)</th>
+                <th scope="col" class="num">თარიღი</th><th scope="col" class="num">ID</th><th scope="col" class="num">ბრიგადა</th><th scope="col">ქალაქი</th><th scope="col" class="left">მისამართი</th><th scope="col">სტატუსი</th><th scope="col" class="left">ნამუშევარი (კაცზე / ჯამი)</th>
               </tr>
             </thead>
             <tbody id="absTbody"></tbody>
@@ -884,28 +1143,28 @@
     </div>
 
     <!-- Day comments: one row = one brigade on one day in one region -->
-    <div id="recTab-comments" hidden>
+    <div id="recTab-comments" role="tabpanel" hidden>
       <div class="filter-box dc-filter">
         <div class="f-group">
-          <label for="dcCity">📍 რეგიონი:</label>
+          <label for="dcCity">რეგიონი</label>
           <select id="dcCity" class="filter-input" onchange="renderDayComments()"><option value="">ყველა</option></select>
         </div>
         <div class="f-group">
-          <label for="dcBrigade">👷 ბრიგადა:</label>
+          <label for="dcBrigade">ბრიგადა</label>
           <select id="dcBrigade" class="filter-input" onchange="renderDayComments()"><option value="">ყველა</option></select>
         </div>
         <div class="f-group">
-          <label>📅 დღე:</label>
-          <input type="date" id="dcFrom" class="filter-input" onchange="renderDayComments()" />
-          <span style="color: var(--ink-faint); font-weight: bold;">→</span>
-          <input type="date" id="dcTo" class="filter-input" onchange="renderDayComments()" />
+          <label for="dcFrom">დღე</label>
+          <input type="date" id="dcFrom" class="filter-input" onchange="renderDayComments()" aria-label="პერიოდის დასაწყისი" />
+          <span class="range-dash" aria-hidden="true">–</span>
+          <input type="date" id="dcTo" class="filter-input" onchange="renderDayComments()" aria-label="პერიოდის დასასრული" />
           <button type="button" class="btn btn-ghost btn-sm" onclick="setDcPeriod('today')">დღეს</button>
           <button type="button" class="btn btn-ghost btn-sm" onclick="setDcPeriod('yesterday')">გუშინ</button>
           <button type="button" class="btn btn-ghost btn-sm" onclick="setDcPeriod('this')">ეს თვე</button>
           <button type="button" class="btn btn-ghost btn-sm" onclick="setDcPeriod('all')">ყველა</button>
         </div>
         <div class="f-group">
-          <label for="dcShow">ჩვენება:</label>
+          <label for="dcShow">ჩვენება</label>
           <select id="dcShow" class="filter-input" onchange="renderDayComments()">
             <option value="">ყველა დღე</option>
             <option value="empty">კომენტარის გარეშე</option>
@@ -922,9 +1181,9 @@
           <button type="button" class="btn btn-ghost btn-sm" onclick="dcSelect('none')">მოხსნა</button>
         </span>
         <span class="abs-apply">
-          <label for="dcBulkComment">მონიშნულებზე კომენტარი →</label>
-          <input id="dcBulkComment" list="overallCommentsList" class="dc-bulk-input" placeholder="საბონუსე, დღიური ანაზღაურება..." />
-          <button type="button" class="btn btn-primary btn-sm" id="dcBulkBtn" onclick="applyDcBulk()" disabled>✔ მინიჭება</button>
+          <label for="dcBulkComment">კომენტარი მონიშნულებზე</label>
+          <input id="dcBulkComment" list="overallCommentsList" class="dc-bulk-input" placeholder="საბონუსე, დღიური ანაზღაურება" />
+          <button type="button" class="btn btn-primary btn-sm" id="dcBulkBtn" onclick="applyDcBulk()" disabled>მინიჭება</button>
         </span>
       </div>
 
@@ -934,33 +1193,34 @@
           <thead>
             <tr>
               <th class="chk"><input type="checkbox" id="dcCheckAll" title="ყველას მონიშვნა" onchange="dcSelect(this.checked ? 'all' : 'none')"></th>
-              <th>თარიღი</th><th>რეგიონი</th><th>ბრიგადა</th><th>ჩანაწერები (ID)</th><th>წევრები</th><th>კომენტარი</th><th></th>
+              <th scope="col" class="num">თარიღი</th><th scope="col">რეგიონი</th><th scope="col" class="num">ბრიგადა</th><th scope="col" class="left">ჩანაწერები (ID)</th><th scope="col" class="num">წევრები</th><th scope="col" class="left">კომენტარი</th><th scope="col"><span class="sr-only">შენახვა</span></th>
             </tr>
           </thead>
           <tbody id="dcTbody"></tbody>
         </table>
       </div>
-      <p class="abs-note">კომენტარი ეკუთვნის <b>კონკრეტული რეგიონის, კონკრეტული ბრიგადის კონკრეტულ დღეს</b> — ინახება ამ დღის ყველა ჩანაწერში (ID) და Excel-ის „კომენტარი“ სვეტში აისახება მხოლოდ ამ ჩანაწერების ნამუშევარ სტრიქონებზე. ცარიელი მნიშვნელობა კომენტარს წაშლის.</p>
+      <p class="abs-note">კომენტარი ეკუთვნის ერთი რეგიონის ერთი ბრიგადის ერთ დღეს. ის ინახება ამ დღის ყველა ჩანაწერში და Excel-ის „კომენტარი“ სვეტში ჩანს მხოლოდ ამ ჩანაწერების ნამუშევარ სტრიქონებზე. ცარიელი ველი კომენტარს წაშლის.</p>
     </div>
+    </section>
 
     <footer>
-      <span>Engineered by </span><strong>Zaza Lomidze</strong> &nbsp;|&nbsp; Enterprise Operations System
+      <span>Brigade-Ops v4.5</span><span>Engineered by <strong>Zaza Lomidze</strong></span>
     </footer>
-  </div>
+  </main>
 
   <!-- Operator login -->
   <div class="login-screen" id="loginScreen" hidden>
     <form class="login-card" onsubmit="event.preventDefault(); loginOperator();">
-      <img src="/logo.png" alt="" class="login-logo" />
+      <div class="login-brand"><img src="/logo.png" alt="" class="login-logo" width="40" height="40" /><span>Brigade-Ops</span></div>
       <h2>სისტემაში შესვლა</h2>
-      <p>სამუშაოს ანგარიშის გენერატორი</p>
+      <p>შეიყვანეთ ადმინისტრატორისგან მიღებული მომხმარებელი და პაროლი.</p>
       <label for="loginUser">მომხმარებელი</label>
       <input type="text" id="loginUser" autocomplete="username" required />
       <label for="loginPass">პაროლი</label>
       <input type="password" id="loginPass" autocomplete="current-password" required />
-      <div class="login-error" id="loginError" hidden></div>
-      <button type="submit" class="btn btn-primary" id="loginBtn">🔐 შესვლა</button>
-      <small class="login-note">შესვლა და მოქმედებები აღირიცხება (IP მისამართით).</small>
+      <div class="login-error" id="loginError" role="alert" hidden></div>
+      <button type="submit" class="btn btn-primary" id="loginBtn">შესვლა</button>
+      <small class="login-note">შესვლა და ყველა მოქმედება აღირიცხება ჟურნალში IP მისამართით.</small>
     </form>
   </div>
 
@@ -968,7 +1228,7 @@
   <div class="modal-back" id="overlapModal" hidden>
     <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="overlapTitle">
       <div class="modal-head">
-        <span class="modal-icon">⚠️</span>
+        <svg class="i modal-icon" aria-hidden="true"><use href="#i-alert"/></svg>
         <div>
           <h3 id="overlapTitle">სამუშაო დროის თანხვედრა</h3>
           <p id="overlapSub"></p>
@@ -976,8 +1236,8 @@
       </div>
       <div class="modal-body" id="overlapBody"></div>
       <div class="modal-foot">
-        <button type="button" class="btn btn-ghost" id="overlapCancel">✖ გაუქმება — დავბრუნდე რედაქტირებაზე</button>
-        <button type="button" class="btn btn-warn" id="overlapConfirm">💾 მაინც შენახვა</button>
+        <button type="button" class="btn btn-ghost" id="overlapCancel">დაბრუნება და დროის შესწორება</button>
+        <button type="button" class="btn btn-warn" id="overlapConfirm">მაინც შენახვა</button>
       </div>
     </div>
   </div>
@@ -1048,7 +1308,7 @@
     function updateNetStatus() {
       const online = navigator.onLine;
       $('netStatus').classList.toggle('offline', !online);
-      $('netStatusText').innerHTML = online ? 'LIVE SYSTEM &bull; ONLINE' : 'კავშირი არ არის &bull; OFFLINE';
+      $('netStatusText').textContent = online ? 'ონლაინ' : 'ინტერნეტი არ არის';
     }
     window.addEventListener('online', updateNetStatus);
     window.addEventListener('offline', updateNetStatus);
@@ -1077,7 +1337,7 @@
     async function loginOperator() {
       const btn = $('loginBtn');
       btn.disabled = true;
-      btn.textContent = '⏳ მოწმდება...';
+      btn.textContent = 'მოწმდება…';
       try {
         const res = await jsonFetch('/api/login', {
           method: 'POST',
@@ -1088,12 +1348,13 @@
         $('loginScreen').hidden = true;
         setOperator(res.user);
         startApp();
+        $('idInput').focus();
       } catch (e) {
         showLoginScreen(e.message);
         $('loginPass').select();
       } finally {
         btn.disabled = false;
-        btn.textContent = '🔐 შესვლა';
+        btn.textContent = 'შესვლა';
       }
     }
 
@@ -1123,7 +1384,10 @@
       try {
         const me = await jsonFetch('/api/me');
         setOperator(me.user);
-        if (me.login_required && !me.user) { showLoginScreen(); return; }
+        if (me.login_required && !me.user) {
+          showLoginScreen(me.no_operators ? 'ოპერატორი ჯერ არ არის დამატებული — ადმინისტრატორმა უნდა დაამატოს ადმინ პანელის „ოპერატორების“ განყოფილებაში.' : '');
+          return;
+        }
       } catch (_) { /* server unreachable — startApp will show the errors */ }
       startApp();
     });
@@ -1161,7 +1425,7 @@
         .then(brigades => {
           const sel = $('brigadeSelect');
           const keep = sel.value;
-          sel.innerHTML = '<option value="">-- აირჩიეთ --</option>';
+          sel.innerHTML = '<option value="">აირჩიეთ</option>';
           (brigades || []).forEach(b => sel.appendChild(new Option(b, b)));
           if (keep) sel.value = keep;
         })
@@ -1188,7 +1452,7 @@
         .catch(() => showStatus('თანამშრომელთა სრული სიის ჩატვირთვა ვერ მოხერხდა', 'error'));
     }
 
-    function fillCitySelect(cities, placeholder = '-- აირჩიეთ რეგიონი --') {
+    function fillCitySelect(cities, placeholder = 'აირჩიეთ') {
       const citySelect = $('citySelect');
       citySelect.innerHTML = `<option value="">${placeholder}</option>`;
       (cities || []).forEach(c => citySelect.appendChild(new Option(c, c)));
@@ -1310,7 +1574,7 @@
     }
 
     function fillSimpleSelect(id, items) {
-      $(id).innerHTML = '<option value="">-- აირჩიეთ --</option>' +
+      $(id).innerHTML = '<option value="">არ არის</option>' +
         items.map(v => `<option value="${safeAttr(v)}">${safeAttr(v)}</option>`).join('');
     }
 
@@ -1345,7 +1609,7 @@
       applyBrigadeDefaults(this.value, true, '');
       if (this.value) { $('carSelect').value = ''; $('engineerSelect').value = ''; }
       const token = ++citiesReqToken;
-      fillCitySelect([], this.value ? 'იტვირთება...' : '-- აირჩიეთ ბრიგადა --');
+      fillCitySelect([], this.value ? 'იტვირთება…' : 'ჯერ ბრიგადა');
       currentMembers = [];
       renderMemberList();
       clearExtraMemberSearch();
@@ -1380,7 +1644,7 @@
       if (existing && (!input.value.trim() || auto)) {
         input.value = existing;
         input.dataset.auto = '1';
-        hint.textContent = `📌 ამ დღის კომენტარი (ბრ. ${$('brigadeSelect').value}, ${formatDate($('dateInput').value)}) — უკვე მითითებულია სხვა ჩანაწერ(ებ)ში`;
+        hint.textContent = `ამ დღის კომენტარი (ბრ. ${$('brigadeSelect').value}, ${formatDate($('dateInput').value)}) — უკვე მითითებულია სხვა ჩანაწერ(ებ)ში`;
         hint.hidden = false;
       } else {
         if (auto && !existing) { input.value = ''; input.dataset.auto = ''; }
@@ -1459,8 +1723,8 @@
             <input type="checkbox" ${m.absent ? 'checked' : ''} onchange="updateMemberField(${idx}, 'absent', this.checked)" />
             არ გამოცხ.
           </label>
-          <input class="member-note" list="memberNotesList" placeholder="შენიშვნა" value="${safeAttr(m.note || '')}" oninput="updateMemberField(${idx}, 'note', this.value)">
-          <button type="button" class="btn-remove-member" title="სიიდან ამოღება" onclick="removeMember(${idx})">✖</button>
+          <input class="member-note" list="memberNotesList" placeholder="შენიშვნა" aria-label="შენიშვნა: ${safeAttr(m.name)}" value="${safeAttr(m.note || '')}" oninput="updateMemberField(${idx}, 'note', this.value)">
+          <button type="button" class="btn-remove-member" title="სიიდან ამოღება" aria-label="სიიდან ამოღება: ${safeAttr(m.name)}" onclick="removeMember(${idx})">✖</button>
         `;
         container.appendChild(div);
       });
@@ -1543,7 +1807,7 @@
         <div class="field-cell cell-num"><span class="cell-label">№</span><span class="work-num"></span></div>
         <div class="field-cell cell-type">
           <span class="cell-label">სამუშაოს ტიპი</span>
-          <input list="workTypesList" class="work-type-input" placeholder="-- აირჩიეთ ან ჩაწერეთ --" value="${safeAttr(workType)}">
+          <input list="workTypesList" class="work-type-input" placeholder="აირჩიეთ ან ჩაწერეთ" value="${safeAttr(workType)}">
         </div>
         <div class="field-cell cell-time">
           <span class="cell-label">დაწყება</span>
@@ -1572,7 +1836,7 @@
           <input type="text" class="work-comment" placeholder="მაგ: რა გაკეთდა (სხვა სამუშაო)" value="${safeAttr(comment)}">
         </div>
         <div class="field-cell cell-actions">
-          <button type="button" class="btn-icon-danger" title="სამუშაოს წაშლა" onclick="removeWork(this)">✖</button>
+          <button type="button" class="btn-icon-danger" title="სამუშაოს წაშლა" aria-label="სამუშაოს წაშლა" onclick="removeWork(this)"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg></button>
         </div>
       `;
 
@@ -1635,7 +1899,7 @@
       el.title = '';
       el.style.color = '';
       if (s && e && toMinutes(e) < toMinutes(s)) {
-        el.innerHTML = `${fmtDuration(d)}<small style="display:block;font-size:10px;color:var(--primary);">🌙 +1 დღე</small>`;
+        el.innerHTML = `${fmtDuration(d)}<small class="next-day">+1 დღე</small>`;
         el.title = 'ღამის სამუშაო — დასრულება მომდევნო დღეს';
       }
     }
@@ -1724,7 +1988,7 @@
       const duplicates = savedRecords.filter(r =>
         String(r.id) === String(inputId) && String(r.db_id || r.id) !== String(editingRecordId || ''));
       if (duplicates.length) {
-        const ok = confirm(`⚠️ ID "${inputId}" უკვე არსებობს ბაზაში (${duplicates.length} ჩანაწერი).\n\nგსურთ შეინახოთ კიდევ ერთი ჩანაწერი ამავე ID-ით?`);
+        const ok = confirm(`ID "${inputId}" უკვე არსებობს ბაზაში (${duplicates.length} ჩანაწერი).\n\nგსურთ შეინახოთ კიდევ ერთი ჩანაწერი ამავე ID-ით?`);
         if (!ok) { showStatus('შენახვა გაუქმებულია.', 'warning'); return; }
       }
 
@@ -1762,7 +2026,7 @@
       isSaving = true;
       const btn = $('saveBtn');
       btn.disabled = true;
-      btn.textContent = '⏳ ინახება...';
+      btn.textContent = 'ინახება…';
       const wasEditing = !!editingRecordId;
       let retry = false;
       try {
@@ -1771,7 +2035,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(confirmOverlap ? { ...record, confirm_overlap: true } : record)
         });
-        showStatus(`✨ ჩანაწერი ID ${record.id} ${wasEditing ? 'განახლდა' : 'შეინახა'}!` +
+        showStatus(`ჩანაწერი ${record.id} ${wasEditing ? 'განახლდა' : 'შეინახა'}` +
           (data.overlaps_confirmed ? ' (დროის თანხვედრა დადასტურებულია)' : ''), data.overlaps_confirmed ? 'warning' : 'success');
         setEditMode(null);
         fetchServerRecords();
@@ -1784,12 +2048,12 @@
             document.querySelector('.work-start-h')?.focus();
           }
         } else if (err.status !== 401) {
-          showStatus(`❌ შეცდომა: ${err.message || err}`, 'error');
+          showStatus(`შეცდომა: ${err.message || err}`, 'error');
         }
       } finally {
         isSaving = false;
         btn.disabled = false;
-        btn.textContent = editingRecordId ? '💾 განახლების შენახვა' : '💾 შენახვა';
+        btn.textContent = editingRecordId ? 'ცვლილებების შენახვა' : 'შენახვა';
       }
       if (retry) return submitRecord(record, true);   // same record object → same db_id, no duplicate
     }
@@ -1836,7 +2100,7 @@
       editingRecordId = recordDbId;
       $('editBanner').classList.toggle('show', !!recordDbId);
       $('editBannerId').textContent = displayId;
-      $('saveBtn').textContent = recordDbId ? '💾 განახლების შენახვა' : '💾 შენახვა';
+      $('saveBtn').textContent = recordDbId ? 'ცვლილებების შენახვა' : 'შენახვა';
       renderRecordsTable();
     }
 
@@ -1997,7 +2261,7 @@
     const memberStatus = (m) => (m.absent || String(m.note || '').trim())
       ? (normReason(String(m.note || '').trim()) || 'არ გამოცხადდა') : null;
     const statusBadge = (st) => st === null
-      ? '<span class="st present">✔ იმუშავა</span>'
+      ? '<span class="st present">იმუშავა</span>'
       : `<span class="st ${reasonClass(st)}">${safeAttr(st)}</span>`;
 
     function personKey(m) {
@@ -2031,7 +2295,11 @@
     }
 
     function switchRecTab(name) {
-      document.querySelectorAll('.rec-tab').forEach(t => t.classList.toggle('active', t.dataset.rtab === name));
+      document.querySelectorAll('.rec-tab').forEach(t => {
+        const on = t.dataset.rtab === name;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
       $('recTab-list').hidden = name !== 'list';
       $('recTab-absence').hidden = name !== 'absence';
       $('recTab-comments').hidden = name !== 'comments';
@@ -2044,11 +2312,11 @@
     }
 
     function fillAbsStatusSelect() {
-      $('absNewStatus').innerHTML = '<option value="">-- აირჩიეთ --</option>' +
+      $('absNewStatus').innerHTML = '<option value="">აირჩიეთ</option>' +
         '<optgroup label="არ გამოცხადდა — მიზეზი">' +
         ABSENCE_REASONS.map(r => `<option value="${safeAttr(r)}">${safeAttr(r)}</option>`).join('') +
         '</optgroup><optgroup label="სხვა">' +
-        `<option value="${PRESENT_STATUS}">✔ იმუშავა / გამოცხადდა (გაცდენის მოხსნა)</option></optgroup>`;
+        `<option value="${PRESENT_STATUS}">იმუშავა / გამოცხადდა (გაცდენის მოხსნა)</option></optgroup>`;
       $('absNewStatus').addEventListener('change', updateAbsBar);
     }
 
@@ -2159,7 +2427,7 @@
       const shown = r.work.items.slice(0, 3).map(w =>
         `<div class="wk"><b>${safeAttr(w.type)}</b><span>${fmtQty(w.per)} <small>/ ${fmtQty(w.qty)}</small></span></div>`).join('');
       const more = r.work.items.length > 3 ? `<div class="wk-hours">+ კიდევ ${r.work.items.length - 3} სამუშაო</div>` : '';
-      const hrs = r.work.minutes ? `<div class="wk-hours">⏱ ${fmtDuration(r.work.minutes)}</div>` : '';
+      const hrs = r.work.minutes ? `<div class="wk-hours">${fmtDuration(r.work.minutes)}</div>` : '';
       return shown + more + hrs;
     }
 
@@ -2194,7 +2462,7 @@
         <span class="abs-who"><b>${safeAttr(absPerson.name)}</b><small>${safeAttr(absPerson.position || '')}${absPerson.pid ? ' · ' + safeAttr(absPerson.pid) : ''}</small></span>
         <span class="abs-stats">
           ${[...counts.entries()].sort((a, b) => (a[0] === null) - (b[0] === null) || b[1] - a[1]).map(([st, n]) =>
-            `<span class="st ${st === null ? 'present' : reasonClass(st)}" data-st="${st === null ? PRESENT_STATUS : safeAttr(st)}" title="მონიშნე ეს დღეები">${st === null ? '✔ იმუშავა' : safeAttr(st)} <b>${n}</b></span>`
+            `<button type="button" class="st ${st === null ? 'present' : reasonClass(st)}" data-st="${st === null ? PRESENT_STATUS : safeAttr(st)}" title="ამ დღეების მონიშვნა">${st === null ? 'იმუშავა' : safeAttr(st)} <b>${n}</b></button>`
           ).join('')}
         </span>`;
       $('absPersonCard').querySelectorAll('[data-st]').forEach(el => el.addEventListener('click', () => absSelect('status', el.dataset.st)));
@@ -2282,14 +2550,14 @@
       const wasAbsent = rows.length - wasPresent;
       let msg = `${absPerson.name}\n${ids.length} ჩანაწერში სტატუსი გახდება: „${label}“.`;
       if (status !== PRESENT_STATUS && wasPresent)
-        msg += `\n\n⚠️ ${wasPresent} დღეში მას ნამუშევარი უწერია — ეს ნამუშევარი მოეხსნება და ბრიგადის დანარჩენ წევრებზე გადანაწილდება.`;
+        msg += `\n\n${wasPresent} დღეში მას ნამუშევარი უწერია — ეს ნამუშევარი მოეხსნება და ბრიგადის დანარჩენ წევრებზე გადანაწილდება.`;
       if (status === PRESENT_STATUS && wasAbsent)
-        msg += `\n\n⚠️ ${wasAbsent} დღეში ის ჩაითვლება სამუშაოში მონაწილედ — იმ დღის სამუშაო მასზეც გადანაწილდება.`;
+        msg += `\n\n${wasAbsent} დღეში ის ჩაითვლება სამუშაოში მონაწილედ — იმ დღის სამუშაო მასზეც გადანაწილდება.`;
       if (!confirm(msg + '\n\nგავაგრძელო?')) return;
 
       const btn = $('absApplyBtn');
       btn.disabled = true;
-      btn.textContent = '⏳ ინახება...';
+      btn.textContent = 'ინახება…';
       try {
         const res = await jsonFetch('/api/records/bulk-absence', {
           method: 'POST',
@@ -2297,7 +2565,7 @@
           body: JSON.stringify({ db_ids: ids, personal_id: absPerson.pid, name: absPerson.name, status })
         });
         absJustUpdated = new Set(res.updated_ids || []);
-        let text = `✅ განახლდა ${res.updated} ჩანაწერი → „${label}“`;
+        let text = `განახლდა ${res.updated} ჩანაწერი: „${label}“`;
         if (res.unchanged) text += ` · ${res.unchanged} უკვე ასე იყო`;
         if (res.missing) text += ` · ${res.missing} ვერ მოიძებნა`;
         showStatus(text, res.missing ? 'warning' : 'success');
@@ -2305,9 +2573,9 @@
         $('absNewStatus').value = '';
         await fetchServerRecords();
       } catch (err) {
-        showStatus(`❌ ${err.message || err}`, 'error');
+        showStatus(`${err.message || err}`, 'error');
       } finally {
-        btn.textContent = '✔ გამოყენება';
+        btn.textContent = 'გამოყენება';
         updateAbsBar();
       }
     }
@@ -2386,9 +2654,9 @@
           <td class="cm">
             <input class="dc-input" list="overallCommentsList" value="${safeAttr(g.comment)}" data-orig="${safeAttr(g.comment)}"
                    placeholder="${g.mixed ? 'სხვადასხვა — ჩაწერეთ ერთიანი' : 'კომენტარი არ არის'}">
-            ${g.mixed ? `<span class="dc-mixed">⚠ ჩანაწერებში განსხვავებულია: ${g.comments.map(c => `„${safeAttr(c || '—')}“`).join(', ')}</span>` : ''}
+            ${g.mixed ? `<span class="dc-mixed">ჩანაწერებში განსხვავებულია: ${g.comments.map(c => `„${safeAttr(c || '—')}“`).join(', ')}</span>` : ''}
           </td>
-          <td><button type="button" class="btn btn-primary dc-save" disabled>💾 შენახვა</button></td>
+          <td><button type="button" class="btn btn-outline btn-sm dc-save" disabled>შენახვა</button></td>
         </tr>`).join('');
       dcJustUpdated.clear();
       updateDcBar();
@@ -2450,7 +2718,7 @@
         body: JSON.stringify({ items: groups.map(groupItem), comment })
       });
       groups.forEach(g => dcJustUpdated.add(g.key));
-      let text = comment ? `✅ კომენტარი „${comment}“ — ${res.days} დღე, ${res.updated} ჩანაწერი განახლდა` : `✅ კომენტარი წაიშალა — ${res.updated} ჩანაწერი`;
+      let text = comment ? `კომენტარი „${comment}“ მიენიჭა: ${res.days} დღე, ${res.updated} ჩანაწერი` : `კომენტარი წაიშალა: ${res.updated} ჩანაწერი`;
       if (res.unchanged) text += ` · ${res.unchanged} უკვე ასე იყო`;
       if (res.days_missing) text += ` · ${res.days_missing} დღე ვეღარ მოიძებნა`;
       showStatus(text, res.days_missing ? 'warning' : 'success');
@@ -2465,9 +2733,9 @@
       const comment = tr.querySelector('.dc-input').value.trim();
       if (!comment && g.comment && !confirm(`წაიშალოს კომენტარი „${g.comment}“ — ბრ. ${g.brigade}, ${g.city}, ${formatDate(g.date)}?`)) return;
       btn.disabled = true;
-      btn.textContent = '⏳';
+      btn.textContent = '…';
       try { await sendDayComment([g], comment); }
-      catch (err) { showStatus(`❌ ${err.message || err}`, 'error'); btn.disabled = false; btn.textContent = '💾 შენახვა'; }
+      catch (err) { showStatus(`${err.message || err}`, 'error'); btn.disabled = false; btn.textContent = 'შენახვა'; }
     }
 
     async function applyDcBulk() {
@@ -2481,11 +2749,11 @@
       if (!confirm(msg + '\n\nგავაგრძელო?')) return;
       const btn = $('dcBulkBtn');
       btn.disabled = true;
-      btn.textContent = '⏳ ინახება...';
+      btn.textContent = 'ინახება…';
       try {
         if (await sendDayComment(groups, comment)) { dcSelected = new Set(); $('dcBulkComment').value = ''; }
-      } catch (err) { showStatus(`❌ ${err.message || err}`, 'error'); }
-      finally { btn.textContent = '✔ მინიჭება'; updateDcBar(); }
+      } catch (err) { showStatus(`${err.message || err}`, 'error'); }
+      finally { btn.textContent = 'მინიჭება'; updateDcBar(); }
     }
 
     /* ---------- Records table ---------- */
@@ -2534,9 +2802,10 @@
       const filtered = getFilteredRecords();
       const isFiltering = $('filterSearchId').value.trim() || $('filterStartDate').value || $('filterEndDate').value || $('filterArea').value;
 
-      counter.style.display = savedRecords.length ? 'inline-block' : 'none';
-      counter.textContent = isFiltering ? `${filtered.length} / ${savedRecords.length}` : `${savedRecords.length}`;
-      $('generateBtn').textContent = `📥 Excel-ის გენერირება${filtered.length ? ` (${filtered.length})` : ''}`;
+      counter.style.display = isFiltering && savedRecords.length ? 'inline-flex' : 'none';
+      counter.textContent = `${filtered.length} / ${savedRecords.length}`;
+      $('generateBtn').innerHTML = `<svg class="i" aria-hidden="true"><use href="#i-download"/></svg>Excel${filtered.length ? ` (${filtered.length})` : ''}`;
+      renderArchiveSummary(filtered);
 
       if (!filtered.length) {
         wrap.style.display = 'none';
@@ -2556,26 +2825,45 @@
         const idAttr = safeAttr(recDbId);
 
         const tr = document.createElement('tr');
-        if (editingRecordId && String(editingRecordId) === recDbId) tr.className = 'editing';
+        const partial = activeCount < members.length;
+        tr.className = (partial ? 'att-partial' : 'att-full') + (editingRecordId && String(editingRecordId) === recDbId ? ' editing' : '');
         tr.innerHTML = `
-          <td style="font-family:var(--font-mono); font-weight:700;">${safeAttr(rec.id)}${rec.ganwesi ? `<small style="display:block;font-weight:500;color:var(--ink-faint);font-size:11px;">${safeAttr(rec.ganwesi)}</small>` : ''}</td>
-          <td>${safeAttr(rec.brigade)}</td>
-          <td>${safeAttr(rec.city)}</td>
-          <td style="white-space:nowrap;">${safeAttr(formatDate(rec.date))}</td>
+          <td class="rid"><b>${safeAttr(rec.id)}</b><small>ბრ. ${safeAttr(rec.brigade)}${rec.ganwesi ? ` · ${safeAttr(rec.ganwesi)}` : ''}</small></td>
+          <td class="left">${safeAttr(rec.city)}</td>
+          <td class="mono left">${safeAttr(formatDate(rec.date))}</td>
           <td class="addr">${safeAttr(rec.address)}${rec.object_name ? `<small>${safeAttr(rec.object_name)}</small>` : ''}</td>
-          <td><span class="badge-att ${activeCount < members.length ? 'partial' : ''}">${activeCount}/${members.length}</span></td>
-          <td>${(rec.works || []).length}</td>
+          <td class="left car">${rec.car ? `<span class="plate"><i>GE</i>${safeAttr(rec.car)}</span>` : '<span class="muted">—</span>'}${rec.engineer ? `<small>${safeAttr(rec.engineer)}</small>` : ''}</td>
+          <td class="left"><span class="badge-att status ${partial ? 'partial' : 'full'}">${partial ? 'გაცდენით' : 'სრული'} · ${activeCount}/${members.length}</span></td>
+          <td class="mono">${(rec.works || []).length}</td>
           <td>
             <div class="row-actions">
-              <button type="button" class="btn btn-outline btn-sm" title="რედაქტირება" data-action="edit" data-id="${idAttr}">✏️</button>
-              <button type="button" class="btn btn-ghost btn-sm" title="კოპირება ახალ ჩანაწერად" data-action="copy" data-id="${idAttr}">📄</button>
-              <button type="button" class="btn btn-danger btn-sm" title="წაშლა" data-action="delete" data-id="${idAttr}">🗑️</button>
+              <button type="button" class="icon-btn" title="რედაქტირება" aria-label="რედაქტირება: ${idAttr}" data-action="edit" data-id="${idAttr}"><svg class="i" aria-hidden="true"><use href="#i-edit"/></svg></button>
+              <button type="button" class="icon-btn" title="კოპირება ახალ ჩანაწერად" aria-label="კოპირება: ${idAttr}" data-action="copy" data-id="${idAttr}"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+              <button type="button" class="icon-btn danger" title="წაშლა" aria-label="წაშლა: ${idAttr}" data-action="delete" data-id="${idAttr}"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg></button>
             </div>
           </td>
         `;
         frag.appendChild(tr);
       });
       tbody.appendChild(frag);
+    }
+
+    // Archive hero + KPI cards (read-only summary of the current filter)
+    function renderArchiveSummary(list) {
+      const total = list.length;
+      const tb = list.filter(r => r.city === TBILISI).length;
+      const withAbs = list.filter(r => (Array.isArray(r.members) ? r.members : []).some(isMemberAbsent)).length;
+      $('kpiTotal').textContent = total;
+      $('kpiTotalSub').textContent = total === savedRecords.length ? 'ყველა შენახული ჩანაწერი' : `სულ ბაზაში ${savedRecords.length}`;
+      $('kpiTb').textContent = tb;
+      $('kpiRg').textContent = total - tb;
+      $('kpiAbs').textContent = withAbs;
+      $('recTabCount').textContent = total;
+      const from = $('filterStartDate').value, to = $('filterEndDate').value;
+      $('recPeriod').textContent = from || to ? `${from ? formatDate(from) : '…'} – ${to ? formatDate(to) : '…'}` : 'მთელი პერიოდი';
+      const area = $('filterArea').value, sub = $('filterRegionCity').value;
+      $('recScope').textContent = (area === 'tbilisi' ? 'თბილისი' : area === 'region' ? (sub || 'ყველა რეგიონი') : 'ყველა ლოკაცია')
+        + ' — თარიღის მიხედვით, უახლესი ზემოთ';
     }
 
     function resetFilter() {
@@ -2596,7 +2884,7 @@
 
       const btn = $('generateBtn');
       btn.disabled = true;
-      btn.textContent = '⏳ გენერირდება...';
+      btn.textContent = 'გენერირდება…';
 
       fetch('/generate', {
         method: 'POST',
@@ -2627,9 +2915,9 @@
           a.click();
           a.remove();
           setTimeout(() => URL.revokeObjectURL(url), 1000);
-          showStatus(`✅ Excel ფაილი ჩამოიტვირთა (${recordsToExport.length} ჩანაწერი).`, 'success');
+          showStatus(`Excel ჩამოიტვირთა: ${recordsToExport.length} ჩანაწერი`, 'success');
         })
-        .catch(err => showStatus(`❌ შეცდომა გენერირებისას: ${err.message || err}`, 'error'))
+        .catch(err => showStatus(`Excel-ის გენერირება ვერ მოხერხდა: ${err.message || err}`, 'error'))
         .finally(() => {
           btn.disabled = false;
           renderRecordsTable();
@@ -2665,7 +2953,7 @@
         citiesReqToken++;
         membersReqToken++;
         $('brigadeSelect').value = '';
-        fillCitySelect([], '-- აირჩიეთ ბრიგადა --');
+        fillCitySelect([], 'ჯერ ბრიგადა');
         currentMembers = [];
         renderMemberList();
       }
