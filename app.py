@@ -32,15 +32,23 @@ ADMIN_ACTOR = "ადმინისტრატორი"
 ON_VERCEL = bool(os.environ.get("VERCEL"))
 TRUST_PROXY = ON_VERCEL or os.environ.get("TRUST_PROXY") == "1"
 
-# სესიის გასაღები: SECRET_KEY, ან (თუ არ არის) ADMIN_PASSWORD-იდან და ბაზის მისამართიდან მიღებული
+# ღია რეჟიმი (შესვლის გარეშე) — მხოლოდ ცხადი ნებართვით. ნაგულისხმევად: ოპერატორის გარეშე საიტი დაკეტილია.
+ALLOW_OPEN_ACCESS = os.environ.get("ALLOW_OPEN_ACCESS") == "1"
+
+# სესიის გასაღები: SECRET_KEY (რეკომენდებული), ან (თუ არ არის) ADMIN_PASSWORD-იდან და ბაზის მისამართიდან მიღებული
+if not os.environ.get("SECRET_KEY"):
+    print("WARNING: SECRET_KEY is not set — using a derived fallback key. Set SECRET_KEY in Vercel.")
 app.secret_key = os.environ.get("SECRET_KEY") or hashlib.sha256(
     ("brigade-ops|" + ADMIN_PASSWORD + "|" + os.environ.get("POSTGRES_URL", "")).encode("utf-8")).hexdigest()
+SESSION_HOURS = 12
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
     SESSION_COOKIE_SECURE=ON_VERCEL,
-    PERMANENT_SESSION_LIFETIME=timedelta(hours=12),
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=SESSION_HOURS),
+    MAX_CONTENT_LENGTH=2 * 1024 * 1024,   # 2 MB — ერთი მოთხოვნის მაქსიმალური ზომა
 )
+MIN_PASSWORD_LEN = 10
 
 CONFIG_VERSION = 4
 TBILISI = "თბილისი"
@@ -48,6 +56,8 @@ LEADER_POSITIONS = {"ბრიგადირი", "სარემონტო 
 DEFAULT_POSITIONS = ["მუშა", "ბრიგადირი", "სარემონტო ბრიგადის უფროსი"]
 
 ABSENT_LABEL = "არ გამოცხადდა"
+PRESENT_LABEL = "გამოცხადდა"
+NIGHT_LABEL = "ღამის სამუშაო"
 PLACEHOLDER = "@"
 
 # ძველ ჩანაწერებში შენახული მნიშვნელობები → Excel-ის (აღრიცხვის) ფორმატი
@@ -116,6 +126,18 @@ def init_db():
         """)
         cur.execute("CREATE INDEX IF NOT EXISTS activity_log_ts ON activity_log (ts);")
         cur.execute("CREATE INDEX IF NOT EXISTS records_created_at ON records (created_at);")
+        # წაშლილი ჩანაწერები — ადმინს შეუძლია აღდგენა
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS records_trash (
+                db_id VARCHAR(100) PRIMARY KEY,
+                id VARCHAR(100) NOT NULL,
+                data JSONB NOT NULL,
+                created_at DATE NOT NULL,
+                deleted_at TIMESTAMPTZ NOT NULL,
+                deleted_by VARCHAR(100) NOT NULL DEFAULT '',
+                deleted_ip VARCHAR(64) NOT NULL DEFAULT ''
+            );
+        """)
     # აქტივობის ჟურნალი — მხოლოდ დამატება: ცვლილება/წაშლა ბაზის დონეზე იბლოკება
     try:
         with db_cursor(commit=True) as cur:
@@ -127,6 +149,12 @@ def init_db():
             cur.execute("""
                 CREATE TRIGGER activity_log_no_change BEFORE UPDATE OR DELETE ON activity_log
                 FOR EACH ROW EXECUTE FUNCTION activity_log_append_only();
+            """)
+            # TRUNCATE (მთლიანი გასუფთავება) row-trigger-ს გვერდს უვლის — ცალკე statement-trigger
+            cur.execute("DROP TRIGGER IF EXISTS activity_log_no_truncate ON activity_log;")
+            cur.execute("""
+                CREATE TRIGGER activity_log_no_truncate BEFORE TRUNCATE ON activity_log
+                FOR EACH STATEMENT EXECUTE FUNCTION activity_log_append_only();
             """)
     except Exception as e:
         print("activity_log trigger skipped:", e)
@@ -424,32 +452,52 @@ def tariff_map(cfg):
 
 
 def check_admin():
-    """აბრუნებს შეცდომის პასუხს, ან None-ს თუ პაროლი სწორია."""
+    """აბრუნებს შეცდომის პასუხს, ან None-ს თუ პაროლი სწორია.
+    ყველა ადმინ-მარშრუტზე: წარუმატებელი მცდელობა იწერება ჟურნალში და IP იბლოკება 15 წუთით (8 მცდელობის შემდეგ)."""
     if not ADMIN_PASSWORD:
         return jsonify({"error": "ადმინ პანელი გამორთულია: სერვერზე ADMIN_PASSWORD ცვლადი არ არის დაყენებული"}), 503
+    if too_many_failures("admin_login_failed"):
+        return jsonify({"error": "ძალიან ბევრი წარუმატებელი მცდელობა. სცადეთ 15 წუთში."}), 429
     given = request.headers.get("X-Admin-Password", "")
     if not hmac.compare_digest(given.encode("utf-8"), ADMIN_PASSWORD.encode("utf-8")):
+        log_activity("admin_login_failed", details=f"არასწორი პაროლი ({request.method} {request.path})"[:200],
+                     username=ADMIN_ACTOR)
         return jsonify({"error": "პაროლი არასწორია"}), 401
     return None
+
+
+def server_error(e, msg="სერვერის შეცდომა. სცადეთ თავიდან ან მიმართეთ ადმინისტრატორს."):
+    """შეცდომის დეტალები მხოლოდ სერვერის ლოგში — კლიენტი იღებს ზოგად შეტყობინებას."""
+    import traceback
+    print(f"ERROR {request.method} {request.path}: {e!r}")
+    traceback.print_exc()
+    return jsonify({"error": msg}), 500
 
 
 # ---------------------------------------------------------------------------
 # IP, ოპერატორები, სესია, აქტივობის ჟურნალი
 # ---------------------------------------------------------------------------
 def client_ip():
-    """IP სერვერის მხარეს. Vercel-ზე X-Forwarded-For-ს თავად Vercel წერს — კლიენტი ვერ გააყალბებს."""
-    if TRUST_PROXY:
-        for h in ("X-Vercel-Forwarded-For", "X-Real-IP", "X-Forwarded-For"):
-            v = request.headers.get(h, "")
-            if v:
-                return v.split(",")[0].strip()[:64]
+    """IP სერვერის მხარეს.
+    Vercel-ზე X-Forwarded-For-ს თავად Vercel წერს (კლიენტის მნიშვნელობა გადაიწერება).
+    სხვა proxy-ს უკან (TRUST_PROXY=1) — ვიღებთ ბოლო ჩანაწერს, რომელიც proxy-მ დაამატა და კლიენტი ვერ გააყალბებს."""
+    if ON_VERCEL:
+        v = request.headers.get("X-Forwarded-For", "") or request.headers.get("X-Real-IP", "")
+        if v:
+            return v.split(",")[0].strip()[:64]
+    elif TRUST_PROXY:
+        v = request.headers.get("X-Forwarded-For", "")
+        if v:
+            return v.split(",")[-1].strip()[:64]
     return (request.remote_addr or "")[:64]
 
 
 def load_users():
+    """ოპერატორების სია. ბაზის შეცდომისას g.users_error = True — ავტორიზაცია ამ დროს იკეტება (fail-closed)."""
     if "users" in g:
         return g.users
     users = []
+    g.users_error = False
     try:
         with db_cursor() as cur:
             cur.execute("SELECT value FROM settings WHERE key = 'users';")
@@ -458,6 +506,7 @@ def load_users():
             users = row["value"]
     except Exception as e:
         print("users read failed:", e)
+        g.users_error = True
     g.users = users
     return users
 
@@ -477,13 +526,25 @@ def find_user(username, users=None):
                  if str(x.get("username", "")).lower() == u), None)
 
 
-def login_required():
-    """შესვლა სავალდებულოა, როცა ადმინ პანელში ერთი აქტიური ოპერატორი მაინც არსებობს."""
+def has_active_operator():
     return any(u.get("active", True) for u in load_users())
 
 
+def login_required():
+    """შესვლა სავალდებულოა ყოველთვის — გარდა ცხადად ჩართული ღია რეჟიმისა (ALLOW_OPEN_ACCESS=1),
+    როცა აქტიური ოპერატორი ჯერ არ არსებობს. ბაზის შეცდომისას — სავალდებულოა (fail-closed)."""
+    load_users()
+    if g.get("users_error"):
+        return True
+    if ALLOW_OPEN_ACCESS and not has_active_operator():
+        return False
+    return True
+
+
 def _session_version(user):
-    return hashlib.sha256(str(user.get("password_hash", "")).encode()).hexdigest()[:16]
+    # პაროლის შეცვლა ან „გამოსვლა“ (session_epoch) ცვლის ვერსიას — ძველი cookie აღარ მუშაობს
+    raw = str(user.get("password_hash", "")) + "|" + str(user.get("session_epoch", 0))
+    return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
 def current_user():
@@ -493,11 +554,27 @@ def current_user():
     s = session.get("user")
     if isinstance(s, dict):
         u = find_user(s.get("username"))
-        # პაროლის შეცვლა ან დეაქტივაცია ძველ სესიებს აუქმებს
-        if u and u.get("active", True) and s.get("v") == _session_version(u):
+        try:
+            age = datetime.now(timezone.utc).timestamp() - float(s.get("iat") or 0)
+        except (TypeError, ValueError):
+            age = None
+        # დეაქტივაცია, პაროლის შეცვლა, გამოსვლა ან 12 საათის აბსოლუტური ვადა ძველ სესიებს აუქმებს
+        if u and u.get("active", True) and s.get("v") == _session_version(u) \
+                and age is not None and 0 <= age < SESSION_HOURS * 3600:
             user = u
     g.cu = user
     return user
+
+
+_DUMMY_HASH = None
+
+
+def _dummy_hash():
+    """ცრუ hash — არარსებული მომხმარებლის შემოწმებაც იმავე დროს იკავებს (სახელის გამოცნობის წინააღმდეგ)."""
+    global _DUMMY_HASH
+    if _DUMMY_HASH is None:
+        _DUMMY_HASH = generate_password_hash("dummy-password-for-timing", method="pbkdf2:sha256")
+    return _DUMMY_HASH
 
 
 def actor_name():
@@ -527,15 +604,22 @@ def log_activity(action, record_id="", db_id="", details="", username=None):
         print("activity log failed:", e)
 
 
-def too_many_failures(action, limit=8, minutes=15):
+def too_many_failures(action, limit=8, minutes=15, username=None):
+    """IP-ის (ან მომხმარებლის სახელის) მიხედვით ბოლო N წუთის წარუმატებელი მცდელობები.
+    ბაზის შეცდომისას — True (fail-closed: მცდელობა არ დაიშვება)."""
     since = datetime.now(timezone.utc) - timedelta(minutes=minutes)
     try:
         with db_cursor() as cur:
-            cur.execute("SELECT COUNT(*) AS n FROM activity_log WHERE ip = %s AND action = %s AND ts > %s;",
-                        (client_ip(), action, since))
+            if username is None:
+                cur.execute("SELECT COUNT(*) AS n FROM activity_log WHERE ip = %s AND action = %s AND ts > %s;",
+                            (client_ip(), action, since))
+            else:
+                cur.execute("SELECT COUNT(*) AS n FROM activity_log WHERE LOWER(username) = LOWER(%s) "
+                            "AND action = %s AND ts > %s;", (username, action, since))
             return int((cur.fetchone() or {}).get("n") or 0) >= limit
-    except Exception:
-        return False
+    except Exception as e:
+        print("rate-limit check failed:", e)
+        return True
 
 
 PUBLIC_PATHS = {"/", "/admin", "/logo.png", "/favicon.ico", "/api/me", "/api/login", "/api/logout"}
@@ -546,9 +630,40 @@ def require_operator_login():
     path = request.path
     if path in PUBLIC_PATHS or path.startswith("/api/admin/") or path.startswith("/static/"):
         return None
-    if not login_required() or current_user():
+    if not login_required():
+        return None
+    if g.get("users_error"):
+        return jsonify({"error": "ბაზასთან კავშირი ვერ დამყარდა. სცადეთ ცოტა ხანში."}), 503
+    if current_user():
         return None
     return jsonify({"error": "საჭიროა სისტემაში შესვლა", "login_required": True}), 401
+
+
+SENSITIVE_PREFIXES = ("/api/", "/get_", "/generate")
+
+
+@app.after_request
+def security_headers(resp):
+    h = resp.headers
+    h.setdefault("X-Content-Type-Options", "nosniff")
+    h.setdefault("X-Frame-Options", "DENY")
+    h.setdefault("Referrer-Policy", "same-origin")
+    h.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    h.setdefault("Content-Security-Policy",
+                 "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' "
+                 "https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; "
+                 "connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'")
+    if ON_VERCEL:
+        h.setdefault("Strict-Transport-Security", "max-age=31536000")
+    # პერსონალური მონაცემები (პირადი ნომრები) ბრაუზერის/proxy-ს ქეშში არ უნდა დარჩეს
+    if request.path.startswith(SENSITIVE_PREFIXES):
+        h["Cache-Control"] = "no-store"
+    return resp
+
+
+@app.errorhandler(413)
+def too_large(_e):
+    return jsonify({"error": "მოთხოვნა ძალიან დიდია"}), 413
 
 
 # ---------- ცვლილებების მოკლე აღწერა ჟურნალისთვის
@@ -816,8 +931,17 @@ HEADER_FILL = {
 TINT = {"worker": "EEF5E9", "brigade": "E8F0F8", "engineer": "F1ECF6"}
 BAND = "F5F8FC"
 ABSENT_FILL = "FCE9E7"
+NIGHT_FILL = "E8EAF6"     # ღამის სამუშაოს „გამოცხადდა“ სტრიქონი
+NIGHT_FONT = "283593"
 ABSENT_FONT = "B42318"
 GRID = "D6DCE4"
+
+
+def _text_safe(cell):
+    """მომხმარებლის ტექსტი, რომელიც „=“-ით იწყება, Excel-ში ფორმულად არ უნდა შესრულდეს — რჩება უბრალო ტექსტად."""
+    if isinstance(cell.value, str) and cell.data_type == "f":
+        cell.data_type = "s"
+    return cell
 
 
 def _fill(hex_):
@@ -872,6 +996,7 @@ def build_rows(records, cfg):
 
     out = []           # [(values, kind, record_index)]
     absent_seen = set()
+    night_seen = set()
 
     for ri, record in enumerate(records):
         members = record.get("members", []) or []
@@ -883,6 +1008,11 @@ def build_rows(records, cfg):
         ganwesi = str(record.get("ganwesi", "") or "").strip()
         engineer = str(record.get("engineer", "") or "").strip()
         comment = _map_comment(record.get("overall_comment", ""))
+        # „ღამის სამუშაო“ — Book2-ის მსგავსად: სამუშაოს სტრიქონებზე კომენტარი არ იწერება,
+        # სამაგიეროდ თითო გამოცხადებულ წევრს ემატება ცალკე სტრიქონი „გამოცხადდა / ღამის სამუშაო“
+        is_night = comment == NIGHT_LABEL
+        if is_night:
+            comment = ""
         rec_note = str(record.get("note", "") or "").strip()
         city = record.get("city", "")
         # კოეფიციენტი — თავისუფალი ტექსტი; რიცხვი Excel-ში რიცხვად ჩაიწერება
@@ -949,6 +1079,32 @@ def build_rows(records, cfg):
                     row[IDX["a_" + f]] = t * per
                 out.append((row, "work", ri))
 
+        if is_night:
+            for m in active:
+                key = (m["pid"] or m["name"], str(record.get("date", "")))
+                if key in night_seen:
+                    continue       # ერთ დღეში ერთი სტრიქონი ღამის სამუშაოზე (ბრიგადის რამდენიმე ჩანაწერის შემთხვევაშიც)
+                night_seen.add(key)
+                count = 1 if m["position"] in LEADER_POSITIONS else worker_count
+                row = base(m)
+                row[IDX["id"]] = PLACEHOLDER
+                row[IDX["object"]] = PLACEHOLDER
+                row[IDX["address"]] = PLACEHOLDER
+                row[IDX["work"]] = PRESENT_LABEL
+                row[IDX["count"]] = count
+                row[IDX["start"]] = time_cls(9, 0)
+                row[IDX["end"]] = time_cls(18, 0)
+                row[IDX["qty"]] = 1
+                row[IDX["per"]] = 1 / count if count else 0
+                row[IDX["hours"]] = 9 / 24
+                row[IDX["car"]] = PLACEHOLDER
+                row[IDX["ganwesi"]] = PLACEHOLDER
+                row[IDX["comment"]] = NIGHT_LABEL
+                for f in ("worker", "brigade", "engineer"):
+                    row[IDX["t_" + f]] = 0
+                    row[IDX["a_" + f]] = 0
+                out.append((row, "night", ri))
+
         for m in absent:
             key = (m["pid"] or m["name"], str(record.get("date", "")))
             if key in absent_seen:
@@ -999,6 +1155,7 @@ def build_main_sheet(ws, rows):
     body_font = Font(name=FONT_NAME, size=9)
     bold_font = Font(name=FONT_NAME, size=9, bold=True)
     absent_font = Font(name=FONT_NAME, size=9, bold=True, color=ABSENT_FONT)
+    night_font = Font(name=FONT_NAME, size=9, bold=True, color=NIGHT_FONT)
     left_cols = {IDX["name"], IDX["pid"], IDX["object"], IDX["address"], IDX["work"], IDX["note"], IDX["engineer"]}
 
     band_on, last_ri = False, None
@@ -1007,7 +1164,7 @@ def build_main_sheet(ws, rows):
             band_on, last_ri = (not band_on), ri
         is_leader = str(values[IDX["pid"]] or "").split(" ")[0] in LEADER_POSITIONS
         for c_i, v in enumerate(values):
-            cell = ws.cell(row=r_i, column=c_i + 1, value=v)
+            cell = _text_safe(ws.cell(row=r_i, column=c_i + 1, value=v))
             _, _, fmt, group = COLUMNS[c_i]
             cell.number_format = fmt
             cell.border = border
@@ -1021,6 +1178,10 @@ def build_main_sheet(ws, rows):
                 cell.fill = _fill(ABSENT_FILL)
                 if c_i in (IDX["work"], IDX["comment"]):
                     cell.font = absent_font
+            elif kind == "night":
+                cell.fill = _fill(NIGHT_FILL)
+                if c_i in (IDX["work"], IDX["comment"]):
+                    cell.font = night_font
             elif group in TINT:
                 cell.fill = _fill(TINT[group])
             elif band_on:
@@ -1109,7 +1270,7 @@ def build_summary_sheet(wb, rows, records):
         vals = [p["name"], p["pid"], ", ".join(sorted(p["brigades"], key=brigade_sort_key)),
                 len(p["work_days"]), len(p["absent_days"] - p["work_days"]), p["hours"], p["aw"], p["ab"], p["ae"]]
         for c_i, v in enumerate(vals, start=1):
-            c = ws.cell(row=r, column=c_i, value=v)
+            c = _text_safe(ws.cell(row=r, column=c_i, value=v))
             c.number_format = fmts[c_i - 1]
             c.border = border
             c.font = Font(name=FONT_NAME, size=9)
@@ -1156,7 +1317,7 @@ def build_tariff_sheet(wb, cfg):
     for r, w in enumerate(cfg.get("work_types", []), start=2):
         vals = [w.get("name"), to_number(w.get("worker")), to_number(w.get("brigade")), to_number(w.get("engineer"))]
         for c_i, v in enumerate(vals, start=1):
-            c = ws.cell(row=r, column=c_i, value=v)
+            c = _text_safe(ws.cell(row=r, column=c_i, value=v))
             c.number_format = heads[c_i - 1][3]
             c.border = border
             c.font = Font(name=FONT_NAME, size=9)
@@ -1286,8 +1447,11 @@ def get_cities():
 @app.route("/api/me")
 def api_me():
     u = current_user()
+    req = login_required()
     return jsonify({
-        "login_required": login_required(),
+        "login_required": req,
+        # შესვლის ეკრანზე მინიშნებისთვის: ოპერატორი ჯერ არ დამატებულა
+        "no_operators": bool(req and not g.get("users_error") and not has_active_operator()),
         "user": {"username": u["username"], "display_name": u.get("display_name") or u["username"]} if u else None,
     })
 
@@ -1297,15 +1461,20 @@ def api_login():
     data = request.get_json(silent=True) or {}
     username = str(data.get("username") or "").strip()[:100]
     password = str(data.get("password") or "")
-    if too_many_failures("login_failed"):
+    if too_many_failures("login_failed") or (username and too_many_failures("login_failed", limit=10, username=username)):
         return jsonify({"error": "ძალიან ბევრი წარუმატებელი მცდელობა. სცადეთ 15 წუთში."}), 429
     u = find_user(username)
-    if not u or not u.get("active", True) or not check_password_hash(u.get("password_hash", ""), password):
+    if g.get("users_error"):
+        return jsonify({"error": "ბაზასთან კავშირი ვერ დამყარდა. სცადეთ ცოტა ხანში."}), 503
+    # hash ყოველთვის მოწმდება (არარსებულ მომხმარებელზეც) — პასუხის დრო სახელის არსებობას არ ამჟღავნებს
+    ok = check_password_hash(u.get("password_hash", "") if u else _dummy_hash(), password)
+    if not u or not u.get("active", True) or not ok:
         log_activity("login_failed", details="არასწორი მომხმარებელი ან პაროლი", username=username)
         return jsonify({"error": "მომხმარებელი ან პაროლი არასწორია"}), 401
     session.clear()
     session.permanent = True
-    session["user"] = {"username": u["username"], "v": _session_version(u)}
+    session["user"] = {"username": u["username"], "v": _session_version(u),
+                       "iat": int(datetime.now(timezone.utc).timestamp())}
     g.pop("cu", None)
     log_activity("login", details=u.get("display_name") or "", username=u["username"])
     return jsonify({"success": True, "user": {"username": u["username"], "display_name": u.get("display_name") or u["username"]}})
@@ -1313,9 +1482,20 @@ def api_login():
 
 @app.route("/api/logout", methods=["POST"])
 def api_logout():
-    if current_user():
-        log_activity("logout")
+    u = current_user()
+    if u:
+        # სერვერზე სესიის გაუქმება: ეპოქის გაზრდა აუქმებს ამ მომხმარებლის ყველა გაცემულ cookie-ს
+        try:
+            users = [dict(x) for x in load_users()]
+            me = find_user(u["username"], users)
+            if me:
+                me["session_epoch"] = int(me.get("session_epoch", 0) or 0) + 1
+                save_users(users)
+        except Exception as e:
+            print("logout revoke failed:", e)
+        log_activity("logout", username=u["username"])
     session.clear()
+    g.pop("cu", None)
     return jsonify({"success": True})
 
 
@@ -1330,14 +1510,51 @@ def api_get_records():
             rows = cur.fetchall()
         return jsonify({"records": [r["data"] for r in rows]})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return server_error(e)
+
+
+MAX_WORKS, MAX_MEMBERS, MAX_TEXT, MAX_RECORD_BYTES = 100, 200, 1000, 200_000
+
+
+def validate_record_shape(data):
+    """ტიპების და ზომების შემოწმება — არასწორი ფორმის ჩანაწერი სხვა მომხმარებლების ეკრანს არ უნდა აზიანებდეს."""
+    if not isinstance(data, dict):
+        return "არასწორი მონაცემები"
+    if len(str(data.get("id", "")).strip()) > 60:
+        return "ID ძალიან გრძელია (მაქს. 60 სიმბოლო)"
+    if data.get("db_id") is not None and (not isinstance(data.get("db_id"), str) or len(data["db_id"]) > 100):
+        return "არასწორი db_id"
+    for k, v in data.items():
+        if isinstance(v, str) and len(v) > MAX_TEXT:
+            return f"ველი „{k}“ ძალიან გრძელია (მაქს. {MAX_TEXT} სიმბოლო)"
+        if k not in ("works", "members") and isinstance(v, (list, dict)):
+            return f"ველი „{k}“ არასწორი ტიპისაა"
+    works, members = data.get("works"), data.get("members", [])
+    if not isinstance(works, list) or not all(isinstance(w, dict) for w in works):
+        return "სამუშაოების სია არასწორია"
+    if not isinstance(members, list) or not all(isinstance(m, dict) for m in members):
+        return "წევრების სია არასწორია"
+    if len(works) > MAX_WORKS or len(members) > MAX_MEMBERS:
+        return f"მაქს. {MAX_WORKS} სამუშაო და {MAX_MEMBERS} წევრი ერთ ჩანაწერში"
+    for item in works + members:
+        for k, v in item.items():
+            if isinstance(v, (list, dict)) or (isinstance(v, str) and len(v) > MAX_TEXT):
+                return f"ველი „{k}“ არასწორია ან ძალიან გრძელია"
+    if len(json.dumps(data, ensure_ascii=False)) > MAX_RECORD_BYTES:
+        return "ჩანაწერი ძალიან დიდია"
+    return None
 
 
 @app.route("/api/records/save", methods=["POST"])
 def api_save_record():
     data = request.get_json(silent=True)
-    if not data or not str(data.get("id", "")).strip():
+    if not isinstance(data, dict) or not str(data.get("id", "")).strip():
         return jsonify({"error": "არასწორი მონაცემები"}), 400
+    if not data.get("works"):
+        return jsonify({"error": "დაამატეთ მინიმუმ ერთი სამუშაო"}), 400
+    shape_err = validate_record_shape(data)
+    if shape_err:
+        return jsonify({"error": shape_err}), 400
 
     for field in ("brigade", "city", "date", "address"):
         if not str(data.get(field, "")).strip():
@@ -1403,24 +1620,33 @@ def api_save_record():
         log_activity("record_update" if old_data else "record_create", rec_id, db_id, details)
         return jsonify({"success": True, "db_id": db_id, "overlaps_confirmed": len(conflicts)})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return server_error(e, "ჩანაწერის შენახვა ვერ მოხერხდა. სცადეთ თავიდან.")
 
 
 @app.route("/api/records/delete/<path:record_id>", methods=["DELETE"])
 def api_delete_record(record_id):
+    """ჩანაწერი გადადის „წაშლილებში“ (records_trash) — ადმინს შეუძლია აღდგენა."""
+    record_id = str(record_id)[:100]
     try:
         with db_cursor(commit=True) as cur:
-            cur.execute("SELECT id, data FROM records WHERE db_id = %s;", (str(record_id),))
+            cur.execute("SELECT db_id, id, data, created_at FROM records WHERE db_id = %s FOR UPDATE;", (record_id,))
             old = cur.fetchone()
-            cur.execute("DELETE FROM records WHERE db_id = %s;", (str(record_id),))
-            deleted = cur.rowcount
-        if not deleted:
-            return jsonify({"error": "ჩანაწერი ვერ მოიძებნა"}), 404
-        old_data = old["data"] if old and isinstance(old.get("data"), dict) else {}
-        log_activity("record_delete", old.get("id") if old else "", record_id, describe_record(old_data) if old_data else "")
+            if not old:
+                return jsonify({"error": "ჩანაწერი ვერ მოიძებნა"}), 404
+            cur.execute("""
+                INSERT INTO records_trash (db_id, id, data, created_at, deleted_at, deleted_by, deleted_ip)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (db_id) DO UPDATE SET id = EXCLUDED.id, data = EXCLUDED.data, created_at = EXCLUDED.created_at,
+                    deleted_at = EXCLUDED.deleted_at, deleted_by = EXCLUDED.deleted_by, deleted_ip = EXCLUDED.deleted_ip;
+            """, (old["db_id"], old["id"], Json(old["data"]), old["created_at"],
+                  datetime.now(timezone.utc), actor_name()[:100], client_ip()))
+            cur.execute("DELETE FROM records WHERE db_id = %s;", (record_id,))
+        old_data = old["data"] if isinstance(old.get("data"), dict) else {}
+        log_activity("record_delete", old.get("id") or "", record_id,
+                     (describe_record(old_data) if old_data else "") + " (აღდგენადია ადმინ პანელიდან)")
         return jsonify({"success": True})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return server_error(e, "წაშლა ვერ მოხერხდა")
 
 
 # ჩანაწერებში გაცდენის მიზეზის მასობრივი ცვლილება (ერთი პიროვნება, რამდენიმე ჩანაწერი)
@@ -1442,8 +1668,8 @@ def api_bulk_absence():
         return jsonify({"error": "ერთდროულად მაქსიმუმ 3000 ჩანაწერი"}), 400
     if not (pid or name):
         return jsonify({"error": "პიროვნება არ არის მითითებული"}), 400
-    if not status or len(status) > 100:
-        return jsonify({"error": "აირჩიეთ ახალი სტატუსი"}), 400
+    if status not in ABSENCE_REASONS and status != PRESENT_STATUS:
+        return jsonify({"error": "აირჩიეთ ახალი სტატუსი სიიდან"}), 400
 
     def same_person(m):
         mp = str(m.get("personal_id") or "").strip()
@@ -1493,7 +1719,7 @@ def api_bulk_absence():
         return jsonify({"success": True, "updated": len(updated), "unchanged": unchanged,
                         "missing": missing, "updated_ids": updated})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return server_error(e)
 
 
 # ---------------------------------------------------------------------------
@@ -1548,7 +1774,7 @@ def api_day_comment():
                     cur.execute("UPDATE records SET data = %s WHERE db_id = %s;", (Json(rec), row["db_id"]))
                     changes.append((rec.get("id", ""), row["db_id"], old, city, brigade, day))
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return server_error(e)
 
     for rid, dbid, old, city, brigade, day in changes:
         log_activity("day_comment", rid, dbid,
@@ -1556,6 +1782,9 @@ def api_day_comment():
     return jsonify({"success": True, "updated": len(changes), "unchanged": unchanged,
                     "days": len(days_found), "days_missing": len(keys) - len(days_found),
                     "updated_ids": [c[1] for c in changes]})
+
+
+MAX_EXPORT_RECORDS = 20000
 
 
 def load_records_by_ids(db_ids):
@@ -1576,20 +1805,25 @@ def load_records_by_ids(db_ids):
 @app.route("/generate", methods=["POST"])
 def generate():
     data = request.get_json(silent=True)
-    if not data:
+    if not isinstance(data, dict):
         return jsonify({"error": "მონაცემები არასწორია"}), 400
 
-    if data.get("db_ids"):
-        try:
-            records = load_records_by_ids(data["db_ids"])
-        except Exception as e:
-            return jsonify({"error": f"ჩანაწერების წაკითხვა ვერ მოხერხდა: {e}"}), 500
-    else:
-        records = data.get("records", [])
+    # Excel მხოლოდ ბაზაში შენახული ჩანაწერებიდან (ტარიფები და შემადგენლობა კლიენტისგან არ მიიღება)
+    db_ids = data.get("db_ids")
+    if not isinstance(db_ids, list) or not db_ids:
+        return jsonify({"error": "ჩანაწერები არ არის მონიშნული"}), 400
+    if len(db_ids) > MAX_EXPORT_RECORDS:
+        return jsonify({"error": f"ერთ ფაილში მაქსიმუმ {MAX_EXPORT_RECORDS} ჩანაწერი — შეამცირეთ პერიოდი"}), 400
+    try:
+        records = load_records_by_ids(db_ids)
+    except Exception as e:
+        return server_error(e, "ჩანაწერების წაკითხვა ვერ მოხერხდა")
     if not records:
         return jsonify({"error": "ჩანაწერები ვერ მოიძებნა"}), 400
 
     for rec in records:
+        if not isinstance(rec, dict) or not isinstance(rec.get("works"), list):
+            return jsonify({"error": "ჩანაწერის ფორმატი არასწორია"}), 400
         for field in ("id", "brigade", "city", "date", "address"):
             if not rec.get(field):
                 return jsonify({"error": f"ჩანაწერს ID {rec.get('id', '?')} აკლია ველი: {field}"}), 400
@@ -1599,7 +1833,7 @@ def generate():
     try:
         output = generate_excel_from_records(records)
     except Exception as exc:
-        return jsonify({"error": f"Excel-ის გენერირება ვერ მოხერხდა: {exc}"}), 500
+        return server_error(exc, "Excel-ის გენერირება ვერ მოხერხდა")
 
     label = str(data.get("label", "")).strip().replace("/", "-")[:40]
     dates = sorted(str(r.get("date", "")) for r in records)
@@ -1618,12 +1852,8 @@ def generate():
 # ---------------------------------------------------------------------------
 @app.route("/api/admin/login", methods=["POST"])
 def admin_login():
-    if too_many_failures("admin_login_failed"):
-        return jsonify({"error": "ძალიან ბევრი წარუმატებელი მცდელობა. სცადეთ 15 წუთში."}), 429
-    err = check_admin()
+    err = check_admin()   # ლიმიტი და წარუმატებელი მცდელობის ჩაწერა — check_admin()-ში
     if err:
-        if err[1] == 401:
-            log_activity("admin_login_failed", details="არასწორი პაროლი", username=ADMIN_ACTOR)
         return err
     log_activity("admin_login", username=ADMIN_ACTOR)
     return jsonify({"success": True})
@@ -1656,7 +1886,7 @@ def admin_save_config():
         old_cfg = load_config()
         save_config(cfg)
     except Exception as e:
-        return jsonify({"error": f"შენახვა ვერ მოხერხდა: {e}"}), 500
+        return server_error(e, "შენახვა ვერ მოხერხდა")
     log_activity("config_save", details=summarize_config_change(old_cfg, cfg), username=ADMIN_ACTOR)
     return jsonify({"success": True, "config": cfg})
 
@@ -1671,7 +1901,7 @@ def admin_reset_config():
         cfg = normalize_config(migrate_config(load_file_config())[0])
         save_config(cfg)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return server_error(e)
     log_activity("config_reset", details="პარამეტრები დაბრუნდა config.json-ზე", username=ADMIN_ACTOR)
     return jsonify({"success": True, "config": cfg})
 
@@ -1686,14 +1916,22 @@ def admin_backup():
         with db_cursor() as cur:
             cur.execute("SELECT db_id, id, data, created_at FROM records ORDER BY created_at, db_id;")
             rows = cur.fetchall()
+            try:
+                cur.execute("SELECT db_id, id, data, created_at, deleted_at, deleted_by FROM records_trash ORDER BY deleted_at;")
+                trash = [{"db_id": t["db_id"], "id": t["id"], "created_at": str(t["created_at"]),
+                          "deleted_at": str(t["deleted_at"]), "deleted_by": t["deleted_by"], "data": t["data"]}
+                         for t in cur.fetchall()]
+            except Exception:
+                trash = []
         payload = {
             "created": datetime.now().isoformat(timespec="seconds"),
             "records_count": len(rows),
             "records": [{"db_id": r["db_id"], "id": r["id"], "created_at": str(r["created_at"]), "data": r["data"]} for r in rows],
             "config": load_config(),
+            "deleted_records": trash,
         }
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return server_error(e)
     log_activity("backup_download", details=f"{len(rows)} ჩანაწერი", username=ADMIN_ACTOR)
     buf = io.BytesIO(json.dumps(payload, ensure_ascii=False, indent=1).encode("utf-8"))
     name = f"backup_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
@@ -1707,6 +1945,61 @@ def admin_export_config():
         return err
     buf = io.BytesIO(json.dumps(load_config(), ensure_ascii=False, indent=2).encode("utf-8"))
     return send_file(buf, download_name="config.json", as_attachment=True, mimetype="application/json")
+
+
+# ---------------------------------------------------------------------------
+# Admin: წაშლილი ჩანაწერები და აღდგენა
+# ---------------------------------------------------------------------------
+@app.route("/api/admin/trash", methods=["GET"])
+def admin_trash():
+    err = check_admin()
+    if err:
+        return err
+    try:
+        with db_cursor() as cur:
+            cur.execute("SELECT db_id, id, data, created_at, deleted_at, deleted_by, deleted_ip FROM records_trash "
+                        "ORDER BY deleted_at DESC LIMIT 500;")
+            rows = cur.fetchall()
+    except Exception as e:
+        return server_error(e)
+    out = []
+    for r in rows:
+        d = r["data"] if isinstance(r["data"], dict) else {}
+        ts = r["deleted_at"]
+        if isinstance(ts, datetime):
+            ts = (ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)).isoformat()
+        out.append({"db_id": r["db_id"], "id": r["id"], "date": str(r["created_at"]),
+                    "brigade": str(d.get("brigade", "")), "city": str(d.get("city", "")),
+                    "address": str(d.get("address", "")), "members": len(d.get("members") or []),
+                    "deleted_at": str(ts), "deleted_by": r["deleted_by"], "deleted_ip": r["deleted_ip"]})
+    return jsonify({"rows": out})
+
+
+@app.route("/api/admin/trash/restore", methods=["POST"])
+def admin_trash_restore():
+    err = check_admin()
+    if err:
+        return err
+    db_id = str((request.get_json(silent=True) or {}).get("db_id") or "")[:100]
+    if not db_id:
+        return jsonify({"error": "ჩანაწერი არ არის მითითებული"}), 400
+    try:
+        with db_cursor(commit=True) as cur:
+            cur.execute("SELECT db_id, id, data, created_at FROM records_trash WHERE db_id = %s FOR UPDATE;", (db_id,))
+            row = cur.fetchone()
+            if not row:
+                return jsonify({"error": "წაშლილი ჩანაწერი ვერ მოიძებნა"}), 404
+            cur.execute("SELECT 1 AS x FROM records WHERE db_id = %s;", (db_id,))
+            if cur.fetchone():
+                return jsonify({"error": "ამ db_id-ით ჩანაწერი უკვე არსებობს"}), 409
+            cur.execute("INSERT INTO records (db_id, id, data, created_at) VALUES (%s, %s, %s, %s);",
+                        (row["db_id"], row["id"], Json(row["data"]), row["created_at"]))
+            cur.execute("DELETE FROM records_trash WHERE db_id = %s;", (db_id,))
+    except Exception as e:
+        return server_error(e, "აღდგენა ვერ მოხერხდა")
+    d = row["data"] if isinstance(row["data"], dict) else {}
+    log_activity("record_restore", row["id"], db_id, describe_record(d) if d else "", username=ADMIN_ACTOR)
+    return jsonify({"success": True})
 
 
 # ---------------------------------------------------------------------------
@@ -1749,8 +2042,8 @@ def admin_create_user():
     password = str(data.get("password") or "")
     if not USERNAME_RE.match(username):
         return jsonify({"error": "მომხმარებლის სახელი: 3–40 სიმბოლო (ასოები, ციფრები, . _ -), ჰარის გარეშე"}), 400
-    if len(password) < 6:
-        return jsonify({"error": "პაროლი მინიმუმ 6 სიმბოლო"}), 400
+    if len(password) < MIN_PASSWORD_LEN:
+        return jsonify({"error": f"პაროლი მინიმუმ {MIN_PASSWORD_LEN} სიმბოლო"}), 400
     users = list(load_users())
     if find_user(username, users):
         return jsonify({"error": "ასეთი მომხმარებელი უკვე არსებობს"}), 400
@@ -1780,8 +2073,8 @@ def admin_update_user(username):
         u["active"] = bool(data.get("active"))
         notes.append("გააქტიურდა" if u["active"] else "დაიბლოკა")
     if data.get("password"):
-        if len(str(data["password"])) < 6:
-            return jsonify({"error": "პაროლი მინიმუმ 6 სიმბოლო"}), 400
+        if len(str(data["password"])) < MIN_PASSWORD_LEN:
+            return jsonify({"error": f"პაროლი მინიმუმ {MIN_PASSWORD_LEN} სიმბოლო"}), 400
         u["password_hash"] = generate_password_hash(str(data["password"]), method="pbkdf2:sha256")
         notes.append("პაროლი შეიცვალა")
     save_users(users)
@@ -1829,6 +2122,7 @@ def admin_activity():
         tz_min = int(a.get("tz", "240"))          # ბრაუზერის დროის სარტყელი (თბილისი = +240)
     except ValueError:
         tz_min = 240
+    tz_min = max(-840, min(840, tz_min))
     tz = timezone(timedelta(minutes=tz_min))
     for key, op, add in (("from", ">=", 0), ("to", "<", 1)):
         if a.get(key):
@@ -1854,7 +2148,7 @@ def admin_activity():
             cur.execute("SELECT DISTINCT username FROM activity_log WHERE username <> '' ORDER BY username;")
             users = [r["username"] for r in cur.fetchall()]
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return server_error(e)
     out = []
     for r in rows:
         ts = r["ts"]
@@ -1867,4 +2161,5 @@ def admin_activity():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # მხოლოდ ლოკალური გაშვებისთვის. debugger ჩაირთვება მხოლოდ FLASK_DEBUG=1-ით და მხოლოდ ამ კომპიუტერზე.
+    app.run(debug=os.environ.get("FLASK_DEBUG") == "1", host="127.0.0.1", port=5000)
