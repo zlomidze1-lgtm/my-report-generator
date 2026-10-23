@@ -1066,8 +1066,9 @@
           </div>
           <div class="field" data-f="brigade">
             <label for="fBrigade">ბრიგადა</label>
-            <input type="text" id="fBrigade" maxlength="40" placeholder="მაგ: 12" list="brigadeList" />
+            <input type="text" id="fBrigade" maxlength="40" placeholder="მაგ: 12" list="brigadeList" inputmode="numeric" />
             <datalist id="brigadeList"></datalist>
+            <small class="muted" id="fBrigadeHint">ჩაწერეთ ნომერი — თბილისის ბრიგადის შემადგენლობა ჩაიტვირთება</small>
           </div>
           <div class="field wide" data-f="object_name">
             <label for="fObject">ობიექტის დასახელება</label>
@@ -1269,7 +1270,7 @@
 
     const S = {
       me: null, st: null, emps: [], auto: new Set(), dirty: new Set(), source: 'manual', sourceRef: '',
-      cands: [], chosen: -1, page: 0, auditPage: 0, rows: [], existing: [], lookupKey: '', saving: false, importRows: null
+      brig: {}, cands: [], chosen: -1, page: 0, auditPage: 0, rows: [], existing: [], lookupKey: '', saving: false, importRows: null
     };
 
     function todayLocal() {
@@ -1389,7 +1390,7 @@
       resetForm(false);
       bindForm();
       bindFilters();
-      if (S.st.ready) loadList();
+      if (S.st.ready) { loadList(); loadBrigades(); }
     }
     window.addEventListener('DOMContentLoaded', init);
 
@@ -1432,6 +1433,8 @@
         $(id).addEventListener('input', renderSplit);
         $(id).addEventListener('blur', () => { const v = normTime($(id).value); if (v) $(id).value = v; renderSplit(); });
       });
+      let bt = null;
+      $('fBrigade').addEventListener('input', () => { clearTimeout(bt); bt = setTimeout(onBrigadeTyped, 350); });
       let t = null;
       $('empSearch').addEventListener('input', () => { clearTimeout(t); t = setTimeout(searchEmployees, 220); });
       $('empSearch').addEventListener('keydown', (e) => { if (e.key === 'Escape') $('empResults').hidden = true; });
@@ -1570,6 +1573,34 @@
       renderEmps();
     }
 
+    /* ---------- manual entry: brigade number → its members (Tbilisi brigades) ---------- */
+    async function loadBrigades() {
+      try {
+        const res = await api('/api/ot/brigades');
+        S.brig = {};
+        res.brigades.forEach(b => S.brig[b.brigade] = b.members);
+        $('brigadeList').innerHTML = res.brigades.map(b => `<option value="${esc(b.brigade)}">${b.members.length} წევრი</option>`).join('');
+      } catch (_) { S.brig = {}; }
+    }
+    function onBrigadeTyped() {
+      const b = getVal('brigade');
+      const hint = $('fBrigadeHint');
+      if (!b) { hint.textContent = 'ჩაწერეთ ნომერი — თბილისის ბრიგადის შემადგენლობა ჩაიტვირთება'; return; }
+      const members = S.brig[b];
+      if (!members) {
+        hint.innerHTML = `<span style="color:var(--warn)">ბრიგადა ${esc(b)} თბილისის სიაში არ არის — თანამშრომლები დაამატეთ ძიებით ან ხელით.</span>`;
+        return;
+      }
+      // replace members that came from a record or a previous brigade; keep employees added by search / by hand
+      const keep = S.emps.filter(e => e.origin === 'dir' || e.origin === 'manual');
+      const keys = new Set(keep.map(empKey));
+      const fresh = members.map(m => ({ name: m.name, pid: m.pid, position: m.position, origin: 'brigade', absent: false, absent_reason: '', checked: true }))
+        .filter(e => !keys.has(empKey(e)));
+      S.emps = [...fresh, ...keep];
+      hint.textContent = `ჩაიტვირთა ბრიგადა ${b}-ის ${members.length} წევრი (თბილისი). მოხსენით, ვინც არ მუშაობდა.`;
+      renderEmps();
+    }
+
     /* ======================================================================
        Employees
        ====================================================================== */
@@ -1579,12 +1610,12 @@
       const exByKey = {};
       S.existing.forEach(r => { (exByKey[empKey({ name: r.emp_name, pid: r.emp_pid })] ||= []).push(`${r.start}–${r.end}`); });
       if (!S.emps.length) {
-        box.innerHTML = '<div class="emp-empty">თანამშრომლები ჯერ არ არის. მოძებნეთ სამუშაო (ავტომატურად შეივსება ნარიადის შემადგენლობით) ან დაამატეთ ძიებით / ხელით.</div>';
+        box.innerHTML = '<div class="emp-empty">თანამშრომლები ჯერ არ არის. მოძებნეთ სამუშაო (შეივსება ნარიადის შემადგენლობით), ჩაწერეთ ბრიგადის ნომერი (თბილისის ბრიგადები) ან დაამატეთ ძიებით / ხელით.</div>';
       } else {
         box.innerHTML = S.emps.map((e, i) => {
           const ex = exByKey[empKey(e)];
           const tags = [
-            e.origin === 'auto' ? '<span class="tag auto">ნარიადიდან</span>' : e.origin === 'dir' ? '<span class="tag">სიიდან</span>' : '<span class="tag">ხელით</span>',
+            e.origin === 'auto' ? '<span class="tag auto">ნარიადიდან</span>' : e.origin === 'brigade' ? '<span class="tag auto">ბრიგადიდან</span>' : e.origin === 'dir' ? '<span class="tag">სიიდან</span>' : '<span class="tag">ხელით</span>',
             e.absent ? `<span class="tag bad" title="${esc(e.absent_reason)}">არ გამოცხ.${e.absent_reason ? ' · ' + esc(e.absent_reason.slice(0, 18)) : ''}</span>` : '',
             !e.pid ? '<span class="tag warn">პირადი # არ არის</span>' : '',
             ex ? `<span class="tag warn">უკვე: ${esc(ex.join(', '))}</span>` : ''
@@ -1683,6 +1714,7 @@
       ['fStart', 'fEnd', 'fComment', 'fNote', 'empSearch'].forEach(id => $(id).value = '');
       S.emps = []; S.dirty.clear(); clearAutoMarks(); S.cands = []; S.chosen = -1; S.source = 'manual'; S.sourceRef = ''; S.existing = []; S.lookupKey = '';
       $('lkNotice').innerHTML = ''; $('lkCands').hidden = true; $('existingNotice').innerHTML = '';
+      $('fBrigadeHint').textContent = 'ჩაწერეთ ნომერი — თბილისის ბრიგადის შემადგენლობა ჩაიტვირთება';
       $('lkHint').textContent = 'შეიყვანეთ ID, განწესი ან ორივე — მონაცემები ძირითადი ანგარიშის ჩანაწერებიდან შეივსება. ჩანაწერი ძირითად ბაზაში არ შეიცვლება.';
       showWeekday(); renderEmps(); renderSplit();
     }
@@ -1797,7 +1829,6 @@
       $('tabCount').textContent = res.total;
       const sel = $('qBrigade'), cur = sel.value;
       sel.innerHTML = '<option value="">ყველა</option>' + res.brigades.map(b => `<option${b === cur ? ' selected' : ''}>${esc(b)}</option>`).join('');
-      $('brigadeList').innerHTML = res.brigades.map(b => `<option value="${esc(b)}"></option>`).join('');
       const can = S.st.can, me = S.me.username;
       $('listBody').innerHTML = res.rows.length ? res.rows.map((r, i) => {
         const mine = r.created_by === me;
