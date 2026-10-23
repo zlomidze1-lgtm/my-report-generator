@@ -544,6 +544,31 @@ def lookup():
                     "candidates": cands[:30], "history": history})
 
 
+BRIGADE_CITIES = ("თბილისი",)   # ამ ეტაპზე ბრიგადის შემადგენლობა მხოლოდ თბილისის ბრიგადებისთვის
+
+
+@bp.route("/api/ot/brigades")
+def brigades():
+    """ხელით შევსებისთვის: ბრიგადის ნომერი → შემადგენლობა (ძირითადი პარამეტრებიდან, მხოლოდ წაკითხვა)."""
+    u, err = _require("operator")
+    if err:
+        return err
+    out = []
+    try:
+        cfg = _deps["load_config"]()
+        for b, data in (cfg.get("brigades") or {}).items():
+            members = [{"name": norm_name(m.get("name")), "pid": str(m.get("personal_id") or ""),
+                        "position": str(m.get("position") or "")}
+                       for m in data.get("members", []) if m.get("city") in BRIGADE_CITIES and m.get("name")]
+            if members:
+                out.append({"brigade": str(b), "members": members})
+    except Exception as e:
+        _log_error("brigades", e)
+        return _err("ბრიგადების სია ვერ ჩაიტვირთა", 500)
+    out.sort(key=lambda x: (0, int(x["brigade"])) if x["brigade"].isdigit() else (1, x["brigade"]))
+    return jsonify({"cities": list(BRIGADE_CITIES), "brigades": out})
+
+
 @bp.route("/api/ot/employees")
 def employees():
     """თანამშრომლების ძიება: ძირითადი მოდულის შემადგენლობა + Overtime-ის წინა ჩანაწერები."""
@@ -891,7 +916,7 @@ OT_COLUMNS = [
     # (სათაური, სიგანე, ფორმატი)
     ("გვარი, სახელი", 24, "@"), ("პირადი", 26, "@"), ("თარიღი", 11, "dd.mm.yyyy"), ("ბრიგადის #", 9, "General"),
     ("საფუძველი", 11, "General"), ("ობიექტის \nდასახელება", 28, "@"), ("მისამართი", 36, "@"), ("განწესის #", 11, "@"),
-    ("დაწყება", 8, "h:mm"), ("დასრულება", 9, "h:mm"), ("ბონუს წუთები (დღე)", 10, "0"), ("ბონუს წუთები (ღამე)", 10, "0"),
+    ("დაწყება", 8, "h:mm"), ("დასრულება", 9, "h:mm"),
     ("ბონუს საათი\n(დღე)", 10, "[h]:mm"), ("ბონუს საათი\n(ღამე)", 10, "[h]:mm"), ("შენიშვნა", 12, "@"),
     ("კომენტარი", 18, "@"), ("დამატებითი შენიშვნა", 26, "@"),
 ]
@@ -914,7 +939,7 @@ def build_excel(rows, period_label=""):
     for i, (title, width, _) in enumerate(OT_COLUMNS, start=1):
         c = ws.cell(row=1, column=i, value=title)
         c.font = Font(name=font, bold=True, color="FFFFFF", size=9)
-        c.fill = calc_fill if 11 <= i <= 14 else head_fill
+        c.fill = calc_fill if i in (11, 12) else head_fill
         c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
         ws.column_dimensions[get_column_letter(i)].width = width
     ws.row_dimensions[1].height = 40
@@ -927,7 +952,7 @@ def build_excel(rows, period_label=""):
         wid = int(e["work_id"]) if str(e["work_id"]).isdigit() and len(str(e["work_id"])) < 16 else (e["work_id"] or None)
         vals = [e["emp_name"], pid_cell or None, d, brig, wid, e["object_name"] or None, e["address"] or None,
                 e["ganwesi"] or None, time_cls(e["start_min"] // 60, e["start_min"] % 60),
-                time_cls(e["end_min"] // 60, e["end_min"] % 60), None, None,      # K/L — ბონუს წუთები (ორიგინალშიც ცარიელი)
+                time_cls(e["end_min"] // 60, e["end_min"] % 60),
                 e["day_min"] / 1440, e["night_min"] / 1440, WEEKDAYS[d.weekday()] if d else None,
                 e["comment"] or None, e["note"] or None]
         for c_i, v in enumerate(vals, start=1):
@@ -937,14 +962,14 @@ def build_excel(rows, period_label=""):
             cell.number_format = OT_COLUMNS[c_i - 1][2]
             cell.font = body
             cell.border = border
-            cell.alignment = Alignment(horizontal="left" if c_i in (1, 2, 6, 7, 16, 17) else "center",
+            cell.alignment = Alignment(horizontal="left" if c_i in (1, 2, 6, 7, 14, 15) else "center",
                                        vertical="center", wrap_text=c_i in (6, 7))
-            if e["night_min"] and c_i == 14:
+            if e["night_min"] and c_i == 12:
                 cell.fill = night_fill
     last = len(rows) + 1
     total_row = last + 2
     ws.cell(row=total_row, column=1, value="ჯამი (გაფილტრული)").font = Font(name=font, bold=True, size=10, color="1F3864")
-    for col in (13, 14):
+    for col in (11, 12):
         L = get_column_letter(col)
         c = ws.cell(row=total_row, column=col, value=f"=SUBTOTAL(9,{L}2:{L}{last})")
         c.number_format = OT_COLUMNS[col - 1][2]
