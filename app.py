@@ -622,7 +622,7 @@ def too_many_failures(action, limit=8, minutes=15, username=None):
         return True
 
 
-PUBLIC_PATHS = {"/", "/admin", "/logo.png", "/favicon.ico", "/api/me", "/api/login", "/api/logout"}
+PUBLIC_PATHS = {"/", "/admin", "/overtime", "/logo.png", "/favicon.ico", "/api/me", "/api/login", "/api/logout"}
 
 
 @app.before_request
@@ -634,7 +634,11 @@ def require_operator_login():
         return None
     if g.get("users_error"):
         return jsonify({"error": "ბაზასთან კავშირი ვერ დამყარდა. სცადეთ ცოტა ხანში."}), 503
-    if current_user():
+    u = current_user()
+    if u:
+        # მხოლოდ Overtime-ის მომხმარებელს ძირითადი მოდულის მონაცემებზე წვდომა არ აქვს
+        if u.get("main_access", True) is False and not path.startswith("/api/ot/"):
+            return jsonify({"error": "ძირითადი მოდულის (ანგარიშის) წვდომა არ გაქვთ", "no_main_access": True}), 403
         return None
     return jsonify({"error": "საჭიროა სისტემაში შესვლა", "login_required": True}), 401
 
@@ -1444,6 +1448,16 @@ def get_cities():
 # ---------------------------------------------------------------------------
 # ოპერატორის შესვლა
 # ---------------------------------------------------------------------------
+OT_ROLES = ("none", "operator", "manager")
+
+
+def _session_user(u):
+    """მომხმარებლის საჯარო ნაწილი სესიისთვის (უფლებების ჩათვლით)."""
+    return {"username": u["username"], "display_name": u.get("display_name") or u["username"],
+            "main_access": u.get("main_access", True) is not False,
+            "ot_role": u.get("ot_role") if u.get("ot_role") in OT_ROLES else "none"}
+
+
 @app.route("/api/me")
 def api_me():
     u = current_user()
@@ -1452,7 +1466,7 @@ def api_me():
         "login_required": req,
         # შესვლის ეკრანზე მინიშნებისთვის: ოპერატორი ჯერ არ დამატებულა
         "no_operators": bool(req and not g.get("users_error") and not has_active_operator()),
-        "user": {"username": u["username"], "display_name": u.get("display_name") or u["username"]} if u else None,
+        "user": _session_user(u) if u else None,
     })
 
 
@@ -1477,7 +1491,7 @@ def api_login():
                        "iat": int(datetime.now(timezone.utc).timestamp())}
     g.pop("cu", None)
     log_activity("login", details=u.get("display_name") or "", username=u["username"])
-    return jsonify({"success": True, "user": {"username": u["username"], "display_name": u.get("display_name") or u["username"]}})
+    return jsonify({"success": True, "user": _session_user(u)})
 
 
 @app.route("/api/logout", methods=["POST"])
@@ -2010,7 +2024,9 @@ USERNAME_RE = re.compile(r"^[A-Za-z0-9._\-ა-ჰ]{3,40}$")
 
 def _public_user(u, last_login=None):
     return {"username": u["username"], "display_name": u.get("display_name") or "",
-            "active": u.get("active", True), "created": u.get("created", ""), "last_login": last_login}
+            "active": u.get("active", True), "created": u.get("created", ""), "last_login": last_login,
+            "main_access": u.get("main_access", True) is not False,
+            "ot_role": u.get("ot_role") if u.get("ot_role") in OT_ROLES else "none"}
 
 
 @app.route("/api/admin/users", methods=["GET"])
@@ -2047,7 +2063,14 @@ def admin_create_user():
     users = list(load_users())
     if find_user(username, users):
         return jsonify({"error": "ასეთი მომხმარებელი უკვე არსებობს"}), 400
+    ot_role = str(data.get("ot_role") or "none")
+    if ot_role not in OT_ROLES:
+        return jsonify({"error": "Overtime-ის როლი არასწორია"}), 400
+    main_access = data.get("main_access", True) is not False
+    if not main_access and ot_role == "none":
+        return jsonify({"error": "მომხმარებელს მინიმუმ ერთ მოდულზე უნდა ჰქონდეს წვდომა"}), 400
     users.append({"username": username, "display_name": display, "active": True,
+                  "main_access": main_access, "ot_role": ot_role,
                   "password_hash": generate_password_hash(password, method="pbkdf2:sha256"),
                   "created": datetime.now(timezone.utc).isoformat(timespec="seconds")})
     save_users(users)
@@ -2072,6 +2095,17 @@ def admin_update_user(username):
     if "active" in data:
         u["active"] = bool(data.get("active"))
         notes.append("გააქტიურდა" if u["active"] else "დაიბლოკა")
+    if "ot_role" in data:
+        r = str(data.get("ot_role") or "none")
+        if r not in OT_ROLES:
+            return jsonify({"error": "Overtime-ის როლი არასწორია"}), 400
+        u["ot_role"] = r
+        notes.append(f"Overtime: {r}")
+    if "main_access" in data:
+        u["main_access"] = bool(data.get("main_access"))
+        notes.append("ანგარიში: " + ("კი" if u["main_access"] else "არა"))
+    if u.get("main_access", True) is False and u.get("ot_role", "none") == "none":
+        return jsonify({"error": "მომხმარებელს მინიმუმ ერთ მოდულზე უნდა ჰქონდეს წვდომა"}), 400
     if data.get("password"):
         if len(str(data["password"])) < MIN_PASSWORD_LEN:
             return jsonify({"error": f"პაროლი მინიმუმ {MIN_PASSWORD_LEN} სიმბოლო"}), 400
@@ -2158,6 +2192,17 @@ def admin_activity():
                     "record_id": r["record_id"], "db_id": r["db_id"], "details": r["details"],
                     "user_agent": r["user_agent"]})
     return jsonify({"rows": out, "total": total, "users": users, "client_ip": client_ip()})
+
+
+# ---------------------------------------------------------------------------
+# Overtime — დამოუკიდებელი მოდული (overtime.py). მისი შეცდომა ძირითად აპლიკაციას არ აჩერებს.
+# ---------------------------------------------------------------------------
+try:
+    import overtime as _overtime
+    _overtime.init_app(app, {"current_user": current_user, "client_ip": client_ip,
+                             "db_cursor": db_cursor, "load_config": load_config})
+except Exception as _e:
+    print("Overtime module disabled:", type(_e).__name__)
 
 
 if __name__ == "__main__":
