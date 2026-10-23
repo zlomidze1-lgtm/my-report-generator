@@ -477,7 +477,11 @@
       display: grid; grid-template-columns: 1fr 1.3fr 1fr auto; gap: 12px; align-items: end; margin-bottom: 16px;
       padding: 14px; background: var(--tint); border: 1px solid var(--tint-line); border-radius: var(--r-md);
     }
-    .users-table { min-width: 640px; }
+    .users-table { min-width: 880px; }
+    .user-form { grid-template-columns: 1fr 1.2fr 1fr 0.9fr auto auto; }
+    .perm-check { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--ink-2); white-space: nowrap; min-height: 40px; }
+    .perm-check.sm { min-height: 0; font-size: 12.5px; }
+    .perm-select { width: auto !important; min-height: 32px !important; font-size: 12.5px !important; padding: 0 28px 0 10px !important; }
     .users-table td { padding: 10px 12px; }
     .users-table .uname { font-family: var(--font-mono); font-weight: 700; }
     .ustate.on { background: var(--ok-soft); color: var(--ok); }
@@ -618,6 +622,7 @@
     </a>
     <nav class="nav-tabs" aria-label="განყოფილებები">
       <a class="nav-tab" href="/" onclick="return confirmLeave()">ანგარიში</a>
+      <a class="nav-tab" href="/overtime" onclick="return confirmLeave()">Overtime</a>
       <a class="nav-tab active" href="/admin" aria-current="page">ადმინ პანელი</a>
     </nav>
     <button type="button" class="logout uc-logout" id="logoutBtn" onclick="logout()"><svg class="i" aria-hidden="true"><use href="#i-logout"/></svg><span>გასვლა</span></button>
@@ -761,11 +766,14 @@
             <div><label class="lbl" for="nuUser">მომხმარებელი (login)</label><input type="text" id="nuUser" class="input mono" placeholder="მაგ: nino" autocomplete="off" /></div>
             <div><label class="lbl" for="nuName">სახელი, გვარი</label><input type="text" id="nuName" class="input" placeholder="მაგ: ნინო ბერიძე" autocomplete="off" /></div>
             <div><label class="lbl" for="nuPass">პაროლი (მინ. 10)</label><input type="text" id="nuPass" class="input mono" autocomplete="new-password" /></div>
+            <div><label class="lbl" for="nuOt">Overtime</label>
+              <select id="nuOt" class="input"><option value="none">წვდომის გარეშე</option><option value="operator">ოპერატორი</option><option value="manager">მენეჯერი</option></select></div>
+            <label class="perm-check"><input type="checkbox" id="nuMain" checked /> ანგარიშის მოდული</label>
             <button type="submit" class="btn btn-outline"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>დამატება</button>
           </form>
           <div class="table-wrap">
             <table class="mtable users-table">
-              <thead><tr><th>მომხმარებელი</th><th>სახელი</th><th>სტატუსი</th><th>ბოლო შესვლა</th><th></th></tr></thead>
+              <thead><tr><th>მომხმარებელი</th><th>სახელი</th><th>სტატუსი</th><th>ანგარიში</th><th>Overtime</th><th>ბოლო შესვლა</th><th></th></tr></thead>
               <tbody id="usersBody"></tbody>
             </table>
           </div>
@@ -1600,6 +1608,10 @@
           <td class="uname">${esc(u.username)}</td>
           <td>${esc(u.display_name || '—')}</td>
           <td><span class="ustate ${u.active ? 'on' : 'off'}">${u.active ? 'აქტიური' : 'დაბლოკილი'}</span></td>
+          <td><label class="perm-check sm"><input type="checkbox" data-u="${esc(u.username)}" data-perm="main" ${u.main_access ? 'checked' : ''} aria-label="ანგარიშის მოდული: ${esc(u.username)}" /> წვდომა</label></td>
+          <td><select class="input perm-select" data-u="${esc(u.username)}" data-perm="ot" aria-label="Overtime როლი: ${esc(u.username)}">
+            ${[['none', 'არა'], ['operator', 'ოპერატორი'], ['manager', 'მენეჯერი']].map(([v, t]) => `<option value="${v}" ${u.ot_role === v ? 'selected' : ''}>${t}</option>`).join('')}
+          </select></td>
           <td style="font-family:var(--font-mono); font-size:12px;">${esc(fmtTs(u.last_login))}</td>
           <td><div class="uactions">
             <button type="button" class="btn btn-ghost btn-sm" data-u="${esc(u.username)}" data-act="rename">სახელი</button>
@@ -1609,8 +1621,20 @@
             <button type="button" class="icon-btn danger" data-u="${esc(u.username)}" data-act="delete" title="წაშლა" aria-label="ოპერატორის წაშლა: ${esc(u.username)}"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg></button>
           </div></td>
         </tr>`).join('')
-        : '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--ink-faint);">ოპერატორები ჯერ არ არის</td></tr>';
+        : '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--ink-faint);">ოპერატორები ჯერ არ არის</td></tr>';
     }
+
+    // მოდულების უფლებები: ანგარიში (ძირითადი) და Overtime (არა / ოპერატორი / მენეჯერი)
+    $('usersBody').addEventListener('change', async (e) => {
+      const el = e.target.closest('[data-perm]');
+      if (!el) return;
+      const body = el.dataset.perm === 'main' ? { main_access: el.checked } : { ot_role: el.value };
+      try {
+        await api(`/api/admin/users/${encodeURIComponent(el.dataset.u)}`, { method: 'PUT', body: JSON.stringify(body) });
+        toast('უფლებები შეიცვალა');
+      } catch (err) { toast(`${err.message}`, 'error'); }
+      loadUsers();
+    });
 
     $('usersBody').addEventListener('click', async (e) => {
       const b = e.target.closest('[data-act]');
@@ -1645,12 +1669,14 @@
     });
 
     async function createUser() {
-      const body = { username: $('nuUser').value.trim(), display_name: $('nuName').value.trim(), password: $('nuPass').value };
+      const body = { username: $('nuUser').value.trim(), display_name: $('nuName').value.trim(), password: $('nuPass').value,
+                     ot_role: $('nuOt').value, main_access: $('nuMain').checked };
       const wasEmpty = !usersCache.some(u => u.active);
       if (wasEmpty && !confirm('ეს იქნება პირველი აქტიური ოპერატორი — ამის შემდეგ მთავარ გვერდზე შესვლა სავალდებულო გახდება.\n\nგავაგრძელო?')) return;
       try {
         await api('/api/admin/users', { method: 'POST', body: JSON.stringify(body) });
         $('nuUser').value = $('nuName').value = $('nuPass').value = '';
+        $('nuOt').value = 'none'; $('nuMain').checked = true;
         toast(`ოპერატორი ${body.username} დაემატა. გადაეცით მომხმარებელი და პაროლი.`);
         loadUsers();
       } catch (err) { toast(`${err.message}`, 'error'); }

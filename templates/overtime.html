@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#141A2E" />
+  <meta name="color-scheme" content="light" />
+  <title>Overtime — Brigade-Ops</title>
+
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ===== Brigade-Ops design system v4.4 (shared by index + admin) ===== */
+    :root {
+      --page: #F4F6FB;
+      --card: #FFFFFF;
+      --card-2: #F8F9FD;
+      --line: #E7EAF3;
+      --line-2: #D9DEEB;
+      --ink: #1C2333;
+      --ink-2: #4A5266;
+      --ink-3: #66708A;
+      --brand: #6E5BFF;
+      --brand-2: #5468FF;
+      --brand-ink: #4B3FD1;
+      --brand-soft: #F0EEFF;
+      --brand-line: #D9D3FF;
+      --grad: linear-gradient(135deg, #6847F2 0%, #4C5CEB 100%);
+      --grad-feature: linear-gradient(125deg, #6847F2 0%, #4F63EE 55%, #2C78DC 100%);
+      --grad-hero: linear-gradient(115deg, #F3F0FF 0%, #EEF3FF 55%, #EFF8FF 100%);
+      --tint: #F5F7FF;
+      --tint-line: #E2E7FA;
+      --th: #EEF1FF;
+      --th-ink: #565C86;
+      --ok: #15803D;   --ok-soft: #E8F7EE;   --ok-blob: #DDF5E6;
+      --bad: #C0263F;  --bad-soft: #FFE8EC;  --bad-blob: #FFE0E6;
+      --warn: #B45309; --warn-soft: #FFF4DE;
+      --info: #2563EB; --info-soft: #E8F0FF; --info-blob: #E1EBFF;
+      --mute: #6B7280; --mute-soft: #F1F2F6;
+      --nav: #141A2E;
+      --nav-2: #1E2640;
+      --nav-line: #2C3555;
+      --r-lg: 16px;
+      --r-md: 12px;
+      --r-sm: 10px;
+      --r-xs: 8px;
+      --shadow: 0 1px 2px rgba(20, 26, 46, .04), 0 6px 20px -8px rgba(20, 26, 46, .08);
+      --shadow-float: 0 18px 44px -14px rgba(20, 26, 46, .30), 0 3px 10px rgba(20, 26, 46, .06);
+      --focus: rgba(110, 91, 255, .24);
+      --font: 'Noto Sans Georgian', 'DejaVu Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'DejaVu Sans Mono', monospace;
+      --ink-faint: var(--ink-3);
+      --danger: var(--bad);
+      --bar-h: 64px;
+      color-scheme: light;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    * { margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    img, svg { display: block; max-width: 100%; }
+    [hidden] { display: none !important; }
+
+    body {
+      font-family: var(--font);
+      font-size: 14.5px;
+      line-height: 1.5;
+      color: var(--ink);
+      background: var(--page);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mono, .num { font-family: var(--font-mono); }
+
+    .i {
+      width: 18px; height: 18px; flex-shrink: 0;
+      fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    ::selection { background: var(--brand-soft); }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+    }
+    th .sr-only { position: static; display: inline-block; }
+    .skip-link {
+      position: absolute; left: 12px; top: -60px; z-index: 3000;
+      background: var(--brand); color: #fff; padding: 8px 14px; border-radius: var(--r-sm);
+      font-weight: 600; text-decoration: none;
+    }
+    .skip-link:focus { top: 10px; }
+
+    .eyebrow { display: block; font-size: 12.5px; font-weight: 600; color: var(--brand); letter-spacing: .1px; line-height: 1.3; }
+
+    /* ---------- Top bar (navy, pill navigation) ---------- */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      height: var(--bar-h);
+      padding: 0 clamp(14px, 3vw, 36px);
+      display: flex; align-items: center; gap: 12px;
+      background: var(--nav); color: #fff;
+      box-shadow: 0 8px 24px -12px rgba(10, 14, 30, .45);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; margin-right: 10px; min-width: 0; }
+    .brand .mark {
+      width: 40px; height: 40px; border-radius: 11px; background: #fff;
+      display: grid; place-items: center; overflow: hidden; flex-shrink: 0;
+    }
+    .brand .mark img { width: 34px; height: 34px; object-fit: contain; }
+    .brand .titles { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+    .brand-name { font-size: 15.5px; font-weight: 700; }
+    .brand-sub { font-size: 11.5px; color: #98A2C3; }
+
+    .nav-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .08); }
+    .nav-tab {
+      display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 9px;
+      color: #C3CAE0; font-size: 13.5px; font-weight: 600; text-decoration: none; white-space: nowrap;
+      transition: background-color .15s, color .15s;
+    }
+    .nav-tab:hover { color: #fff; background: rgba(255, 255, 255, .07); }
+    .nav-tab.active { color: #fff; background: var(--grad); box-shadow: 0 6px 16px -8px rgba(123, 92, 255, .9); }
+    .nav-tab:focus-visible { outline-color: #fff; }
+
+    .topbar-status {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px;
+      border-radius: 999px; border: 1px solid var(--nav-line); background: rgba(255, 255, 255, .04);
+      font-size: 12px; color: #C3CAE0; white-space: nowrap;
+    }
+    .topbar-status .dot { width: 7px; height: 7px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 3px rgba(52, 211, 153, .18); }
+    .topbar-status.offline { color: #fff; background: var(--bad); border-color: var(--bad); }
+    .topbar-status.offline .dot { background: #fff; box-shadow: none; }
+
+    .user-chip { display: flex; align-items: center; gap: 8px; padding: 3px 4px 3px 4px; border-radius: 999px; background: rgba(255, 255, 255, .06); border: 1px solid var(--nav-line); }
+    .uc-avatar {
+      width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center;
+      background: var(--grad); color: #fff; font-size: 12px; font-weight: 700;
+    }
+    .uc-name { font-size: 13.5px; font-weight: 600; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .uc-logout {
+      display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px;
+      border: 0; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #DCE1F2;
+      font-size: 12.5px; font-weight: 600; cursor: pointer;
+    }
+    .uc-logout:hover { background: rgba(255, 255, 255, .16); color: #fff; }
+    .uc-logout .i { width: 15px; height: 15px; }
+    .uc-logout:focus-visible { outline-color: #fff; }
+
+    /* ---------- Layout ---------- */
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 24px clamp(14px, 3vw, 36px) 0; }
+
+    /* ---------- Cards ---------- */
+    .panel {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg);
+      box-shadow: var(--shadow); padding: 22px 24px 24px; margin-bottom: 16px; position: relative; min-width: 0;
+    }
+    .panel-head { display: flex; align-items: center; gap: 10px 14px; margin-bottom: 18px; flex-wrap: wrap; min-height: 36px; }
+    .panel-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -.1px; line-height: 1.25; }
+    .ph-text { display: flex; flex-direction: column; gap: 2px; }
+    .count-tag {
+      display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px;
+      background: var(--brand-soft); color: var(--brand-ink); font-size: 12.5px; font-weight: 700; white-space: nowrap;
+      font-family: var(--font-mono);
+    }
+
+    /* Hero (page / section header) */
+    .hero {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      padding: 22px 26px; margin-bottom: 14px;
+      background: var(--grad-hero); border: 1px solid #E3E5F8; border-radius: var(--r-lg); box-shadow: var(--shadow);
+    }
+    .hero-main { min-width: 0; }
+    .hero-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; font-size: 26px; font-weight: 800; letter-spacing: -.3px; line-height: 1.2; color: var(--ink); }
+    .hero-meta { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; color: var(--ink-3); }
+    .period-pill {
+      display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px;
+      background: #E7E3FF; color: var(--brand-ink); font-family: var(--font-mono); font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+    .btn.btn-hero { height: 44px; padding: 0 20px; border-radius: var(--r-md); font-size: 14.5px; }
+
+    /* KPI cards */
+    .kpis { display: grid; grid-template-columns: 1.15fr 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .kpi {
+      position: relative; overflow: hidden; min-width: 0;
+      display: flex; flex-direction: column; justify-content: space-between; gap: 10px; min-height: 104px;
+      padding: 16px 18px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
+    }
+    .kpi::after {
+      content: ""; position: absolute; width: 96px; height: 96px; right: -26px; top: -30px; border-radius: 50%;
+      background: var(--blob, var(--mute-soft)); pointer-events: none;
+    }
+    .kpi > * { position: relative; z-index: 1; }
+    .kpi-label { font-size: 13px; font-weight: 700; color: var(--ink); }
+    .kpi-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .kpi-value { font-family: var(--font-mono); font-size: 34px; font-weight: 700; line-height: 1; letter-spacing: -1px; color: var(--kc, var(--ink)); }
+    .kpi-row small { font-size: 12.5px; color: var(--ink-3); }
+    .kpi-green { --kc: #16A34A; --blob: var(--ok-blob); }
+    .kpi-red   { --kc: #E5364F; --blob: var(--bad-blob); }
+    .kpi-blue  { --kc: var(--info); --blob: var(--info-blob); }
+    .kpi-violet{ --kc: var(--brand); --blob: #EAE6FF; }
+    .kpi-grey  { --kc: #64748B; --blob: #ECEEF3; }
+    .kpi-featured { background: var(--grad-feature); border-color: transparent; color: #fff; box-shadow: 0 14px 30px -14px rgba(91, 107, 255, .75); --blob: rgba(255, 255, 255, .14); }
+    .kpi-featured .kpi-label { color: rgba(255, 255, 255, .95); }
+    .kpi-featured .kpi-value { color: #fff; }
+    .kpi-featured .kpi-row small { color: rgba(255, 255, 255, .85); }
+    .kpi-featured::before {
+      content: ""; position: absolute; width: 140px; height: 140px; right: 30px; bottom: -90px; border-radius: 50%;
+      background: rgba(255, 255, 255, .08); pointer-events: none;
+    }
+
+    /* Pill tabs */
+    .rec-tabs, .section-tabs {
+      display: inline-flex; gap: 4px; padding: 4px; margin-bottom: 14px; max-width: 100%; overflow-x: auto; scrollbar-width: none;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow);
+    }
+    .rec-tab, .section-tab {
+      display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; flex-shrink: 0;
+      border: 0; border-radius: 9px; background: transparent; cursor: pointer; white-space: nowrap;
+      font-size: 13.5px; font-weight: 600; color: var(--ink-2); transition: background-color .15s, color .15s;
+    }
+    .rec-tab:hover, .section-tab:hover { background: var(--card-2); color: var(--ink); }
+    .rec-tab.active, .section-tab.active { background: var(--brand-soft); color: var(--brand-ink); }
+    .tab-count, .section-tab .count {
+      display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 20px; padding: 0 6px;
+      border-radius: 999px; background: var(--mute-soft); color: var(--ink-2);
+      font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; margin-left: 0;
+    }
+    .section-tab .count:empty { display: none; }
+    .rec-tab.active .tab-count, .section-tab.active .count { background: var(--brand); color: #fff; }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 40px; padding: 0 16px; border-radius: var(--r-sm);
+      border: 1px solid var(--line-2); background: var(--card); color: var(--ink);
+      font-size: 14px; font-weight: 600; white-space: nowrap; cursor: pointer; text-decoration: none;
+      transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s, transform .15s;
+    }
+    .btn:hover:not(:disabled) { background: var(--card-2); border-color: #C7CDE0; }
+    .btn:active:not(:disabled) { transform: translateY(1px); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-sm { height: 34px; padding: 0 12px; font-size: 13px; border-radius: 9px; }
+    .btn-sm .i { width: 16px; height: 16px; }
+
+    .btn-primary, .btn-export, .btn-success {
+      background: var(--grad); border-color: transparent; color: #fff;
+      box-shadow: 0 8px 18px -10px rgba(110, 91, 255, .95);
+    }
+    .btn-primary:hover:not(:disabled), .btn-export:hover:not(:disabled), .btn-success:hover:not(:disabled) {
+      background: var(--grad); border-color: transparent; filter: brightness(1.06); box-shadow: 0 10px 22px -10px rgba(110, 91, 255, 1);
+    }
+    .btn-outline { border-color: var(--brand-line); color: var(--brand-ink); background: var(--brand-soft); }
+    .btn-outline:hover:not(:disabled) { background: #E6E1FF; border-color: #C7BEFF; }
+    .btn-ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+    .btn-ghost:hover:not(:disabled) { background: var(--mute-soft); border-color: transparent; color: var(--ink); }
+    .btn-danger { color: var(--bad); border-color: #FFC9D2; background: var(--card); }
+    .btn-danger:hover:not(:disabled) { background: var(--bad-soft); border-color: #FFB3C0; }
+    .btn-warn { background: linear-gradient(135deg, #F59E0B, #D97706); border-color: transparent; color: #fff; }
+    .btn-warn:hover:not(:disabled) { background: linear-gradient(135deg, #F59E0B, #D97706); filter: brightness(1.05); }
+
+    .icon-btn {
+      width: 32px; height: 32px; display: inline-grid; place-items: center;
+      border: 1px solid var(--line); border-radius: 9px; background: var(--card); color: var(--ink-2); cursor: pointer;
+      transition: background-color .15s, color .15s, border-color .15s;
+    }
+    .icon-btn .i { width: 16px; height: 16px; }
+    .icon-btn:hover { background: var(--brand-soft); border-color: var(--brand-line); color: var(--brand-ink); }
+    .icon-btn.danger:hover { background: var(--bad-soft); border-color: #FFC9D2; color: var(--bad); }
+
+    /* ---------- Fields ---------- */
+    input[type=text], input[type=password], input[type=search], input[type=number], input[type=date], input:not([type]), select, textarea {
+      border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--card);
+      min-height: 40px; padding: 0 12px; font-size: 14px; width: 100%;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    textarea { padding: 10px 12px; }
+    input:hover, select:hover { border-color: #C3C9DC; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 4px var(--focus); }
+    ::placeholder { color: #8890A6; opacity: 1; }
+    input[type=date] { font-family: var(--font-mono); font-size: 13px; }
+    select {
+      appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 32px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%234A5266' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+    }
+    input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--brand); cursor: pointer; }
+    .is-invalid, .form-group .is-invalid { border-color: var(--bad) !important; box-shadow: 0 0 0 4px rgba(208, 44, 71, .14) !important; }
+
+    /* ---------- Status pills, plates ---------- */
+    .status, .ustate, .ab {
+      display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 700; white-space: nowrap; background: var(--mute-soft); color: var(--mute);
+    }
+    .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .plate {
+      display: inline-flex; align-items: stretch; height: 22px; overflow: hidden; border-radius: 5px;
+      border: 1.5px solid #1C2333; background: #fff; font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: .4px;
+    }
+    .plate i { display: inline-grid; place-items: center; padding: 0 4px; background: #1D4ED8; color: #fff; font-style: normal; font-size: 8.5px; letter-spacing: 0; }
+    .plate { padding-right: 6px; gap: 5px; }
+    .muted { color: var(--ink-3); }
+
+    /* ---------- Toast ---------- */
+    .toast-status {
+      position: fixed; left: 50%; bottom: 24px; z-index: 1000;
+      transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+      max-width: min(560px, calc(100vw - 28px)); width: max-content;
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 12px 12px 16px; border-radius: var(--r-md);
+      background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600;
+      border: 1px solid var(--line); border-left: 5px solid #22C55E; box-shadow: var(--shadow-float);
+      transition: opacity .2s, transform .2s;
+    }
+    .toast-status:not(.show) { visibility: hidden; transition: opacity .2s, transform .2s, visibility 0s .2s; }
+    .toast-status.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+    .toast-status.error { border-left-color: var(--bad); }
+    .toast-status.warning { border-left-color: #F59E0B; }
+    .toast-close {
+      margin-left: auto; width: 28px; height: 28px; border: 0; border-radius: 8px;
+      background: transparent; color: var(--ink-3); font-size: 18px; line-height: 1; cursor: pointer;
+    }
+    .toast-close:hover { background: var(--mute-soft); color: var(--ink); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+
+    /* ===== Main page ===== */
+    body { padding-bottom: 0; }
+
+    /* Edit mode */
+    .edit-banner {
+      display: none; position: sticky; top: calc(var(--bar-h) + 10px); z-index: 60;
+      align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 14px; padding: 10px 12px 10px 16px;
+      background: #FFF7E6; border: 1px solid #FCD9A0; border-left: 5px solid #F59E0B; border-radius: var(--r-md);
+      font-size: 14px; color: #7A4A06; box-shadow: var(--shadow);
+    }
+    .edit-banner.show { display: flex; }
+    .edit-banner strong { font-family: var(--font-mono); font-weight: 700; color: var(--ink); }
+    .edit-banner .btn { margin-left: auto; }
+
+    .panel-note { margin-left: auto; font-size: 12.5px; color: var(--ink-3); }
+    .form-group { display: flex; flex-direction: column; min-width: 0; }
+    .form-group label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+    .req { color: var(--bad); margin-left: 1px; }
+
+    .form-grid { display: grid; gap: 14px 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .form-grid + .form-grid { margin-top: 14px; }
+    .fg-place { grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, 1fr); }
+    .fg-notes { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); margin-top: 18px; }
+
+    /* Slip: ID, date, brigade, region in a tinted box */
+    .slip {
+      display: grid; grid-template-columns: 1.1fr 1fr 0.9fr 1.2fr; gap: 14px;
+      padding: 14px; margin-bottom: 16px;
+      background: var(--tint); border: 1px solid var(--tint-line); border-radius: var(--r-md);
+    }
+    .slip input, .slip select { min-height: 46px; font-size: 16px; font-weight: 600; }
+    #idInput { font-family: var(--font-mono); font-size: 17px; font-weight: 700; letter-spacing: .5px; }
+
+    /* Brigade members */
+    .members-section { z-index: 40; }
+    .works-section { z-index: 10; }
+    .members-toolbar { display: flex; gap: 4px; flex-wrap: wrap; margin-left: auto; }
+
+    /* Brigade member cards — v4.1 look, kept as it was */
+    .members-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 10px; }
+    .members-empty { color: #94a3b8; font-size: 13.5px; grid-column: 1 / -1; }
+    .member-item {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: 11px 12px 11px 14px;
+      background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #10b981;
+      border-radius: 14px; box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+      transition: border-color .15s, background .15s, opacity .15s;
+    }
+    .member-item.extra-member { border-left-color: #84cc16; background: #f7fbe9; }
+    .member-item.is-absent { border-left-color: #ef4444; background: #fffafa; }
+    .member-item.is-absent .member-name { color: #475569; text-decoration: line-through; text-decoration-color: rgba(239, 68, 68, .5); }
+    .member-item .member-name { font-weight: 700; font-size: 13.5px; flex: 1 1 140px; line-height: 1.3; min-width: 0; }
+    .member-item .position-tag { font-size: 11px; color: #94a3b8; font-weight: 500; display: block; text-decoration: none; }
+    .member-item .extra-badge {
+      display: inline-block; margin-top: 3px; font-family: var(--font-mono); font-size: 9.5px; font-weight: 800;
+      color: #3f6212; background: #ecfccb; border-radius: 999px; padding: 2px 8px; letter-spacing: .4px;
+    }
+    .absent-toggle { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11px; font-weight: 700; color: #475569; white-space: nowrap; }
+    .absent-toggle input { width: 20px; height: 20px; accent-color: #ef4444; cursor: pointer; }
+    input.member-note {
+      width: 130px; min-height: 36px; padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e1;
+      font-size: 13px; background: #fff;
+    }
+    input.member-note:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, .22); }
+    .btn-remove-member {
+      border: none; background: #fee2e2; color: #ef4444; width: 28px; height: 28px;
+      border-radius: 50%; font-size: 12px; font-weight: bold; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s; flex-shrink: 0;
+    }
+    .btn-remove-member:hover { background: #ef4444; color: #fff; }
+
+    .btn-icon-danger {
+      width: 32px; height: 32px; display: inline-grid; place-items: center;
+      border: 1px solid transparent; border-radius: 9px; background: transparent; color: var(--ink-3); cursor: pointer;
+    }
+    .btn-icon-danger:hover { background: var(--bad-soft); border-color: #FFC9D2; color: var(--bad); }
+    .btn-icon-danger .i { width: 16px; height: 16px; }
+
+    .add-extra-row { display: flex; gap: 8px 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; position: relative; z-index: 50; }
+    .add-extra-row .hint { width: 100%; font-size: 12px; color: var(--ink-3); }
+    .extra-member-picker { position: relative; flex: 1; min-width: 260px; }
+    .extra-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; }
+    input.extra-member-input { padding: 0 40px 0 38px; }
+    .extra-clear {
+      position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
+      width: 30px; height: 30px; display: grid; place-items: center;
+      border: 0; border-radius: 8px; background: transparent; color: var(--ink-3); cursor: pointer;
+    }
+    .extra-clear .i { width: 15px; height: 15px; }
+    .extra-clear:hover { background: var(--mute-soft); color: var(--ink); }
+
+    .extra-member-results {
+      display: none; position: absolute; z-index: 9999; top: calc(100% + 6px); left: 0; right: 0;
+      max-height: 320px; overflow-y: auto; padding: 6px;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-float);
+    }
+    .extra-member-results.open { display: block; }
+    .extra-result {
+      width: 100%; display: flex; flex-direction: column; gap: 1px; padding: 8px 10px;
+      border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer;
+    }
+    .extra-result:hover, .extra-result.active { background: var(--brand-soft); }
+    .extra-result .r-name { font-weight: 700; font-size: 14px; }
+    .extra-result .r-meta { font-size: 12px; color: var(--ink-3); }
+    .extra-empty { padding: 12px; color: var(--ink-3); font-size: 13px; text-align: center; }
+
+    /* Works */
+    #workContainer { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+    .work-item { display: flex; align-items: stretch; background: var(--card); }
+    .work-item + .work-item { border-top: 1px solid var(--line); }
+    .work-item.invalid { background: #FFF7F8; box-shadow: inset 3px 0 0 var(--bad); }
+
+    .field-cell { display: flex; flex-direction: column; justify-content: center; padding: 6px 12px; border-left: 1px solid var(--line); min-width: 0; }
+    .field-cell:first-child { border-left: 0; }
+    .field-cell .cell-label { font-size: 12px; font-weight: 700; color: var(--th-ink); line-height: 1.3; }
+    .work-item:first-child .field-cell { padding-top: 0; }
+    .work-item:first-child .cell-label {
+      display: flex; align-items: center; height: 34px; margin: 0 -12px 6px; padding: 0 12px;
+      background: var(--th); border-bottom: 1px solid var(--line);
+    }
+    .work-item:first-child .cell-num .cell-label { justify-content: center; align-self: stretch; }
+    .work-item:first-child .field-cell { justify-content: flex-start; }
+    .work-item:first-child .cell-actions::before {
+      content: ""; display: block; align-self: stretch; height: 34px; margin: 0 -6px 6px;
+      background: var(--th); border-bottom: 1px solid var(--line);
+    }
+    .work-item:first-child .cell-actions .btn-icon-danger { margin-top: 3px; }
+    .work-item:first-child .work-num { margin-top: 9px; }
+    .work-item + .work-item .cell-label { display: none; }
+
+    .cell-num { width: 48px; align-items: center; flex-shrink: 0; }
+    .work-num { font-family: var(--font-mono); font-weight: 700; color: var(--ink-3); font-size: 13px; }
+    .cell-type { flex: 2.2; min-width: 220px; }
+    .cell-time { flex-shrink: 0; width: 150px; }
+    .cell-dur { width: 96px; flex-shrink: 0; }
+    .cell-dur .dur { min-height: 38px; display: flex; flex-direction: column; justify-content: center; font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+    .next-day { display: block; font-family: var(--font); font-size: 11px; color: var(--brand); font-weight: 700; line-height: 1.1; }
+    .cell-qty { width: 104px; flex-shrink: 0; }
+    .cell-comment { flex: 1.5; min-width: 150px; }
+    .cell-actions { width: 52px; flex-shrink: 0; align-items: center; padding: 0 6px; }
+    .work-item:first-child .cell-actions .cell-label { width: calc(100% + 12px); }
+
+    .work-item input { border: 0; border-radius: 0; background: transparent; min-height: 38px; padding: 0; font-size: 14.5px; }
+    .work-item input:hover { border: 0; }
+    .work-item input:focus { box-shadow: inset 0 -2px 0 var(--brand); border: 0; }
+    .work-item .work-qty { font-family: var(--font-mono); font-weight: 700; }
+
+    .time-inputs { display: flex; align-items: center; gap: 3px; color: var(--ink-3); }
+    .time-inputs select {
+      width: 58px; min-height: 34px; padding: 0 18px 0 8px; font-family: var(--font-mono); font-size: 13px; font-weight: 600;
+      border-radius: 8px; background-position: right 6px center; background-size: 9px 6px;
+    }
+
+    .works-footer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+    .works-total { margin-left: auto; font-size: 13px; color: var(--ink-2); }
+    .works-total strong { color: var(--ink); font-weight: 700; font-family: var(--font-mono); }
+    .comment-hint { font-size: 12px; color: var(--brand-ink); margin-top: 5px; }
+
+    /* Save bar */
+    .actions {
+      position: sticky; bottom: 0; z-index: 50;
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      padding: 12px 0;
+      background: rgba(255, 255, 255, .97);
+      box-shadow: 0 0 0 100vmax rgba(255, 255, 255, .97);
+      border-top: 1px solid var(--line);
+      border-image: linear-gradient(var(--line), var(--line)) 1 / 1px 0 0 0 / 0 100vmax;
+      clip-path: inset(0 -100vmax 0 -100vmax);
+    }
+    .actions #saveBtn { min-width: 170px; height: 46px; font-size: 15px; border-radius: var(--r-md); }
+    .actions-meta { margin-left: auto; display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 999px; background: var(--brand-soft); color: var(--brand-ink); font-size: 12.5px; font-weight: 700; }
+
+    .inline-alert {
+      display: none; border-radius: var(--r-md); padding: 12px 16px; margin-bottom: 14px;
+      font-size: 14px; background: var(--warn-soft); color: var(--warn); border: 1px solid #FCD9A0;
+    }
+
+    /* ---------- Archive (saved records) ---------- */
+    .records { margin-top: 36px; }
+    .records .hero-title .count-tag { font-size: 12px; }
+
+    .filter-box {
+      display: flex; align-items: flex-end; gap: 12px 14px; flex-wrap: wrap;
+      padding: 14px 16px; margin-bottom: 14px;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
+    }
+    .filter-box.filter-grid {
+      display: grid; grid-template-columns: minmax(220px, 1.6fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(180px, 1.3fr) auto;
+      align-items: end; background: var(--tint); border-color: var(--tint-line);
+    }
+    .filter-box .f-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; position: relative; }
+    .filter-box label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+    .filter-input, input.filter-input, select.filter-input { width: 100%; min-height: 38px; font-size: 13.5px; padding: 0 10px; }
+    select.filter-input { padding-right: 30px; }
+    .input-icon { position: relative; }
+    .input-icon .f-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; width: 16px; height: 16px; }
+    #filterSearchId { padding-left: 34px; }
+    .f-pair { display: flex; gap: 8px; }
+    .f-pair select { min-width: 0; }
+    .f-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .range-dash { color: var(--ink-3); align-self: center; }
+
+    /* Generic filter rows (absence / comments tabs) */
+    .abs-filter, .dc-filter { background: var(--tint); border-color: var(--tint-line); }
+    .abs-filter .f-group, .dc-filter .f-group { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .abs-filter .filter-input, .dc-filter .filter-input { width: auto; }
+
+    .table-responsive {
+      position: relative; width: 100%; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+      max-height: min(660px, 74vh);
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
+    }
+    table.records-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; font-size: 13.5px; }
+    table.records-table th {
+      position: sticky; top: 0; z-index: 2;
+      padding: 11px 14px; background: var(--th); color: var(--th-ink);
+      font-size: 12.5px; font-weight: 700; text-align: center; white-space: nowrap;
+      border-bottom: 1px solid var(--line);
+    }
+    table.records-table th.left, table.records-table td.left { text-align: left; }
+    table.records-table td { padding: 11px 14px; border-bottom: 1px solid #EEF0F6; text-align: center; vertical-align: middle; }
+    table.records-table tbody tr:last-child td { border-bottom: 0; }
+    table.records-table tbody tr { transition: background-color .12s; }
+    table.records-table tbody tr:hover { background: #FAFAFF; }
+    table.records-table tbody tr > td:first-child { box-shadow: inset 3px 0 0 transparent; }
+    table.records-table tbody tr.att-full > td:first-child { box-shadow: inset 3px 0 0 #22C55E; }
+    table.records-table tbody tr.att-partial > td:first-child { box-shadow: inset 3px 0 0 #F43F5E; }
+    table.records-table tbody tr.editing { background: #FFF7E6; }
+    table.records-table tbody tr.editing > td:first-child { box-shadow: inset 3px 0 0 #F59E0B; }
+    td.mono { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+    td.rid b { display: block; font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--ink); }
+    td.rid small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; }
+    td.rid { text-align: left !important; }
+    table.records-table td.addr { text-align: left; max-width: 280px; }
+    table.records-table td.addr small, td.car small { display: block; margin-top: 3px; color: var(--ink-3); font-size: 11.5px; }
+    td.car { white-space: nowrap; }
+    .row-actions { display: inline-flex; gap: 4px; }
+    .badge-att.full { background: var(--ok-soft); color: var(--ok); }
+    .badge-att.partial { background: var(--bad-soft); color: var(--bad); }
+
+    #noRecordsHint, .abs-empty {
+      padding: 36px 20px; text-align: center; font-size: 14px; color: var(--ink-3);
+      background: var(--card); border: 1.5px dashed var(--line-2); border-radius: var(--r-lg);
+    }
+
+    /* Absence editor */
+    .abs-filter .abs-person-group { flex: 1 1 360px; }
+    .abs-filter .abs-person-group .extra-member-picker { min-width: 240px; }
+    .abs-person-card {
+      display: flex; align-items: center; gap: 12px 14px; flex-wrap: wrap; margin-bottom: 12px;
+      padding: 14px 16px; background: var(--grad-hero); border: 1px solid #E3E5F8; border-radius: var(--r-lg); box-shadow: var(--shadow);
+    }
+    .abs-avatar {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; display: inline-grid; place-items: center;
+      background: var(--grad); color: #fff; font-weight: 700;
+    }
+    .abs-who b { display: block; font-size: 16px; font-weight: 800; }
+    .abs-who small { color: var(--ink-3); font-size: 12.5px; font-family: var(--font-mono); }
+    .abs-stats { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+    .st {
+      display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px;
+      border-radius: 999px; border: 1px solid transparent; font-size: 12.5px; font-weight: 700; white-space: nowrap; line-height: 1;
+    }
+    button.st { cursor: pointer; font-family: inherit; }
+    button.st:hover { border-color: currentColor; }
+    .st b { font-family: var(--font-mono); }
+    .st.present { background: var(--ok-soft); color: var(--ok); }
+    .st.r0 { background: #E8F0FF; color: #1D4ED8; }   /* შვებულება */
+    .st.r1 { background: var(--bad-soft); color: var(--bad); } /* ბიულეტინი */
+    .st.r2 { background: #FFF1E6; color: #C2410C; }   /* სავარაუდო ბიულეტინი */
+    .st.r3 { background: #F1ECFF; color: #6D28D9; }   /* უხელფასო შვებულება */
+    .st.r4 { background: #FDE8F3; color: #BE185D; }   /* არასაპატიო */
+    .st.r5 { background: #E0F7FA; color: #0E7490; }   /* საპატიო */
+    .st.rx { background: var(--mute-soft); color: var(--ink-2); }
+
+    .abs-view { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; padding: 4px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); }
+    .abs-view .lbl { font-size: 12.5px; font-weight: 600; color: var(--ink-3); padding: 0 8px; }
+    .abs-view button { height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+    .abs-view button b { margin-left: 6px; display: inline-flex; min-width: 20px; height: 18px; padding: 0 5px; align-items: center; justify-content: center; border-radius: 999px; background: var(--mute-soft); font-family: var(--font-mono); font-size: 11px; }
+    .abs-view button.active { background: var(--brand-soft); color: var(--brand-ink); }
+    .abs-view button.active b { background: var(--brand); color: #fff; }
+
+    .abs-bar {
+      position: sticky; top: calc(var(--bar-h) + 10px); z-index: 5;
+      display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; margin-bottom: 12px;
+      padding: 8px 10px 8px 16px; border-radius: var(--r-md); background: var(--nav); color: #DCE1F2; font-size: 13.5px;
+      box-shadow: 0 12px 26px -14px rgba(20, 26, 46, .6);
+    }
+    .abs-bar .abs-sel b { color: #fff; font-family: var(--font-mono); font-size: 16px; font-weight: 700; }
+    .abs-bar .abs-quick { display: inline-flex; gap: 2px; flex-wrap: wrap; }
+    .abs-bar .btn-ghost { color: #C3CAE0; }
+    .abs-bar .btn-ghost:hover:not(:disabled) { background: rgba(255, 255, 255, .08); color: #fff; }
+    .abs-bar .btn:focus-visible { outline-color: #fff; }
+    .abs-bar .abs-apply { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+    .abs-bar label { font-size: 13px; color: #AEB6CF; }
+    .abs-bar select, .abs-bar .dc-bulk-input { min-height: 34px; width: auto; border-color: transparent; font-size: 13.5px; }
+    .abs-bar .dc-bulk-input { min-width: 240px; }
+    .abs-table th.chk, .abs-table td.chk, .dc-table th.chk, .dc-table td.chk { width: 46px; }
+    .abs-table tbody tr, .dc-table tbody tr { cursor: pointer; }
+    .abs-table tbody tr.sel, .dc-table tbody tr.sel { background: var(--brand-soft); }
+    .abs-table tbody tr.sel:hover, .dc-table tbody tr.sel:hover { background: #E8E4FF; }
+    .abs-table tbody tr.just-updated, .dc-table tr.just-updated { animation: flashOk 2s ease-out; }
+    @keyframes flashOk { 0% { background: #D7F5E2; } 100% { background: transparent; } }
+    .abs-note { font-size: 12.5px; color: var(--ink-3); margin-top: 10px; max-width: 90ch; }
+    .abs-table td.work { text-align: left; min-width: 250px; }
+    .wk { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; line-height: 1.45; }
+    .wk span { font-family: var(--font-mono); font-weight: 700; white-space: nowrap; }
+    .wk span small { color: var(--ink-3); font-weight: 500; }
+    .wk-hours { font-size: 12px; color: var(--ink-3); margin-top: 2px; font-family: var(--font-mono); }
+    .wk-none { color: var(--ink-3); font-size: 12.5px; }
+
+    /* Day comments */
+    .dc-table td.ids { text-align: left; max-width: 280px; }
+    .id-chip {
+      display: inline-flex; align-items: center; height: 22px; margin: 2px 4px 2px 0; padding: 0 8px; border-radius: 999px;
+      background: var(--brand-soft); color: var(--brand-ink); font-family: var(--font-mono); font-size: 11.5px; font-weight: 700;
+    }
+    .dc-table td.cm { min-width: 260px; text-align: left; }
+    input.dc-input { min-height: 36px; font-size: 13.5px; padding: 0 10px; }
+    input.dc-input.dirty { border-color: #F59E0B; background: #FFFBF0; }
+    .dc-mixed { display: block; font-size: 12px; color: var(--warn); margin-top: 4px; }
+
+    /* Login */
+    .login-screen {
+      position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 16px;
+      background: radial-gradient(circle at 15% 10%, rgba(123, 92, 255, .35), transparent 40%), radial-gradient(circle at 85% 90%, rgba(59, 163, 255, .28), transparent 42%), var(--nav);
+    }
+    .login-card {
+      width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 6px;
+      padding: 28px 28px 24px; background: var(--card); border-radius: 20px; box-shadow: 0 30px 80px -24px rgba(0, 0, 0, .55);
+    }
+    .login-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-weight: 800; font-size: 16px; }
+    .login-logo { width: 42px; height: 42px; border-radius: 11px; }
+    .login-card h2 { font-size: 24px; font-weight: 800; letter-spacing: -.3px; line-height: 1.2; }
+    .login-card p { color: var(--ink-3); font-size: 13.5px; margin-bottom: 8px; }
+    .login-card label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-top: 8px; }
+    .login-card input { min-height: 44px; }
+    .login-card .btn { margin-top: 14px; height: 46px; width: 100%; font-size: 15px; border-radius: var(--r-md); }
+    .login-error { background: var(--bad-soft); color: var(--bad); border: 1px solid #FFC9D2; border-radius: var(--r-sm); padding: 10px 12px; font-size: 13.5px; margin-top: 8px; }
+    .login-note { color: var(--ink-3); font-size: 12px; margin-top: 10px; text-align: center; }
+
+    /* Overlap modal */
+    .modal-back { position: fixed; inset: 0; z-index: 1500; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(20, 26, 46, .55); backdrop-filter: blur(3px); }
+    .modal {
+      width: 100%; max-width: 700px; max-height: calc(100vh - 32px); display: flex; flex-direction: column;
+      background: var(--card); border-radius: 20px; box-shadow: var(--shadow-float); overflow: hidden;
+    }
+    .modal-head { display: flex; gap: 12px; align-items: flex-start; padding: 20px 22px 16px; background: linear-gradient(115deg, #FFF7E6, #FFF1D6); border-bottom: 1px solid #FCD9A0; }
+    .modal-icon { width: 28px; height: 28px; color: #D97706; margin-top: 1px; }
+    .modal-head h3 { font-size: 18px; font-weight: 800; color: var(--ink); }
+    .modal-head p { font-size: 13px; color: #92400E; margin-top: 2px; font-family: var(--font-mono); }
+    .modal-body { padding: 16px 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .ov-card { border: 1px solid var(--line); border-left: 4px solid #F59E0B; border-radius: var(--r-md); padding: 12px 14px; background: #FFFDF8; }
+    .ov-msg { font-size: 13.5px; line-height: 1.55; }
+    .ov-msg b { font-weight: 700; }
+    .ov-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    .ov-cell { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 10px; }
+    .ov-cell span { display: block; font-size: 11.5px; font-weight: 600; color: var(--ink-3); margin-bottom: 2px; }
+    .ov-cell b { font-family: var(--font-mono); font-size: 13.5px; font-weight: 700; }
+    .ov-cell.hit { border-color: #FFC9D2; background: var(--bad-soft); }
+    .ov-cell.hit b { color: var(--bad); }
+    .ov-works { font-size: 12.5px; color: var(--ink-3); margin-top: 8px; }
+    .modal-foot { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; padding: 14px 22px; border-top: 1px solid var(--line); background: var(--card-2); }
+
+    footer {
+      display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      margin-top: 44px; padding: 18px 0 30px; border-top: 1px solid var(--line);
+      font-size: 12px; color: var(--ink-3);
+    }
+    footer strong { color: var(--ink); font-weight: 700; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 1100px) {
+      .kpis { grid-template-columns: 1fr 1fr; }
+      .filter-box.filter-grid { grid-template-columns: 1fr 1fr 1fr; }
+      .filter-box.filter-grid .f-search { grid-column: 1 / -1; }
+      .cell-type { min-width: 180px; }
+      .cell-comment { min-width: 120px; }
+      .cell-time { width: 140px; }
+    }
+    @media (max-width: 960px) {
+      .slip { grid-template-columns: 1fr 1fr; }
+      .fg-place, .form-grid { grid-template-columns: 1fr 1fr; }
+      .fg-place .fg-wide { grid-column: 1 / -1; }
+      .work-item { flex-wrap: wrap; }
+      .work-item .cell-label { display: block !important; height: auto !important; margin: 0 0 2px !important; padding: 0 !important; background: none !important; border: 0 !important; }
+      .work-item:first-child .field-cell { padding-top: 6px; }
+      .cell-type { flex: 1 1 calc(100% - 100px); border-left: 1px solid var(--line); }
+      .cell-actions { order: 3; border-left: 1px solid var(--line); }
+      .cell-time, .cell-dur, .cell-qty, .cell-comment { order: 4; border-top: 1px solid var(--line); }
+      .cell-time:nth-of-type(3) { border-left: 0; }
+      .cell-comment { flex: 1 1 100%; border-left: 0; }
+      .cell-qty { flex: 1; }
+    }
+    @media (max-width: 720px) {
+      :root { --bar-h: 58px; }
+      .topbar { height: auto; flex-wrap: wrap; padding: 9px 12px 9px; gap: 8px; }
+      .brand { margin-right: auto; }
+      .brand-sub { display: none; }
+      .topbar-status { order: 2; margin-left: 0; }
+      .topbar-status:not(.offline) { display: none; }
+      .user-chip { order: 3; }
+      .uc-name { display: none; }
+      .uc-logout span { display: none; }
+      .uc-logout { padding: 0 9px; }
+      .nav-tabs { order: 4; width: 100%; }
+      .nav-tab { flex: 1; justify-content: center; }
+      .edit-banner, .abs-bar { top: 8px; }
+      .wrap { padding-top: 14px; }
+      .panel { padding: 16px 14px 18px; border-radius: 14px; }
+      .panel-note { margin-left: 0; width: 100%; }
+      .slip { padding: 10px; gap: 10px; }
+      .slip input, .slip select { font-size: 15px; min-height: 42px; }
+      .form-grid, .fg-place, .fg-notes { grid-template-columns: 1fr; }
+      .members-toolbar { margin-left: 0; width: 100%; }
+      .members-list { grid-template-columns: 1fr; }
+      input.member-note { flex: 1 1 120px; }
+      .add-extra-row { flex-direction: column; align-items: stretch; }
+      .extra-member-picker { min-width: 0; width: 100%; }
+      .cell-time { flex: 1 1 50%; width: auto; }
+      .cell-dur { flex: 1 1 40%; border-left: 0 !important; }
+      .actions { gap: 8px; }
+      .actions #saveBtn { flex: 1; min-width: 0; }
+      .actions-meta { display: none; }
+      .hero { padding: 18px 16px; }
+      .hero-title { font-size: 22px; }
+      .btn.btn-hero { width: 100%; }
+      .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+      .kpi-featured { grid-column: 1 / -1; min-height: 88px; }
+      .kpi { padding: 12px; min-height: 84px; }
+      .kpi-label { font-size: 12px; }
+      .kpi-value { font-size: 26px; }
+      .kpi:not(.kpi-featured) .kpi-row { flex-direction: column; gap: 2px; align-items: flex-start; }
+      .kpi::after { width: 70px; height: 70px; right: -22px; top: -26px; }
+      .rec-tabs { display: flex; }
+      .filter-box.filter-grid { grid-template-columns: 1fr 1fr; padding: 12px; }
+      .filter-box.filter-grid .f-area { grid-column: 1 / -1; }
+      .f-actions { grid-column: 1 / -1; }
+      .f-actions .btn { width: 100%; }
+      .abs-filter, .dc-filter { flex-direction: column; align-items: stretch; padding: 12px; }
+      .abs-filter .f-group, .dc-filter .f-group { flex-direction: row; flex-wrap: wrap; }
+      .abs-filter .f-group > label, .dc-filter .f-group > label { width: 100%; }
+      .abs-filter .filter-input, .dc-filter .filter-input { flex: 1; min-width: 0; }
+      .abs-filter .abs-person-group { flex: none; }
+      .abs-filter .abs-person-group .extra-member-picker { min-width: 0; }
+      .abs-filter .f-group .btn, .dc-filter .f-group .btn { flex: 1; }
+      .area-sub { width: 100%; }
+      .abs-stats { margin-left: 0; }
+      .abs-bar { position: static; }
+      .abs-bar .abs-apply { margin-left: 0; width: 100%; }
+      .abs-bar .abs-apply select, .abs-bar .dc-bulk-input { flex: 1; min-width: 0; }
+      .ov-grid { grid-template-columns: 1fr; }
+      .modal-foot .btn { width: 100%; }
+      .toast-status { bottom: 84px; }
+      footer { flex-direction: column; }
+    }
+
+    /* ===== Overtime module ===== */
+    body { padding-bottom: 40px; }
+    .lookup {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto; gap: 12px; align-items: end;
+      padding: 14px; margin-bottom: 14px; background: var(--tint); border: 1px solid var(--tint-line); border-radius: var(--r-md);
+    }
+    .lookup input { min-height: 46px; font-family: var(--font-mono); font-size: 16px; font-weight: 700; letter-spacing: .3px; }
+    .lookup .btn { height: 46px; }
+    .lk-hint { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink-3); margin-top: -4px; }
+
+    .notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--r-md); font-size: 13.5px; margin-bottom: 14px; border: 1px solid; }
+    .notice .i { margin-top: 1px; }
+    .notice b { font-weight: 700; }
+    .notice.ok { background: var(--ok-soft); border-color: #BFE6CD; color: #14532D; }
+    .notice.warn { background: var(--warn-soft); border-color: #F7D9A2; color: #713F12; }
+    .notice.bad { background: var(--bad-soft); border-color: #FFC9D2; color: #7F1D2D; }
+    .notice.info { background: var(--info-soft); border-color: #C9DAFB; color: #1E3A8A; }
+    .notice .grow { flex: 1; min-width: 0; }
+
+    .cands { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin: 2px 0 14px; }
+    .cand {
+      display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; text-align: left; cursor: pointer;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .cand:hover, .cand:focus-visible { border-color: var(--brand); box-shadow: 0 0 0 3px var(--focus); }
+    .cand-top { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .cand-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 700; background: var(--mute-soft); color: var(--ink-2); }
+    .cand-tag.via-id { background: var(--info-soft); color: var(--info); }
+    .cand-tag.via-ganwesi { background: var(--brand-soft); color: var(--brand-ink); }
+    .cand-tag.via-both { background: var(--ok-soft); color: var(--ok); }
+    .cand-tag.via-history { background: var(--warn-soft); color: var(--warn); }
+    .cand-ids { font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+    .cand-ids .diff { color: var(--bad); text-decoration: underline wavy rgba(192, 38, 63, .5); }
+    .cand small { color: var(--ink-3); font-size: 12px; }
+    .cand .addr { font-size: 13px; }
+
+    .ot-grid { display: grid; gap: 14px 16px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .ot-grid .wide { grid-column: span 2; }
+    .field { display: flex; flex-direction: column; min-width: 0; position: relative; }
+    .field label { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+    .field.auto input, .field.auto select { background-color: var(--brand-soft); border-color: var(--brand-line); color: var(--brand-ink); font-weight: 600; }
+    .field.auto label::after {
+      content: "ავტომატური"; display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 999px;
+      background: var(--brand); color: #fff; font-size: 10.5px; font-weight: 700;
+    }
+    .field.manual-required input:placeholder-shown { border-style: dashed; }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink-3); }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .legend i { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line-2); background: var(--card); }
+    .legend i.a { background: var(--brand-soft); border-color: var(--brand-line); }
+
+    .section-sub { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 22px 0 10px; }
+    .section-sub h3 { font-size: 15px; font-weight: 800; }
+    .section-sub .spacer { margin-left: auto; }
+
+    .emp-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; }
+    .emp {
+      display: flex; align-items: center; gap: 10px; padding: 9px 10px 9px 12px; border-radius: var(--r-md);
+      background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--line-2); min-width: 0;
+    }
+    .emp.on { border-left-color: #22C55E; background: #FBFFFC; }
+    .emp.absent { border-left-color: #F43F5E; background: #FFF8F9; }
+    .emp input[type=checkbox] { flex-shrink: 0; }
+    .emp .who { flex: 1; min-width: 0; }
+    .emp .who b { display: block; font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .emp .who small { display: block; font-size: 11.5px; color: var(--ink-3); font-family: var(--font-mono); }
+    .emp .tags { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+    .tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 999px; font-size: 10.5px; font-weight: 700; white-space: nowrap; background: var(--mute-soft); color: var(--ink-2); }
+    .tag.auto { background: var(--brand-soft); color: var(--brand-ink); }
+    .tag.bad { background: var(--bad-soft); color: var(--bad); }
+    .tag.warn { background: var(--warn-soft); color: var(--warn); }
+    .emp-empty { padding: 16px; text-align: center; color: var(--ink-3); font-size: 13.5px; border: 1.5px dashed var(--line-2); border-radius: var(--r-md); grid-column: 1 / -1; }
+    .emp-add { display: grid; grid-template-columns: minmax(0, 1.4fr) auto; gap: 10px; margin-top: 10px; position: relative; }
+    .emp-manual { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto; gap: 10px; margin-top: 10px; padding: 12px; background: var(--tint); border: 1px solid var(--tint-line); border-radius: var(--r-md); }
+    .results { position: absolute; z-index: 50; top: calc(100% + 6px); left: 0; right: 0; max-height: 300px; overflow: auto; padding: 6px;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-float); }
+    .results button { display: flex; width: 100%; flex-direction: column; gap: 1px; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; }
+    .results button:hover, .results button.active { background: var(--brand-soft); }
+    .results b { font-size: 13.5px; } .results small { font-size: 11.5px; color: var(--ink-3); }
+
+    .time-row { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 16px; align-items: end; }
+    .t-in { width: 116px; min-height: 46px; text-align: center; font-family: var(--font-mono); font-size: 17px; font-weight: 700; letter-spacing: .5px; }
+    .split { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; min-height: 44px; }
+    .split .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+    .split .pill b { font-family: var(--font-mono); }
+    .pill.day { background: #FFF6DB; color: #8A5A00; }
+    .pill.night { background: #E8EAFB; color: #3730A3; }
+    .pill.total { background: var(--mute-soft); color: var(--ink-2); }
+    .pill.cross { background: var(--brand-soft); color: var(--brand-ink); }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .chip-btn { height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--card); font-family: var(--font-mono); font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink-2); }
+    .chip-btn:hover { border-color: var(--brand); color: var(--brand-ink); }
+
+    .form-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .form-actions #otSave { min-width: 190px; height: 46px; border-radius: var(--r-md); font-size: 15px; }
+    .form-actions .meta { margin-left: auto; font-size: 12.5px; color: var(--ink-3); }
+
+    /* list */
+    .ot-filter { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)) auto; gap: 10px; align-items: end; }
+    .ot-filter .f-group { gap: 6px; }
+    table.ot-table td { text-align: left; }
+    table.ot-table th { text-align: left; }
+    .ot-table td.num, .ot-table th.num { text-align: right; }
+    .ot-table .emp-cell b { display: block; font-weight: 700; }
+    .ot-table .emp-cell small, .ot-table .sub { display: block; color: var(--ink-3); font-size: 11.5px; }
+    .ot-table .mono2 { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+    .ot-table tr.deleted td { opacity: .6; text-decoration: line-through; }
+    .ot-table tr > td:first-child { box-shadow: inset 3px 0 0 transparent; }
+    .ot-table tr.has-night > td:first-child { box-shadow: inset 3px 0 0 #6366F1; }
+    .ot-table tr.day-only > td:first-child { box-shadow: inset 3px 0 0 #F59E0B; }
+    .pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; font-size: 13px; color: var(--ink-3); font-family: var(--font-mono); }
+
+    .tabpanel[hidden] { display: none !important; }
+    .audit-details { font-size: 12.5px; color: var(--ink-2); max-width: 520px; word-break: break-word; }
+    .data-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+    .data-card h3 { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+    .data-card p { font-size: 13px; color: var(--ink-3); margin-bottom: 12px; }
+    .progress { height: 8px; border-radius: 999px; background: var(--mute-soft); overflow: hidden; margin-top: 10px; }
+    .progress > i { display: block; height: 100%; width: 0; background: var(--grad); transition: width .2s; }
+    .import-log { margin-top: 10px; font-size: 12.5px; color: var(--ink-2); white-space: pre-wrap; }
+    .file-btn { position: relative; overflow: hidden; }
+    .file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+    .modal .modal-body .ot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .conf-list { display: flex; flex-direction: column; gap: 8px; }
+    .conf { padding: 10px 12px; border-radius: var(--r-sm); border: 1px solid var(--line); font-size: 13px; line-height: 1.5; }
+    .conf.block { border-left: 4px solid var(--bad); background: #FFF8F9; }
+    .conf.warn { border-left: 4px solid #F59E0B; background: #FFFDF6; }
+    .conf b { font-weight: 700; }
+    .conf .mono2 { font-family: var(--font-mono); font-weight: 600; }
+
+    @media (max-width: 1100px) {
+      .ot-filter { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .ot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .lookup { grid-template-columns: 1fr 1fr; padding: 10px; }
+      .lookup .btn { grid-column: span 1; }
+      .ot-grid, .modal .modal-body .ot-grid { grid-template-columns: 1fr; }
+      .ot-grid .wide { grid-column: auto; }
+      .time-row { grid-template-columns: 1fr 1fr; }
+      .time-row .split { grid-column: 1 / -1; }
+      .emp-manual, .emp-add { grid-template-columns: 1fr; }
+      .ot-filter { grid-template-columns: 1fr 1fr; }
+      .form-actions #otSave { flex: 1; }
+      .form-actions .meta { margin-left: 0; width: 100%; }
+      .kpis { grid-template-columns: 1fr 1fr !important; }
+      .kpis .kpi-featured { grid-column: auto; }
+      .modal-head p { font-family: var(--font); }
+    }
+
+    .emp-add .input-icon input { padding-left: 36px; }
+    .brig-tag { display: inline-flex; min-width: 30px; height: 24px; padding: 0 8px; align-items: center; justify-content: center; border-radius: 7px; background: var(--brand-soft); color: var(--brand-ink); font-family: var(--font-mono); font-weight: 700; font-size: 12.5px; }
+    .cand.chosen { border-color: var(--ok); box-shadow: 0 0 0 3px rgba(21,128,61,.15); }
+
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2.12 2.12 0 0 0-3-3L5 17v3z"/><path d="M13.5 8.5l2 2"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+      <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.01"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+      <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+    </defs>
+  </svg>
+  <a class="skip-link" href="#otForm">ფორმაზე გადასვლა</a>
+  <header class="topbar">
+    <a class="brand" href="/overtime" aria-label="Brigade-Ops — Overtime">
+      <span class="mark"><img src="/logo.png" alt="" width="34" height="34" /></span>
+      <span class="titles">
+        <span class="brand-name">Brigade-Ops</span>
+        <span class="brand-sub">Overtime</span>
+      </span>
+    </a>
+    <nav class="nav-tabs" aria-label="განყოფილებები">
+      <a class="nav-tab" href="/" id="navMain" hidden>ანგარიში</a>
+      <a class="nav-tab active" href="/overtime" aria-current="page">Overtime</a>
+      <a class="nav-tab" href="/admin">ადმინ პანელი</a>
+    </nav>
+    <div class="topbar-status" id="netStatus" role="status">
+      <span class="dot" aria-hidden="true"></span>
+      <span id="netStatusText">ონლაინ</span>
+    </div>
+    <div class="user-chip" id="userChip" hidden>
+      <span class="uc-avatar" id="ucAvatar" aria-hidden="true"></span>
+      <span class="uc-name" id="ucName"></span>
+      <button type="button" class="uc-logout" onclick="logout()" title="გასვლა" aria-label="გასვლა"><svg class="i" aria-hidden="true"><use href="#i-logout"/></svg><span>გასვლა</span></button>
+    </div>
+  </header>
+
+  <main class="wrap" id="otApp" hidden>
+    <div class="hero">
+      <div class="hero-main">
+        <span class="eyebrow">ზეგანაკვეთური სამუშაო</span>
+        <h2 class="hero-title">Overtime</h2>
+        <p class="hero-meta"><span class="period-pill" id="roleBadge">ოპერატორი</span><span id="heroScope">ჩანაწერები ცალკე ბაზაში — ძირითადი ანგარიში არ იცვლება</span></p>
+      </div>
+      <button type="button" class="btn btn-primary btn-hero" id="heroExport" hidden onclick="exportExcel()"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg>Excel</button>
+    </div>
+
+    <div class="kpis" aria-label="შეჯამება (ფილტრის მიხედვით)">
+      <div class="kpi kpi-featured">
+        <span class="kpi-label">ჩანაწერები</span>
+        <span class="kpi-row"><b class="kpi-value" id="kpiTotal">0</b><small id="kpiSub">ფილტრის მიხედვით</small></span>
+      </div>
+      <div class="kpi kpi-green">
+        <span class="kpi-label">დღის საათები</span>
+        <span class="kpi-row"><b class="kpi-value" id="kpiDay">0:00</b></span>
+      </div>
+      <div class="kpi kpi-blue">
+        <span class="kpi-label">ღამის საათები</span>
+        <span class="kpi-row"><b class="kpi-value" id="kpiNight">0:00</b></span>
+      </div>
+      <div class="kpi kpi-violet">
+        <span class="kpi-label">თანამშრომლები</span>
+        <span class="kpi-row"><b class="kpi-value" id="kpiPeople">0</b></span>
+      </div>
+    </div>
+
+    <div class="notice bad" id="otDown" hidden><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg><div class="grow"><b>Overtime-ის ბაზა დროებით მიუწვდომელია.</b> ძირითადი ანგარიშის მოდული ჩვეულებრივ მუშაობს. სცადეთ რამდენიმე წუთში. <button type="button" class="btn btn-ghost btn-sm" onclick="location.reload()">განახლება</button></div></div>
+
+    <div class="rec-tabs" role="tablist" aria-label="Overtime-ის ხედები">
+      <button type="button" class="rec-tab active" role="tab" aria-selected="true" data-tab="form" onclick="switchTab('form')">ახალი ჩანაწერი</button>
+      <button type="button" class="rec-tab" role="tab" aria-selected="false" data-tab="list" onclick="switchTab('list')">ჩანაწერები <span class="tab-count" id="tabCount">0</span></button>
+      <button type="button" class="rec-tab" role="tab" aria-selected="false" data-tab="audit" onclick="switchTab('audit')">ოპერაციების ისტორია</button>
+      <button type="button" class="rec-tab" role="tab" aria-selected="false" data-tab="data" id="tabDataBtn" hidden onclick="switchTab('data')">ექსპორტი და მონაცემები</button>
+    </div>
+
+    <!-- ===== Form ===== -->
+    <section class="tabpanel" id="tab-form" role="tabpanel">
+      <form id="otForm" class="panel sheet" autocomplete="off" onsubmit="event.preventDefault(); saveEntries(false);">
+        <div class="panel-head">
+          <div class="ph-text"><span class="eyebrow">ნაბიჯი 1</span><h2>სამუშაოს მოძებნა</h2></div>
+          <div class="legend" aria-hidden="true"><span><i class="a"></i>ავტომატურად შევსებული</span><span><i></i>ხელით შეყვანილი</span></div>
+        </div>
+
+        <div class="lookup">
+          <div class="field" data-f="work_id">
+            <label for="fWorkId">სამუშაოს ID (საფუძველი)</label>
+            <input type="text" id="fWorkId" inputmode="numeric" placeholder="მაგ: 7712345" maxlength="40" />
+          </div>
+          <div class="field" data-f="ganwesi">
+            <label for="fGanwesi">განწესის #</label>
+            <input type="text" id="fGanwesi" placeholder="მაგ: 12/0415" maxlength="40" />
+          </div>
+          <button type="button" class="btn btn-primary" id="lkBtn" onclick="doLookup()"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg>ძიება</button>
+          <button type="button" class="btn btn-ghost" onclick="manualMode()">ხელით შევსება</button>
+          <div class="lk-hint" id="lkHint">შეიყვანეთ ID, განწესი ან ორივე — მონაცემები ძირითადი ანგარიშის ჩანაწერებიდან შეივსება. ჩანაწერი ძირითად ბაზაში არ შეიცვლება.</div>
+        </div>
+        <div id="lkNotice"></div>
+        <div class="cands" id="lkCands" hidden></div>
+
+        <div class="section-sub"><h3>სამუშაოს მონაცემები</h3></div>
+        <div class="ot-grid">
+          <div class="field" data-f="work_date">
+            <label for="fDate">თარიღი <span class="req" aria-hidden="true">*</span></label>
+            <input type="date" id="fDate" required />
+            <small class="muted" id="fWeekday"></small>
+          </div>
+          <div class="field" data-f="brigade">
+            <label for="fBrigade">ბრიგადა</label>
+            <input type="text" id="fBrigade" maxlength="40" placeholder="მაგ: 12" list="brigadeList" />
+            <datalist id="brigadeList"></datalist>
+          </div>
+          <div class="field wide" data-f="object_name">
+            <label for="fObject">ობიექტის დასახელება</label>
+            <input type="text" id="fObject" maxlength="300" />
+          </div>
+          <div class="field wide" data-f="address">
+            <label for="fAddress">მისამართი</label>
+            <input type="text" id="fAddress" maxlength="400" />
+          </div>
+        </div>
+        <div id="existingNotice"></div>
+
+        <div class="section-sub">
+          <h3>ნაბიჯი 2 · თანამშრომლები</h3>
+          <span class="count-tag" id="empCount">0 არჩეული</span>
+          <span class="spacer"></span>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllEmps(true)">ყველას მონიშვნა</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllEmps(false)">მოხსნა</button>
+        </div>
+        <div class="emp-list" id="empList"></div>
+        <div class="emp-add" id="empPicker">
+          <div class="input-icon">
+            <svg class="i f-icon" aria-hidden="true"><use href="#i-search"/></svg>
+            <input type="search" id="empSearch" class="filter-input" placeholder="თანამშრომლის დამატება — სახელი ან პირადი ნომერი" aria-label="თანამშრომლის ძიება" />
+          </div>
+          <button type="button" class="btn btn-outline" onclick="toggleManualEmp()"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>ხელით დამატება</button>
+          <div class="results" id="empResults" hidden></div>
+        </div>
+        <div class="emp-manual" id="empManual" hidden>
+          <div class="field"><label for="mName">გვარი, სახელი</label><input type="text" id="mName" maxlength="120" /></div>
+          <div class="field"><label for="mPid">პირადი ნომერი</label><input type="text" id="mPid" inputmode="numeric" maxlength="11" placeholder="11 ციფრი" /></div>
+          <div class="field"><label for="mPos">თანამდებობა</label><input type="text" id="mPos" maxlength="80" /></div>
+          <div class="field" style="justify-content:flex-end"><button type="button" class="btn btn-primary" onclick="addManualEmp()">დამატება</button></div>
+        </div>
+
+        <div class="section-sub"><h3>ნაბიჯი 3 · Overtime-ის დრო</h3></div>
+        <div class="time-row">
+          <div class="field">
+            <label for="fStart">დაწყება <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="fStart" class="t-in" inputmode="numeric" placeholder="სს:წწ" maxlength="5" required />
+          </div>
+          <div class="field">
+            <label for="fEnd">დასრულება <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="fEnd" class="t-in" inputmode="numeric" placeholder="სს:წწ" maxlength="5" required />
+          </div>
+          <div class="split" id="splitPreview" aria-live="polite"></div>
+        </div>
+        <div class="chips" aria-label="სწრაფი დრო">
+          <button type="button" class="chip-btn" onclick="quickTime('18:00','22:00')">18:00–22:00</button>
+          <button type="button" class="chip-btn" onclick="quickTime('20:00','22:00')">20:00–22:00</button>
+          <button type="button" class="chip-btn" onclick="quickTime('22:00','06:00')">22:00–06:00</button>
+          <button type="button" class="chip-btn" onclick="quickTime('09:00','18:00')">09:00–18:00</button>
+        </div>
+        <p class="lk-hint" style="margin-top:8px">დღე — 06:00–22:00, ღამე — 22:00–06:00. თუ დასრულება დაწყებაზე ადრეა, დასრულება მომდევნო დღედ ითვლება. საბოლოო გამოთვლა სერვერზე ხდება.</p>
+
+        <div class="ot-grid" style="margin-top:14px">
+          <div class="field wide">
+            <label for="fComment">კომენტარი</label>
+            <input type="text" id="fComment" maxlength="300" list="commentList" placeholder="მაგ: შაბათი/კვირა" />
+            <datalist id="commentList"></datalist>
+          </div>
+          <div class="field wide">
+            <label for="fNote">დამატებითი შენიშვნა</label>
+            <input type="text" id="fNote" maxlength="500" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="otSave"><svg class="i" aria-hidden="true"><use href="#i-save"/></svg>შენახვა</button>
+          <button type="button" class="btn btn-ghost" onclick="resetForm(true)">გასუფთავება</button>
+          <span class="meta" id="saveMeta">თითოეულ არჩეულ თანამშრომელზე ცალკე ჩანაწერი შეიქმნება.</span>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===== List ===== -->
+    <section class="tabpanel" id="tab-list" role="tabpanel" hidden>
+      <div class="filter-box ot-filter">
+        <div class="f-group"><label for="qFrom">თარიღიდან</label><input type="date" id="qFrom" class="filter-input" /></div>
+        <div class="f-group"><label for="qTo">თარიღამდე</label><input type="date" id="qTo" class="filter-input" /></div>
+        <div class="f-group"><label for="qEmp">თანამშრომელი</label><input type="search" id="qEmp" class="filter-input" placeholder="სახელი / პირადი #" /></div>
+        <div class="f-group"><label for="qBrigade">ბრიგადა</label><select id="qBrigade" class="filter-input"><option value="">ყველა</option></select></div>
+        <div class="f-group"><label for="qWorkId">ID</label><input type="search" id="qWorkId" class="filter-input" /></div>
+        <div class="f-group"><label for="qGanwesi">განწესი</label><input type="search" id="qGanwesi" class="filter-input" /></div>
+        <div class="f-group"><label for="qText">ტექსტი</label><input type="search" id="qText" class="filter-input" placeholder="ობიექტი, მისამართი…" /></div>
+        <div class="f-actions" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <label id="qDeletedWrap" hidden style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px"><input type="checkbox" id="qDeleted" /> წაშლილები</label>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="resetFilters()">გასუფთავება</button>
+        </div>
+      </div>
+      <div class="table-responsive" style="margin-top:12px">
+        <table class="records-table ot-table">
+          <thead><tr>
+            <th>თარიღი</th><th>თანამშრომელი</th><th>ბრიგადა</th><th>ID / განწესი</th><th>ობიექტი</th>
+            <th>დრო</th><th class="num">დღე</th><th class="num">ღამე</th><th>კომენტარი</th><th>ავტორი</th><th><span class="sr-only">მოქმედება</span></th>
+          </tr></thead>
+          <tbody id="listBody"><tr><td colspan="11" class="muted" style="text-align:center;padding:28px">იტვირთება…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pager" id="pager"></div>
+    </section>
+
+    <!-- ===== Audit ===== -->
+    <section class="tabpanel" id="tab-audit" role="tabpanel" hidden>
+      <p class="lk-hint" id="auditScope" style="margin-bottom:10px"></p>
+      <div class="table-responsive">
+        <table class="records-table ot-table">
+          <thead><tr><th>დრო</th><th>მომხმარებელი</th><th>მოქმედება</th><th>დეტალები</th><th>მიზეზი</th><th>IP</th></tr></thead>
+          <tbody id="auditBody"></tbody>
+        </table>
+      </div>
+      <div class="pager" id="auditPager"></div>
+    </section>
+
+    <!-- ===== Data (manager) ===== -->
+    <section class="tabpanel" id="tab-data" role="tabpanel" hidden>
+      <div class="data-cards">
+        <div class="panel data-card">
+          <h3>Excel ექსპორტი</h3>
+          <p>„overtime სამონტაჟო“ ფორმატი. გამოიყენება „ჩანაწერების“ ჩანართის ფილტრები (თარიღი, თანამშრომელი, ბრიგადა, ID, განწესი).</p>
+          <button type="button" class="btn btn-primary" onclick="exportExcel()"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg>Excel-ის ჩამოტვირთვა</button>
+          <div class="import-log" id="exportInfo"></div>
+        </div>
+        <div class="panel data-card">
+          <h3>სარეზერვო ასლი</h3>
+          <p>Overtime-ის ყველა ჩანაწერი (წაშლილების ჩათვლით) JSON ფაილად. აღდგენა მხოლოდ ამატებს დაკარგულ ჩანაწერებს — არსებულს არ ცვლის და არ შლის.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="btn btn-outline" onclick="downloadBackup()"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg>ასლის ჩამოტვირთვა</button>
+            <span class="btn btn-ghost file-btn"><svg class="i" aria-hidden="true"><use href="#i-undo"/></svg>ასლიდან აღდგენა<input type="file" accept="application/json,.json" onchange="restoreBackup(this)" aria-label="სარეზერვო ფაილი" /></span>
+          </div>
+          <div class="progress" id="restoreProg" hidden><i></i></div>
+          <div class="import-log" id="restoreLog"></div>
+        </div>
+        <div class="panel data-card">
+          <h3>ძველი overtime.xlsx-ის იმპორტი</h3>
+          <p>ფაილი იკითხება ბრაუზერში (ფურცელი „overtime სამონტაჟო“) და იგზავნება ნაწილ-ნაწილ. დუბლიკატები გამოტოვდება — განმეორებითი იმპორტი უსაფრთხოა.</p>
+          <span class="btn btn-outline file-btn"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>XLSX ფაილის არჩევა<input type="file" accept=".xlsx" onchange="pickImport(this)" aria-label="overtime.xlsx" /></span>
+          <div class="import-log" id="importLog"></div>
+          <button type="button" class="btn btn-primary" id="importGo" hidden onclick="runImport()" style="margin-top:10px">იმპორტის დაწყება</button>
+          <div class="progress" id="importProg" hidden><i></i></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <main class="wrap" id="otNoRole" hidden>
+    <div class="panel" style="max-width:640px;margin:40px auto;text-align:center">
+      <h2 style="font-size:20px;font-weight:800;margin-bottom:8px">Overtime-ის უფლება არ გაქვთ</h2>
+      <p class="muted">ამ მოდულზე წვდომისთვის ადმინისტრატორმა „ოპერატორების“ განყოფილებაში უნდა მოგანიჭოთ Overtime-ის როლი (ოპერატორი ან მენეჯერი).</p>
+      <p style="margin-top:14px"><a class="btn btn-primary" href="/" id="noRoleBack">ანგარიშზე დაბრუნება</a></p>
+    </div>
+  </main>
+
+  <div class="login-screen" id="loginScreen" hidden>
+    <form class="login-card" onsubmit="event.preventDefault(); login();">
+      <div class="login-brand"><img src="/logo.png" alt="" class="login-logo" width="40" height="40" /><span>Brigade-Ops · Overtime</span></div>
+      <h2>სისტემაში შესვლა</h2>
+      <p>შეიყვანეთ ადმინისტრატორისგან მიღებული მომხმარებელი და პაროლი.</p>
+      <label for="loginUser">მომხმარებელი</label>
+      <input type="text" id="loginUser" autocomplete="username" required />
+      <label for="loginPass">პაროლი</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required />
+      <div class="login-error" id="loginError" role="alert" hidden></div>
+      <button type="submit" class="btn btn-primary" id="loginBtn">შესვლა</button>
+      <small class="login-note">შესვლა და ყველა მოქმედება აღირიცხება ჟურნალში IP მისამართით.</small>
+    </form>
+  </div>
+
+  <!-- Generic dialog -->
+  <div class="modal-back" id="dlg" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+      <div class="modal-head">
+        <svg class="i modal-icon" aria-hidden="true"><use href="#i-alert"/></svg>
+        <div><h3 id="dlgTitle"></h3><p id="dlgSub"></p></div>
+      </div>
+      <div class="modal-body" id="dlgBody"></div>
+      <div class="modal-foot" id="dlgFoot"></div>
+    </div>
+  </div>
+
+  <div id="statusMessage" class="toast-status" role="status" aria-live="polite">
+    <span id="statusText"></span>
+    <button type="button" class="toast-close" onclick="hideStatus()" aria-label="დახურვა">×</button>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const esc = (v) => String(v ?? '').replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch]));
+    const WEEKDAYS = ['კვირა', 'ორშაბათი', 'სამშაბათი', 'ოთხშაბათი', 'ხუთშაბათი', 'პარასკევი', 'შაბათი'];
+    const FIELD_IDS = { work_id: 'fWorkId', ganwesi: 'fGanwesi', work_date: 'fDate', brigade: 'fBrigade', object_name: 'fObject', address: 'fAddress' };
+    const FIELD_LABELS = {
+      work_id: 'ID', ganwesi: 'განწესი', work_date: 'თარიღი', brigade: 'ბრიგადა', object_name: 'ობიექტი', address: 'მისამართი',
+      start_min: 'დაწყება', end_min: 'დასრულება', day_min: 'დღის წთ', night_min: 'ღამის წთ', comment: 'კომენტარი', note: 'შენიშვნა',
+      emp_name: 'სახელი', emp_pid: 'პირადი #', emp_position: 'თანამდებობა', emp_key: 'თანამშრომელი'
+    };
+    const ACTIONS = { create: 'დამატება', update: 'რედაქტირება', delete: 'წაშლა', restore: 'აღდგენა', export: 'Excel ექსპორტი',
+      backup: 'სარეზერვო ასლი', restore_backup: 'ასლიდან აღდგენა', import: 'იმპორტი' };
+    const PAGE = 100;
+
+    const S = {
+      me: null, st: null, emps: [], auto: new Set(), dirty: new Set(), source: 'manual', sourceRef: '',
+      cands: [], chosen: -1, page: 0, auditPage: 0, rows: [], existing: [], lookupKey: '', saving: false, importRows: null
+    };
+
+    function todayLocal() {
+      const d = new Date(), p = (n) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    }
+    const hm = (m) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+    const normG = (v) => String(v || '').replace(/\s+/g, '');
+    const fmtDate = (iso) => iso ? iso.split('-').reverse().join('.') : '';
+    const fmtTs = (iso) => { if (!iso) return ''; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleString('ka-GE', { dateStyle: 'short', timeStyle: 'short' }); };
+
+    async function api(url, options = {}) {
+      const res = await fetch(url, { credentials: 'same-origin', ...options });
+      let payload = {};
+      try { payload = await res.json(); } catch (_) { payload = {}; }
+      if (res.status === 401 && payload.login_required) showLogin('სესია ამოიწურა — შედით თავიდან.');
+      if (res.status === 503 && /Overtime/.test(payload.error || '')) $('otDown').hidden = false;
+      if (!res.ok) {
+        const err = new Error(payload.error || `შეცდომა ${res.status}`);
+        err.status = res.status; err.payload = payload;
+        throw err;
+      }
+      return payload;
+    }
+    const post = (url, body, method = 'POST') => api(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+
+    /* ---------- toast / net ---------- */
+    let statusTimer = null;
+    function toast(msg, type = 'success') {
+      $('statusText').textContent = msg;
+      $('statusMessage').className = `toast-status ${type} show`;
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(hideStatus, type === 'error' ? 8000 : 4500);
+    }
+    function hideStatus() { $('statusMessage').classList.remove('show'); }
+    function updateNet() {
+      $('netStatus').classList.toggle('offline', !navigator.onLine);
+      $('netStatusText').textContent = navigator.onLine ? 'ონლაინ' : 'ინტერნეტი არ არის';
+    }
+    addEventListener('online', updateNet); addEventListener('offline', updateNet);
+
+    /* ---------- dialog ---------- */
+    let dlgResolve = null;
+    function dialog({ title, sub = '', body = '', buttons = [] }) {
+      $('dlgTitle').textContent = title;
+      $('dlgSub').textContent = sub;
+      $('dlgBody').innerHTML = body;
+      $('dlgFoot').innerHTML = buttons.map((b, i) => `<button type="button" class="btn ${b.cls || 'btn-ghost'}" data-i="${i}">${esc(b.label)}</button>`).join('');
+      $('dlg').hidden = false;
+      return new Promise((resolve) => {
+        dlgResolve = resolve;
+        $('dlgFoot').querySelectorAll('button').forEach(btn => btn.onclick = () => {
+          const b = buttons[+btn.dataset.i];
+          if (b.check && !b.check()) return;
+          const extra = b.collect ? b.collect() : null;
+          closeDialog(b.value, extra);
+        });
+        setTimeout(() => ($('dlgBody').querySelector('input,select,textarea') || $('dlgFoot').querySelector('.btn-primary,.btn-warn,.btn-danger') || $('dlgFoot').querySelector('button'))?.focus(), 30);
+      });
+    }
+    function closeDialog(value = null, extra = null) {
+      $('dlg').hidden = true;
+      if (dlgResolve) { const r = dlgResolve; dlgResolve = null; r({ value, extra }); }
+    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('dlg').hidden) closeDialog(null); });
+
+    /* ---------- session ---------- */
+    function showLogin(msg = '') {
+      $('loginScreen').hidden = false;
+      $('loginError').hidden = !msg;
+      $('loginError').textContent = msg;
+      setTimeout(() => ($('loginUser').value ? $('loginPass') : $('loginUser')).focus(), 30);
+    }
+    async function login() {
+      const btn = $('loginBtn');
+      btn.disabled = true; btn.textContent = 'მოწმდება…';
+      try {
+        await post('/api/login', { username: $('loginUser').value.trim(), password: $('loginPass').value });
+        $('loginPass').value = '';
+        location.reload();
+      } catch (e) {
+        showLogin(e.message); $('loginPass').select();
+      } finally { btn.disabled = false; btn.textContent = 'შესვლა'; }
+    }
+    async function logout() {
+      try { await post('/api/logout', {}); } catch (_) {}
+      location.reload();
+    }
+    function setUser(u) {
+      S.me = u;
+      $('userChip').hidden = !u;
+      if (!u) return;
+      const name = u.display_name || u.username;
+      $('ucName').textContent = name;
+      $('ucAvatar').textContent = name.split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+      $('navMain').hidden = u.main_access === false;
+      $('noRoleBack').hidden = u.main_access === false;
+    }
+
+    async function init() {
+      updateNet();
+      let me;
+      try { me = await api('/api/me'); } catch (_) { toast('სერვერთან კავშირი ვერ დამყარდა', 'error'); return; }
+      setUser(me.user);
+      if (!me.user) { showLogin(me.no_operators ? 'მომხმარებელი ჯერ არ არის დამატებული — მიმართეთ ადმინისტრატორს.' : ''); return; }
+      try { S.st = await api('/api/ot/status'); } catch (e) { toast(e.message, 'error'); return; }
+      if (S.st.role === 'none') { $('otNoRole').hidden = false; return; }
+      $('otApp').hidden = false;
+      $('otDown').hidden = !!S.st.ready;
+      const mgr = S.st.role === 'manager';
+      $('roleBadge').textContent = mgr ? 'მენეჯერი' : 'ოპერატორი';
+      $('heroExport').hidden = !S.st.can.export;
+      $('tabDataBtn').hidden = !mgr;
+      $('qDeletedWrap').hidden = !mgr;
+      $('auditScope').textContent = mgr ? 'ყველა მომხმარებლის ოპერაციები (პაროლები და პირადი ნომრები ჟურნალში არ ინახება).' : 'თქვენი ოპერაციები.';
+      $('commentList').innerHTML = (S.st.comment_choices || []).map(c => `<option value="${esc(c)}"></option>`).join('');
+      resetForm(false);
+      bindForm();
+      bindFilters();
+      if (S.st.ready) loadList();
+    }
+    window.addEventListener('DOMContentLoaded', init);
+
+    function switchTab(name) {
+      document.querySelectorAll('.rec-tab').forEach(b => { const on = b.dataset.tab === name; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
+      ['form', 'list', 'audit', 'data'].forEach(t => $('tab-' + t).hidden = t !== name);
+      if (name === 'list') loadList();
+      if (name === 'audit') loadAudit();
+    }
+
+    /* ======================================================================
+       Form: fields, autofill markers, lookup
+       ====================================================================== */
+    const fieldWrap = (k) => document.querySelector(`.field[data-f="${k}"]`);
+    const getVal = (k) => $(FIELD_IDS[k]).value.trim();
+    function setAuto(k, v) {
+      $(FIELD_IDS[k]).value = v;
+      fieldWrap(k).classList.add('auto');
+      S.auto.add(k); S.dirty.delete(k);
+    }
+    function clearAutoMarks() {
+      S.auto.clear();
+      document.querySelectorAll('.field.auto').forEach(f => f.classList.remove('auto'));
+    }
+
+    function bindForm() {
+      Object.entries(FIELD_IDS).forEach(([k, id]) => {
+        $(id).addEventListener('input', () => {
+          S.dirty.add(k);
+          if (S.auto.delete(k)) fieldWrap(k).classList.remove('auto');
+          if (k === 'work_id' || k === 'ganwesi') {
+            const key = getVal('work_id') + '|' + normG(getVal('ganwesi'));
+            if (S.lookupKey && key !== S.lookupKey) $('lkHint').innerHTML = '<b>ID ან განწესი შეიცვალა</b> — დააჭირეთ „ძიებას“, რომ მონაცემები გადამოწმდეს.';
+          }
+        });
+      });
+      ['fWorkId', 'fGanwesi'].forEach(id => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doLookup(); } }));
+      $('fDate').addEventListener('change', () => { showWeekday(); checkExisting(); });
+      ['fStart', 'fEnd'].forEach(id => {
+        $(id).addEventListener('input', renderSplit);
+        $(id).addEventListener('blur', () => { const v = normTime($(id).value); if (v) $(id).value = v; renderSplit(); });
+      });
+      let t = null;
+      $('empSearch').addEventListener('input', () => { clearTimeout(t); t = setTimeout(searchEmployees, 220); });
+      $('empSearch').addEventListener('keydown', (e) => { if (e.key === 'Escape') $('empResults').hidden = true; });
+      document.addEventListener('click', (e) => { if (!$('empPicker').contains(e.target)) $('empResults').hidden = true; });
+    }
+
+    function showWeekday() {
+      const v = $('fDate').value;
+      const d = v ? new Date(v + 'T12:00:00') : null;
+      const wd = d && !isNaN(d) ? WEEKDAYS[d.getDay()] : '';
+      $('fWeekday').textContent = wd;
+      $('fComment').placeholder = (d && (d.getDay() === 0 || d.getDay() === 6)) ? 'შაბათი/კვირა' : 'მაგ: უქმე';
+    }
+
+    function notice(kind, html) {
+      return `<div class="notice ${kind}"><svg class="i" aria-hidden="true"><use href="#i-${kind === 'ok' ? 'check' : 'alert'}"/></svg><div class="grow">${html}</div></div>`;
+    }
+
+    function manualMode() {
+      $('lkCands').hidden = true; $('lkCands').innerHTML = '';
+      S.cands = []; S.chosen = -1; S.source = 'manual'; S.sourceRef = '';
+      clearAutoMarks();
+      $('lkNotice').innerHTML = notice('info', 'ხელით შევსების რეჟიმი — შეავსეთ სამუშაოს მონაცემები და აირჩიეთ თანამშრომლები.');
+      (getVal('work_id') || getVal('ganwesi') ? $('fBrigade') : $('fWorkId')).focus();
+    }
+
+    async function doLookup() {
+      const wid = getVal('work_id'), g = normG(getVal('ganwesi'));
+      if (!wid && !g) { toast('შეიყვანეთ სამუშაოს ID ან განწესის ნომერი', 'warning'); $('fWorkId').focus(); return; }
+      const btn = $('lkBtn');
+      btn.disabled = true;
+      $('lkNotice').innerHTML = notice('info', 'იძებნება…');
+      try {
+        const res = await api(`/api/ot/lookup?work_id=${encodeURIComponent(wid)}&ganwesi=${encodeURIComponent(g)}`);
+        S.lookupKey = wid + '|' + g;
+        $('lkHint').textContent = 'ავტომატურად შევსებული ველები მონიშნულია. ნებისმიერი ველი შეგიძლიათ ხელით შეასწოროთ.';
+        const kind = { match: 'ok', found: 'ok', mismatch: 'warn', history: 'info', none: 'warn' }[res.status] || 'info';
+        let cands = res.status === 'history' ? res.history : res.candidates;
+        S.cands = cands || [];
+        S.chosen = -1;
+        let msg = `<b>${esc(res.message)}</b>`;
+        if (res.status === 'mismatch') msg += ' მონაცემები ავტომატურად არ შეივსება — აირჩიეთ სწორი ჩანაწერი ქვემოთ ან გააგრძელეთ ხელით.';
+        else if (S.cands.length > 1) msg += ` მოიძებნა ${S.cands.length} ჩანაწერი — აირჩიეთ სწორი.`;
+        else if (res.status === 'history') msg += ' დააჭირეთ ჩანაწერს, რომ მისი მონაცემები გამოიყენოთ.';
+        $('lkNotice').innerHTML = notice(kind, msg);
+        renderCands(res.query);
+        if ((res.status === 'match' || res.status === 'found') && S.cands.length === 1) await applyCandidate(0);
+        if (res.status === 'none') { S.source = 'manual'; S.sourceRef = ''; clearAutoMarks(); $('fBrigade').focus(); }
+        checkExisting();
+      } catch (e) {
+        $('lkNotice').innerHTML = notice('bad', `<b>${esc(e.message)}</b> შეგიძლიათ მონაცემები ხელით შეავსოთ.`);
+      } finally { btn.disabled = false; }
+    }
+
+    function renderCands(query) {
+      const box = $('lkCands');
+      if (!S.cands.length) { box.hidden = true; box.innerHTML = ''; return; }
+      const VIA = { both: ['via-both', 'ID + განწესი'], id: ['via-id', 'ID-ით'], ganwesi: ['via-ganwesi', 'განწესით'], history: ['via-history', 'Overtime-ის ისტორია'] };
+      box.innerHTML = S.cands.map((c, i) => {
+        const [cls, label] = VIA[c.via] || ['', c.via];
+        const idDiff = query.work_id && c.work_id && c.work_id !== query.work_id;
+        const gDiff = query.ganwesi && c.ganwesi && normG(c.ganwesi) !== query.ganwesi;
+        const present = c.members.filter(m => !m.absent).length;
+        return `<button type="button" class="cand${i === S.chosen ? ' chosen' : ''}" onclick="applyCandidate(${i})" aria-pressed="${i === S.chosen}">
+          <span class="cand-top"><span class="cand-tag ${cls}">${esc(label)}</span>${i === S.chosen ? '<span class="cand-tag via-both">არჩეულია</span>' : ''}<small>${esc(fmtDate(c.work_date))}${c.brigade ? ' · ბრ. ' + esc(c.brigade) : ''}${c.city ? ' · ' + esc(c.city) : ''}</small></span>
+          <span class="cand-ids">ID <span class="${idDiff ? 'diff' : ''}">${esc(c.work_id || '—')}</span> · განწ. <span class="${gDiff ? 'diff' : ''}">${esc(c.ganwesi || '—')}</span></span>
+          <span class="addr">${esc(c.object_name || '')}${c.object_name && c.address ? ' — ' : ''}${esc(c.address || '')}</span>
+          <small>${c.members.length} წევრი${c.members.length !== present ? ` (${c.members.length - present} არ გამოცხ.)` : ''}${c.work_times && c.work_times.length ? ' · სამუშაო: ' + esc(c.work_times.slice(0, 3).join(', ')) : ''}</small>
+        </button>`;
+      }).join('');
+      box.hidden = false;
+    }
+
+    async function applyCandidate(i) {
+      const c = S.cands[i];
+      if (!c) return;
+      const vals = { work_id: c.work_id, ganwesi: c.ganwesi, work_date: c.work_date, brigade: c.brigade, object_name: c.object_name, address: c.address };
+      // operator-entered values that differ → ask before replacing (never overwrite silently)
+      const conflicts = Object.keys(vals).filter(k => {
+        const nv = String(vals[k] || '').trim(), cur = getVal(k);
+        if (!nv || !cur || S.auto.has(k)) return false;
+        const same = (k === 'ganwesi') ? normG(cur) === normG(nv) : cur === nv;
+        return !same && (S.dirty.has(k) || k === 'work_id' || k === 'ganwesi');
+      });
+      let keep = new Set();
+      if (conflicts.length) {
+        const rows = conflicts.map(k => `<tr><td><b>${esc(FIELD_LABELS[k])}</b></td><td>${esc(k === 'work_date' ? fmtDate(getVal(k)) : getVal(k))}</td><td>${esc(k === 'work_date' ? fmtDate(vals[k]) : vals[k])}</td></tr>`).join('');
+        const r = await dialog({
+          title: 'შეყვანილი მონაცემები განსხვავდება',
+          sub: 'თქვენ მიერ შეყვანილი ველები არჩეული ჩანაწერისგან განსხვავდება. ავტომატურად არაფერი შეიცვლება თქვენი თანხმობის გარეშე.',
+          body: `<div class="table-responsive" style="max-height:none"><table class="records-table ot-table" style="min-width:0"><thead><tr><th>ველი</th><th>თქვენი</th><th>ჩანაწერში</th></tr></thead><tbody>${rows}</tbody></table></div>`,
+          buttons: [
+            { label: 'გაუქმება', value: null },
+            { label: 'ჩემი მნიშვნელობების შენარჩუნება', value: 'keep', cls: 'btn-outline' },
+            { label: 'ჩანაწერის მნიშვნელობებით შეცვლა', value: 'replace', cls: 'btn-primary' }
+          ]
+        });
+        if (!r.value) return;
+        if (r.value === 'keep') keep = new Set(conflicts);
+      }
+      Object.entries(vals).forEach(([k, v]) => {
+        v = String(v || '').trim();
+        if (!v || keep.has(k)) return;
+        if (getVal(k) === v && !S.auto.has(k) && S.dirty.has(k)) return; // identical manual value stays "manual"
+        setAuto(k, v);
+      });
+      S.source = c.source || 'reports';
+      S.sourceRef = c.ref || '';
+      S.chosen = i;
+      // employees: replace previous auto-filled ones, keep manually added
+      const manual = S.emps.filter(e => e.origin !== 'auto');
+      const autos = c.members.filter(m => m.name).map(m => ({
+        name: m.name, pid: m.pid || '', position: m.position || '', origin: 'auto',
+        absent: !!m.absent, absent_reason: m.absent_reason || '', checked: !m.absent
+      }));
+      const keys = new Set(manual.map(empKey));
+      S.emps = [...autos.filter(e => !keys.has(empKey(e))), ...manual];
+      renderEmps();
+      renderCands({ work_id: getVal('work_id'), ganwesi: normG(getVal('ganwesi')) });
+      showWeekday();
+      checkExisting();
+    }
+
+    /* ---------- existing entries for this work/day ---------- */
+    async function checkExisting() {
+      const wid = getVal('work_id'), g = normG(getVal('ganwesi')), d = $('fDate').value;
+      if ((!wid && !g) || !d) { S.existing = []; $('existingNotice').innerHTML = ''; renderEmps(); return; }
+      try {
+        const res = await api(`/api/ot/check?work_id=${encodeURIComponent(wid)}&ganwesi=${encodeURIComponent(g)}&date=${encodeURIComponent(d)}`);
+        S.existing = res.rows || [];
+      } catch (_) { S.existing = []; }
+      $('existingNotice').innerHTML = S.existing.length ? notice('info',
+        `<b>ამ სამუშაოზე ${esc(fmtDate(d))}-ში უკვე შეტანილია ${S.existing.length} ჩანაწერი:</b> ` +
+        S.existing.slice(0, 8).map(r => `${esc(r.emp_name)} ${esc(r.start)}–${esc(r.end)}`).join(', ') + (S.existing.length > 8 ? ' …' : '') +
+        '<br>სხვა თანამშრომლის ან სხვა დროის დამატება შესაძლებელია; ზუსტი დუბლიკატი დაიბლოკება.') : '';
+      renderEmps();
+    }
+
+    /* ======================================================================
+       Employees
+       ====================================================================== */
+    const empKey = (e) => { const p = String(e.pid || '').replace(/\D/g, ''); return p ? 'pid:' + p : 'name:' + String(e.name || '').trim().replace(/\s+/g, ' ').toLowerCase(); };
+    function renderEmps() {
+      const box = $('empList');
+      const exByKey = {};
+      S.existing.forEach(r => { (exByKey[empKey({ name: r.emp_name, pid: r.emp_pid })] ||= []).push(`${r.start}–${r.end}`); });
+      if (!S.emps.length) {
+        box.innerHTML = '<div class="emp-empty">თანამშრომლები ჯერ არ არის. მოძებნეთ სამუშაო (ავტომატურად შეივსება ნარიადის შემადგენლობით) ან დაამატეთ ძიებით / ხელით.</div>';
+      } else {
+        box.innerHTML = S.emps.map((e, i) => {
+          const ex = exByKey[empKey(e)];
+          const tags = [
+            e.origin === 'auto' ? '<span class="tag auto">ნარიადიდან</span>' : e.origin === 'dir' ? '<span class="tag">სიიდან</span>' : '<span class="tag">ხელით</span>',
+            e.absent ? `<span class="tag bad" title="${esc(e.absent_reason)}">არ გამოცხ.${e.absent_reason ? ' · ' + esc(e.absent_reason.slice(0, 18)) : ''}</span>` : '',
+            !e.pid ? '<span class="tag warn">პირადი # არ არის</span>' : '',
+            ex ? `<span class="tag warn">უკვე: ${esc(ex.join(', '))}</span>` : ''
+          ].join('');
+          return `<label class="emp ${e.checked ? 'on' : ''} ${e.absent ? 'absent' : ''}">
+            <input type="checkbox" ${e.checked ? 'checked' : ''} onchange="S.emps[${i}].checked=this.checked; renderEmps()" aria-label="${esc(e.name)}" />
+            <span class="who"><b>${esc(e.name)}</b><small>${esc(e.position || '—')}${e.pid ? ' · ' + esc(e.pid) : ''}</small></span>
+            <span class="tags">${tags}</span>
+            <button type="button" class="icon-btn" title="სიიდან ამოღება" aria-label="სიიდან ამოღება" onclick="event.preventDefault(); S.emps.splice(${i},1); renderEmps()"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+          </label>`;
+        }).join('');
+      }
+      const n = S.emps.filter(e => e.checked).length;
+      $('empCount').textContent = `${n} არჩეული`;
+      $('otSave').innerHTML = `<svg class="i" aria-hidden="true"><use href="#i-save"/></svg>${n > 1 ? `შენახვა (${n} ჩანაწერი)` : 'შენახვა'}`;
+    }
+    function toggleAllEmps(on) { S.emps.forEach(e => e.checked = on); renderEmps(); }
+
+    function addEmp(e) {
+      const k = empKey(e);
+      const ex = S.emps.find(x => empKey(x) === k);
+      if (ex) { ex.checked = true; toast(`${e.name} უკვე სიაშია — მოინიშნა`, 'warning'); }
+      else S.emps.push({ ...e, checked: true, absent: false, absent_reason: '' });
+      renderEmps();
+    }
+
+    let empResults = [];
+    async function searchEmployees() {
+      const q = $('empSearch').value.trim();
+      const box = $('empResults');
+      if (q.length < 2) { box.hidden = true; return; }
+      try {
+        const res = await api(`/api/ot/employees?q=${encodeURIComponent(q)}`);
+        empResults = res.rows || [];
+      } catch (_) { empResults = []; }
+      box.innerHTML = empResults.length ? empResults.map((r, i) => `<button type="button" onclick="pickEmp(${i})"><b>${esc(r.name)}</b><small>${esc(r.position || '')}${r.pid ? ' · ' + esc(r.pid) : ''}${r.brigade ? ' · ბრ. ' + esc(r.brigade) : ''} · ${esc(r.source)}</small></button>`).join('')
+        : '<div class="muted" style="padding:10px;font-size:13px">ვერ მოიძებნა — გამოიყენეთ „ხელით დამატება“.</div>';
+      box.hidden = false;
+    }
+    function pickEmp(i) {
+      const r = empResults[i];
+      if (!r) return;
+      addEmp({ name: r.name, pid: r.pid || '', position: r.position || '', origin: 'dir' });
+      $('empSearch').value = ''; $('empResults').hidden = true; $('empSearch').focus();
+    }
+    function toggleManualEmp() { $('empManual').hidden = !$('empManual').hidden; if (!$('empManual').hidden) $('mName').focus(); }
+    function addManualEmp() {
+      const name = $('mName').value.trim().replace(/\s+/g, ' ');
+      const pid = $('mPid').value.replace(/\s/g, '');
+      if (!name) { $('mName').classList.add('is-invalid'); $('mName').focus(); return; }
+      if (pid && !/^\d{11}$/.test(pid)) { $('mPid').classList.add('is-invalid'); toast('პირადი ნომერი 11 ციფრი უნდა იყოს', 'error'); $('mPid').focus(); return; }
+      addEmp({ name, pid, position: $('mPos').value.trim(), origin: 'manual' });
+      $('mName').value = $('mPid').value = $('mPos').value = '';
+      $('mName').focus();
+    }
+
+    /* ======================================================================
+       Time + day/night preview (display only — server computes the stored value)
+       ====================================================================== */
+    function normTime(v) {
+      const s = String(v || '').trim();
+      let m = s.match(/^(\d{1,2})[:.,]?(\d{2})?$/);
+      if (!m) return null;
+      let h = +m[1], mi = m[2] ? +m[2] : 0;
+      if (s.length === 3 && !/[:.,]/.test(s)) { h = +s[0]; mi = +s.slice(1); }      // "930" → 09:30
+      if (h === 24 && mi === 0) h = 0;
+      if (h > 23 || mi > 59) return null;
+      return `${String(h).padStart(2, '0')}:${String(mi).padStart(2, '0')}`;
+    }
+    const toMin = (t) => { const v = normTime(t); return v ? (+v.slice(0, 2)) * 60 + (+v.slice(3)) : null; };
+    function splitDayNight(s, e) {
+      if (e <= s) e += 1440;
+      let day = 0;
+      for (const [a, b] of [[360, 1320], [1800, 2760]]) day += Math.max(0, Math.min(e, b) - Math.max(s, a));
+      return [day, (e - s) - day];
+    }
+    function renderSplit() {
+      const s = toMin($('fStart').value), e = toMin($('fEnd').value);
+      const box = $('splitPreview');
+      if (s === null || e === null) { box.innerHTML = '<span class="muted" style="font-size:13px">შეიყვანეთ დრო, მაგ: 22:00</span>'; return; }
+      if (s === e) { box.innerHTML = '<span class="pill" style="background:var(--bad-soft);color:var(--bad)">დაწყება და დასრულება ერთნაირია</span>'; return; }
+      const [d, n] = splitDayNight(s, e);
+      box.innerHTML = `<span class="pill day">დღე <b>${hm(d)}</b></span><span class="pill night">ღამე <b>${hm(n)}</b></span><span class="pill total">სულ <b>${hm(d + n)}</b></span>` +
+        (e < s ? '<span class="pill cross">↷ დასრულება მომდევნო დღეს</span>' : '') +
+        (d + n > 960 ? '<span class="pill" style="background:var(--warn-soft);color:var(--warn)">16 საათზე მეტი</span>' : '');
+    }
+    function quickTime(a, b) { $('fStart').value = a; $('fEnd').value = b; renderSplit(); }
+
+    /* ======================================================================
+       Save
+       ====================================================================== */
+    function resetForm(ask) {
+      if (ask && (S.emps.length || S.dirty.size) && !confirm('ფორმა გასუფთავდეს?')) return;
+      Object.values(FIELD_IDS).forEach(id => $(id).value = '');
+      $('fDate').value = todayLocal();
+      ['fStart', 'fEnd', 'fComment', 'fNote', 'empSearch'].forEach(id => $(id).value = '');
+      S.emps = []; S.dirty.clear(); clearAutoMarks(); S.cands = []; S.chosen = -1; S.source = 'manual'; S.sourceRef = ''; S.existing = []; S.lookupKey = '';
+      $('lkNotice').innerHTML = ''; $('lkCands').hidden = true; $('existingNotice').innerHTML = '';
+      $('lkHint').textContent = 'შეიყვანეთ ID, განწესი ან ორივე — მონაცემები ძირითადი ანგარიშის ჩანაწერებიდან შეივსება. ჩანაწერი ძირითად ბაზაში არ შეიცვლება.';
+      showWeekday(); renderEmps(); renderSplit();
+    }
+
+    function collect() {
+      const start = normTime($('fStart').value), end = normTime($('fEnd').value);
+      const problems = [];
+      if (!$('fDate').value) problems.push(['fDate', 'მიუთითეთ თარიღი']);
+      if (!getVal('work_id') && !getVal('ganwesi')) problems.push(['fWorkId', 'მიუთითეთ სამუშაოს ID ან განწესი']);
+      if (!start) problems.push(['fStart', 'დაწყების დრო არასწორია (სს:წწ)']);
+      if (!end) problems.push(['fEnd', 'დასრულების დრო არასწორია (სს:წწ)']);
+      if (start && end && start === end) problems.push(['fEnd', 'დაწყება და დასრულება ერთნაირია']);
+      const emps = S.emps.filter(e => e.checked);
+      if (!emps.length) problems.push(['empSearch', 'აირჩიეთ მინიმუმ ერთი თანამშრომელი']);
+      if (problems.length) {
+        problems.forEach(([id]) => $(id).classList.add('is-invalid'));
+        $(problems[0][0]).focus();
+        toast(problems[0][1], 'error');
+        return null;
+      }
+      return {
+        common: {
+          work_date: $('fDate').value, start, end, work_id: getVal('work_id'), ganwesi: normG(getVal('ganwesi')),
+          brigade: getVal('brigade'), object_name: getVal('object_name'), address: getVal('address'),
+          comment: $('fComment').value.trim(), note: $('fNote').value.trim(),
+          source: S.source, source_ref: S.sourceRef, autofilled: [...S.auto]
+        },
+        employees: emps.map(e => ({ name: e.name, pid: e.pid, position: e.position }))
+      };
+    }
+
+    function conflictHtml(p) {
+      const KIND = { duplicate: 'ზუსტი დუბლიკატი', overlap: 'დროის გადაფარვა', same_work: 'იმავე სამუშაოზე უკვე არის ჩანაწერი' };
+      const items = [];
+      (p.duplicates || []).forEach(c => items.push(['block', c]));
+      (p.conflicts || []).forEach(c => items.push(['warn', c]));
+      let html = '<div class="conf-list">' + items.map(([cls, c]) => {
+        const x = c.existing || {};
+        return `<div class="conf ${cls}"><b>${esc(c.employee)}</b> — ${esc(KIND[c.kind] || c.kind)}${c.kind === 'overlap' && x.overlap_min ? ` (${hm(x.overlap_min)})` : ''}<br>
+          არსებული: <span class="mono2">${esc(fmtDate(x.work_date))} ${esc(x.start)}–${esc(x.end)}</span> · ID ${esc(x.work_id || '—')} · განწ. ${esc(x.ganwesi || '—')}${x.created_by ? ' · ' + esc(x.created_by) : ''}</div>`;
+      }).join('');
+      (p.warnings || []).forEach(w => html += `<div class="conf warn">${esc(w)}</div>`);
+      return html + '</div>';
+    }
+
+    async function saveEntries(confirmFlag) {
+      if (S.saving) return;
+      const body = collect();
+      if (!body) return;
+      body.confirm = !!confirmFlag;
+      S.saving = true;
+      const btn = $('otSave');
+      btn.disabled = true;
+      try {
+        const res = await post('/api/ot/entries', body);
+        toast(`შენახულია ${res.created} ჩანაწერი · დღე ${hm(res.day_min)} · ღამე ${hm(res.night_min)}`);
+        const keepDate = $('fDate').value;
+        resetForm(false);
+        $('fDate').value = keepDate; showWeekday();
+        loadList();
+        $('fWorkId').focus();
+      } catch (e) {
+        if (e.status === 409 && e.payload) {
+          const p = e.payload;
+          S.saving = false; btn.disabled = false;
+          if (p.blocking) {
+            await dialog({ title: 'დუბლიკატი — შენახვა შეუძლებელია', sub: p.error, body: conflictHtml(p),
+              buttons: [{ label: 'დაბრუნება', value: null, cls: 'btn-primary' }] });
+          } else {
+            const r = await dialog({ title: 'გადაამოწმეთ შენახვამდე', sub: 'ქვემოთ მოცემული შეიძლება იყოს კანონიერი (მაგ. სხვა დრო იმავე დღეს). დაადასტურეთ, თუ ყველაფერი სწორია.', body: conflictHtml(p),
+              buttons: [{ label: 'დაბრუნება და შესწორება', value: null }, { label: 'დადასტურება და შენახვა', value: 'go', cls: 'btn-warn' }] });
+            if (r.value === 'go') return saveEntries(true);
+          }
+          return;
+        }
+        toast(e.message, 'error');
+      } finally { S.saving = false; btn.disabled = false; }
+    }
+
+    /* ======================================================================
+       List
+       ====================================================================== */
+    function filterQuery() {
+      const p = new URLSearchParams();
+      const add = (k, id) => { const v = $(id).value.trim(); if (v) p.set(k, v); };
+      add('from', 'qFrom'); add('to', 'qTo'); add('emp', 'qEmp'); add('brigade', 'qBrigade'); add('work_id', 'qWorkId'); add('ganwesi', 'qGanwesi'); add('q', 'qText');
+      if ($('qDeleted').checked) p.set('deleted', '1');
+      return p;
+    }
+    function bindFilters() {
+      let t = null;
+      ['qFrom', 'qTo', 'qBrigade', 'qDeleted'].forEach(id => $(id).addEventListener('change', () => { S.page = 0; loadList(); }));
+      ['qEmp', 'qWorkId', 'qGanwesi', 'qText'].forEach(id => $(id).addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { S.page = 0; loadList(); }, 300); }));
+    }
+    function resetFilters() { ['qFrom', 'qTo', 'qEmp', 'qBrigade', 'qWorkId', 'qGanwesi', 'qText'].forEach(id => $(id).value = ''); $('qDeleted').checked = false; S.page = 0; loadList(); }
+
+    let listToken = 0;
+    async function loadList() {
+      const tok = ++listToken;
+      const p = filterQuery(); p.set('limit', PAGE); p.set('offset', S.page * PAGE);
+      let res;
+      try { res = await api('/api/ot/entries?' + p); } catch (e) {
+        if (tok === listToken) $('listBody').innerHTML = `<tr><td colspan="11" style="text-align:center;padding:28px;color:var(--bad)">${esc(e.message)}</td></tr>`;
+        return;
+      }
+      if (tok !== listToken) return;
+      S.rows = res.rows;
+      $('kpiTotal').textContent = res.total.toLocaleString('en-US');
+      $('kpiDay').textContent = hm(res.day_min);
+      $('kpiNight').textContent = hm(res.night_min);
+      $('kpiPeople').textContent = res.people;
+      $('tabCount').textContent = res.total;
+      const sel = $('qBrigade'), cur = sel.value;
+      sel.innerHTML = '<option value="">ყველა</option>' + res.brigades.map(b => `<option${b === cur ? ' selected' : ''}>${esc(b)}</option>`).join('');
+      $('brigadeList').innerHTML = res.brigades.map(b => `<option value="${esc(b)}"></option>`).join('');
+      const can = S.st.can, me = S.me.username;
+      $('listBody').innerHTML = res.rows.length ? res.rows.map((r, i) => {
+        const mine = r.created_by === me;
+        const actions = r.deleted
+          ? (can.delete ? `<button type="button" class="btn btn-ghost btn-sm" onclick="restoreEntry(${i})"><svg class="i" aria-hidden="true"><use href="#i-undo"/></svg>აღდგენა</button>` : '')
+          : `${(can.edit_all || mine) ? `<button type="button" class="icon-btn" title="რედაქტირება" aria-label="რედაქტირება" onclick="editEntry(${i})"><svg class="i" aria-hidden="true"><use href="#i-edit"/></svg></button>` : ''}
+             ${can.delete ? `<button type="button" class="icon-btn" title="წაშლა" aria-label="წაშლა" onclick="deleteEntry(${i})"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg></button>` : ''}`;
+        return `<tr class="${r.deleted ? 'deleted' : ''} ${r.night_min ? 'has-night' : 'day-only'}">
+          <td><span class="mono2">${esc(fmtDate(r.work_date))}</span><span class="sub">${esc(r.weekday)}</span></td>
+          <td class="emp-cell"><b>${esc(r.emp_name)}</b><small>${esc([r.emp_position, r.emp_pid].filter(Boolean).join(' · '))}</small></td>
+          <td>${r.brigade ? `<span class="brig-tag">${esc(r.brigade)}</span>` : '—'}</td>
+          <td><span class="mono2">${esc(r.work_id || '—')}</span><span class="sub mono2">${esc(r.ganwesi || '—')}</span></td>
+          <td style="max-width:260px">${esc(r.object_name || '')}<span class="sub">${esc(r.address || '')}</span></td>
+          <td><span class="mono2">${esc(r.start)}–${esc(r.end)}</span>${r.crosses_midnight ? '<span class="sub">↷ მომდევნო დღე</span>' : ''}</td>
+          <td class="num mono2">${hm(r.day_min)}</td>
+          <td class="num mono2">${hm(r.night_min)}</td>
+          <td>${esc(r.comment || '')}${r.note ? `<span class="sub">${esc(r.note)}</span>` : ''}</td>
+          <td><span class="sub" style="color:var(--ink-2)">${esc(r.created_by)}</span><span class="sub">${esc(fmtTs(r.created_ts))}${r.updated_by ? ' · შეცვ.' : ''}</span></td>
+          <td style="white-space:nowrap">${actions}</td></tr>`;
+      }).join('') : '<tr><td colspan="11" class="muted" style="text-align:center;padding:28px">ჩანაწერები ვერ მოიძებნა</td></tr>';
+      const pages = Math.max(1, Math.ceil(res.total / PAGE));
+      $('pager').innerHTML = pages > 1 ? `<button type="button" class="btn btn-ghost btn-sm" ${S.page === 0 ? 'disabled' : ''} onclick="S.page--; loadList()">‹ წინა</button>
+        <span>${S.page + 1} / ${pages}</span><button type="button" class="btn btn-ghost btn-sm" ${S.page >= pages - 1 ? 'disabled' : ''} onclick="S.page++; loadList()">შემდეგი ›</button>` : '';
+    }
+
+    /* ---------- edit / delete / restore ---------- */
+    async function editEntry(i) {
+      const r = S.rows[i];
+      if (!r) return;
+      const mgr = S.st.can.edit_all;
+      const F = mgr
+        ? [['work_date', 'თარიღი', 'date'], ['start', 'დაწყება', 'time'], ['end', 'დასრულება', 'time'], ['emp_name', 'გვარი, სახელი'], ['emp_pid', 'პირადი #'],
+           ['emp_position', 'თანამდებობა'], ['brigade', 'ბრიგადა'], ['work_id', 'ID'], ['ganwesi', 'განწესი'], ['object_name', 'ობიექტი'], ['address', 'მისამართი'],
+           ['comment', 'კომენტარი'], ['note', 'შენიშვნა']]
+        : [['start', 'დაწყება', 'time'], ['end', 'დასრულება', 'time'], ['comment', 'კომენტარი'], ['note', 'შენიშვნა']];
+      const body = `<div class="ot-grid">${F.map(([k, label, type]) => `<div class="field"><label for="e_${k}">${esc(label)}</label>
+        <input id="e_${k}" type="${type === 'date' ? 'date' : 'text'}" class="${type === 'time' ? 't-in' : ''}" value="${esc(r[k] ?? '')}" ${k === 'comment' ? 'list="commentList"' : ''} /></div>`).join('')}
+        <div class="field" style="grid-column:1/-1"><label for="e_reason">ცვლილების მიზეზი</label><input id="e_reason" type="text" maxlength="300" placeholder="მაგ: დრო არასწორად იყო შეყვანილი" /></div></div>
+        ${mgr ? '' : '<p class="lk-hint" style="margin-top:8px">ოპერატორს შეუძლია საკუთარ ჩანაწერში დროისა და კომენტარის შესწორება. სხვა ველებს მენეჯერი ასწორებს.</p>'}`;
+      const go = async (confirmFlag, payload) => {
+        try {
+          const res = await post(`/api/ot/entries/${r.id}`, { ...payload, confirm: confirmFlag }, 'PUT');
+          toast(res.changed ? 'ცვლილება შენახულია' : 'ცვლილება არ ყოფილა');
+          loadList();
+        } catch (e) {
+          if (e.status === 409 && e.payload && !e.payload.blocking) {
+            const c = await dialog({ title: 'გადაამოწმეთ', sub: e.message, body: conflictHtml(e.payload),
+              buttons: [{ label: 'გაუქმება', value: null }, { label: 'დადასტურება და შენახვა', value: 'go', cls: 'btn-warn' }] });
+            if (c.value === 'go') return go(true, payload);
+          } else if (e.status === 409 && e.payload) {
+            await dialog({ title: 'დუბლიკატი', sub: e.message, body: conflictHtml(e.payload), buttons: [{ label: 'დახურვა', value: null, cls: 'btn-primary' }] });
+          } else toast(e.message, 'error');
+        }
+      };
+      const res = await dialog({ title: 'ჩანაწერის რედაქტირება', sub: `${r.emp_name} · ${fmtDate(r.work_date)} · ${r.start}–${r.end}`, body,
+        buttons: [{ label: 'გაუქმება', value: null }, { label: 'შენახვა', value: 'save', cls: 'btn-primary',
+          collect: () => {
+            const out = {};
+            F.forEach(([k, , type]) => {
+              let v = $('e_' + k).value.trim();
+              if (type === 'time') v = normTime(v) || v;
+              if (v !== String(r[k] ?? '')) out[k] = v;
+            });
+            out.reason = $('e_reason').value.trim();
+            return out;
+          } }] });
+      if (res.value !== 'save') return;
+      const payload = res.extra;
+      if (Object.keys(payload).length === 1) { toast('ცვლილება არ ყოფილა', 'warning'); return; }
+      go(false, payload);
+    }
+
+    async function deleteEntry(i) {
+      const r = S.rows[i];
+      const res = await dialog({ title: 'ჩანაწერის წაშლა', sub: `${r.emp_name} · ${fmtDate(r.work_date)} · ${r.start}–${r.end}. ჩანაწერი არ წაიშლება საბოლოოდ — შესაძლებელია აღდგენა.`,
+        body: '<div class="field"><label for="d_reason">მიზეზი (სავალდებულო)</label><input id="d_reason" type="text" maxlength="300" /></div>',
+        buttons: [{ label: 'გაუქმება', value: null }, { label: 'წაშლა', value: 'del', cls: 'btn-danger',
+          check: () => { const ok = $('d_reason').value.trim().length >= 3; if (!ok) $('d_reason').classList.add('is-invalid'); return ok; },
+          collect: () => $('d_reason').value.trim() }] });
+      if (res.value !== 'del') return;
+      try { await post(`/api/ot/entries/${r.id}`, { reason: res.extra }, 'DELETE'); toast('ჩანაწერი წაიშალა'); loadList(); }
+      catch (e) { toast(e.message, 'error'); }
+    }
+    async function restoreEntry(i) {
+      const r = S.rows[i];
+      try { await post(`/api/ot/entries/${r.id}/restore`, {}); toast('ჩანაწერი აღდგა'); loadList(); }
+      catch (e) { toast(e.message, 'error'); }
+    }
+
+    /* ======================================================================
+       Audit
+       ====================================================================== */
+    function auditDetails(a) {
+      let d = a.details || '';
+      try {
+        const o = JSON.parse(d);
+        if (a.action === 'update') return Object.entries(o).map(([k, v]) => `<b>${esc(FIELD_LABELS[k] || k)}</b>: ${esc(k.endsWith('_min') ? hm(+v[0]) : v[0])} → ${esc(k.endsWith('_min') ? hm(+v[1]) : v[1])}`).join('<br>');
+        if (a.action === 'create') return `${esc(o.employee)} · ${esc(fmtDate(o.date))} · ${esc(o.time)} · ID ${esc(o.work_id || '—')} · განწ. ${esc(o.ganwesi || '—')}${o.autofilled ? ' · ავტო: ' + esc(o.autofilled) : ''}${o.confirmed ? ' · გაფრთხილება დადასტურდა' : ''}`;
+      } catch (_) {}
+      return esc(d);
+    }
+    async function loadAudit() {
+      let res;
+      try { res = await api(`/api/ot/audit?limit=${PAGE}&offset=${S.auditPage * PAGE}`); }
+      catch (e) { $('auditBody').innerHTML = `<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--bad)">${esc(e.message)}</td></tr>`; return; }
+      $('auditBody').innerHTML = res.rows.length ? res.rows.map(a => `<tr>
+        <td class="mono2">${esc(fmtTs(a.ts))}</td><td>${esc(a.username)}</td><td><span class="tag">${esc(ACTIONS[a.action] || a.action)}</span></td>
+        <td class="audit-details">${auditDetails(a)}</td><td>${esc(a.reason || '')}</td><td class="mono2">${esc(a.ip || '')}</td></tr>`).join('')
+        : '<tr><td colspan="6" class="muted" style="text-align:center;padding:28px">ოპერაციები ჯერ არ არის</td></tr>';
+      const pages = Math.max(1, Math.ceil(res.total / PAGE));
+      $('auditPager').innerHTML = pages > 1 ? `<button type="button" class="btn btn-ghost btn-sm" ${S.auditPage === 0 ? 'disabled' : ''} onclick="S.auditPage--; loadAudit()">‹ წინა</button>
+        <span>${S.auditPage + 1} / ${pages}</span><button type="button" class="btn btn-ghost btn-sm" ${S.auditPage >= pages - 1 ? 'disabled' : ''} onclick="S.auditPage++; loadAudit()">შემდეგი ›</button>` : '';
+    }
+
+    /* ======================================================================
+       Manager: export, backup, restore, import
+       ====================================================================== */
+    async function downloadFile(url, fallbackName) {
+      const res = await fetch(url, { credentials: 'same-origin' });
+      if (!res.ok) { let m = `შეცდომა ${res.status}`; try { m = (await res.json()).error || m; } catch (_) {} throw new Error(m); }
+      const blob = await res.blob();
+      const cd = res.headers.get('Content-Disposition') || '';
+      const m = cd.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = m ? decodeURIComponent(m[1]) : fallbackName;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    }
+    async function exportExcel() {
+      const p = filterQuery();
+      try {
+        await downloadFile('/api/ot/export?' + p, 'overtime.xlsx');
+        $('exportInfo').textContent = p.toString() ? 'ჩამოიტვირთა ფილტრის მიხედვით.' : 'ჩამოიტვირთა ყველა ჩანაწერი.';
+      } catch (e) { toast(e.message, 'error'); }
+    }
+    async function downloadBackup() {
+      try { await downloadFile('/api/ot/backup', 'overtime_backup.json'); toast('სარეზერვო ასლი ჩამოიტვირთა'); }
+      catch (e) { toast(e.message, 'error'); }
+    }
+    function setProg(id, frac) { $(id).hidden = false; $(id).firstElementChild.style.width = Math.round(frac * 100) + '%'; }
+
+    async function restoreBackup(input) {
+      const f = input.files[0]; input.value = '';
+      if (!f) return;
+      let data;
+      try { data = JSON.parse(await f.text()); } catch (_) { toast('ფაილი JSON არ არის', 'error'); return; }
+      const entries = data && data.module === 'overtime' && Array.isArray(data.entries) ? data.entries : null;
+      if (!entries) { toast('ეს Overtime-ის სარეზერვო ფაილი არ არის', 'error'); return; }
+      const ok = await dialog({ title: 'ასლიდან აღდგენა', sub: `ფაილში ${entries.length} ჩანაწერია. დაემატება მხოლოდ ის, რაც ბაზაში არ არის — არსებული არ შეიცვლება.`,
+        buttons: [{ label: 'გაუქმება', value: null }, { label: 'აღდგენა', value: 'go', cls: 'btn-primary' }] });
+      if (ok.value !== 'go') return;
+      let ins = 0, skip = 0, bad = 0;
+      try {
+        for (let i = 0; i < entries.length; i += 500) {
+          const r = await post('/api/ot/restore', { entries: entries.slice(i, i + 500) });
+          ins += r.inserted; skip += r.skipped; bad += r.invalid;
+          setProg('restoreProg', Math.min(1, (i + 500) / entries.length));
+        }
+        $('restoreLog').textContent = `დაემატა ${ins} · უკვე იყო ${skip} · არასწორი ${bad}`;
+        loadList();
+      } catch (e) { $('restoreLog').textContent = `შეწყდა: ${e.message} (დაემატა ${ins})`; }
+    }
+
+    /* ---- minimal XLSX reader (zip + sheet XML) — runs in the browser, no upload of the whole file ---- */
+    async function readZip(buf) {
+      const dv = new DataView(buf), td = new TextDecoder();
+      let i = buf.byteLength - 22;
+      while (i >= 0 && dv.getUint32(i, true) !== 0x06054b50) i--;
+      if (i < 0) throw new Error('ფაილი XLSX არ არის');
+      const n = dv.getUint16(i + 10, true);
+      let p = dv.getUint32(i + 16, true);
+      const files = {};
+      for (let k = 0; k < n; k++) {
+        if (dv.getUint32(p, true) !== 0x02014b50) throw new Error('XLSX ფაილი დაზიანებულია');
+        const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+        const nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
+        files[td.decode(new Uint8Array(buf, p + 46, nl))] = { method, csize, lho };
+        p += 46 + nl + xl + cl;
+      }
+      return async (name) => {
+        const f = files[name];
+        if (!f) return null;
+        const l = f.lho, start = l + 30 + dv.getUint16(l + 26, true) + dv.getUint16(l + 28, true);
+        const data = new Uint8Array(buf, start, f.csize);
+        if (f.method === 0) return td.decode(data);
+        if (typeof DecompressionStream === 'undefined') throw new Error('ბრაუზერი ამ ფუნქციას არ უჭერს მხარს — გამოიყენეთ Chrome / Edge / Firefox-ის ახალი ვერსია');
+        return await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+      };
+    }
+    const xmlText = (s) => s.replace(/&(lt|gt|amp|quot|apos|#\d+|#x[0-9a-f]+);/gi, (m, e) => ({ lt: '<', gt: '>', amp: '&', quot: '"', apos: "'" }[e.toLowerCase()] ??
+      String.fromCodePoint(e[1].toLowerCase() === 'x' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10))));
+    const tText = (xml) => { let out = ''; xml.replace(/<t\b[^>]*>([\s\S]*?)<\/t>/g, (_, t) => { out += t; return ''; }); return xmlText(out); };
+    const colIdx = (ref) => { let n = 0; for (const ch of ref.replace(/\d+$/, '')) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; };
+
+    async function parseOvertimeXlsx(buf) {
+      const get = await readZip(buf);
+      const wb = await get('xl/workbook.xml'), rels = await get('xl/_rels/workbook.xml.rels');
+      if (!wb || !rels) throw new Error('ფაილი XLSX არ არის');
+      const sheets = [...wb.matchAll(/<sheet\b[^>]*?name="([^"]*)"[^>]*?r:id="([^"]*)"/g)].map(m => ({ name: xmlText(m[1]), rid: m[2] }));
+      const sh = sheets.find(s => s.name.trim() === 'overtime სამონტაჟო') || sheets.find(s => /overtime/i.test(s.name));
+      if (!sh) throw new Error('ფურცელი „overtime სამონტაჟო“ ვერ მოიძებნა');
+      const rel = [...rels.matchAll(/<Relationship\b[^>]*>/g)].map(m => m[0]).find(r => r.includes(`Id="${sh.rid}"`));
+      let target = rel && (rel.match(/Target="([^"]*)"/) || [])[1];
+      if (!target) throw new Error('ფურცლის ფაილი ვერ მოიძებნა');
+      target = target.startsWith('/') ? target.slice(1) : 'xl/' + target;
+      const sstXml = await get('xl/sharedStrings.xml') || '';
+      const sst = [...sstXml.matchAll(/<si>([\s\S]*?)<\/si>/g)].map(m => tText(m[1]));
+      const xml = await get(target);
+      const rows = [];
+      for (const rm of xml.matchAll(/<row\b([^>]*)>([\s\S]*?)<\/row>/g)) {
+        const rn = +((rm[1].match(/\br="(\d+)"/) || [])[1] || 0);
+        if (rn < 2) continue;
+        const cells = [];
+        for (const cm of rm[2].matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
+          const ref = (cm[1].match(/\br="([A-Z]+\d+)"/) || [])[1];
+          if (!ref || !cm[2]) continue;
+          const t = (cm[1].match(/\bt="(\w+)"/) || [])[1] || 'n';
+          const v = (cm[2].match(/<v>([\s\S]*?)<\/v>/) || [])[1];
+          let val = null;
+          if (t === 's') val = v != null ? sst[+v] : null;
+          else if (t === 'inlineStr') val = tText(cm[2]);
+          else if (t === 'str') val = v != null ? xmlText(v) : null;
+          else if (t === 'n' && v != null && v !== '') val = +v;
+          cells[colIdx(ref)] = val;
+        }
+        rows.push({ rn, cells });
+      }
+      return { sheet: sh.name, rows };
+    }
+    function xlDate(v) {
+      if (typeof v === 'number' && v > 20000) return new Date(Math.round((Math.floor(v) - 25569) * 86400000)).toISOString().slice(0, 10);
+      const m = String(v || '').match(/^(\d{1,2})[./](\d{1,2})[./](\d{4})$/);
+      return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : (/^\d{4}-\d{2}-\d{2}/.test(String(v || '')) ? String(v).slice(0, 10) : '');
+    }
+    function xlTime(v) {
+      if (typeof v === 'number') { const m = Math.round((v - Math.floor(v)) * 1440) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; }
+      return normTime(v) || '';
+    }
+    const xlStr = (v) => v == null ? '' : (typeof v === 'number' ? (Number.isInteger(v) ? String(v) : String(v)) : String(v).trim());
+
+    async function pickImport(input) {
+      const f = input.files[0]; input.value = '';
+      if (!f) return;
+      $('importGo').hidden = true; $('importProg').hidden = true; S.importRows = null;
+      $('importLog').textContent = `იკითხება „${f.name}“…`;
+      try {
+        const { sheet, rows } = await parseOvertimeXlsx(await f.arrayBuffer());
+        const out = [];
+        let skipped = 0;
+        for (const { rn, cells: c } of rows) {
+          const name = xlStr(c[0]);
+          if (!name) { skipped++; continue; }
+          const b = xlStr(c[1]);
+          const pm = b.match(/(\d{6,})\s*$/);
+          out.push({
+            row: rn, emp_name: name, emp_pid: pm ? pm[1] : '', emp_position: pm ? b.slice(0, pm.index).trim() : b,
+            work_date: xlDate(c[2]), brigade: xlStr(c[3]), work_id: xlStr(c[4]), object_name: xlStr(c[5]), address: xlStr(c[6]),
+            ganwesi: xlStr(c[7]), start: xlTime(c[8]), end: xlTime(c[9]), comment: xlStr(c[15]), note: xlStr(c[16])
+          });
+        }
+        const dates = out.map(r => r.work_date).filter(Boolean).sort();
+        S.importRows = out;
+        $('importLog').textContent = `ფურცელი: ${sheet}\nწაკითხულია ${out.length} სტრიქონი (${skipped} ცარიელი გამოტოვდა)` +
+          (dates.length ? `\nპერიოდი: ${fmtDate(dates[0])} – ${fmtDate(dates[dates.length - 1])}` : '') +
+          `\nმაგალითი: ${out.slice(0, 2).map(r => `${r.emp_name} · ${fmtDate(r.work_date)} · ${r.start}–${r.end}`).join(' | ')}`;
+        $('importGo').hidden = !out.length;
+      } catch (e) { $('importLog').textContent = 'წაკითხვა ვერ მოხერხდა: ' + e.message; }
+    }
+    async function runImport() {
+      const rows = S.importRows;
+      if (!rows || !rows.length) return;
+      $('importGo').disabled = true;
+      let ins = 0, dup = 0, bad = 0;
+      const badRows = [];
+      try {
+        for (let i = 0; i < rows.length; i += 500) {
+          const r = await post('/api/ot/import', { rows: rows.slice(i, i + 500) });
+          ins += r.inserted; dup += r.duplicates; bad += r.invalid_count;
+          badRows.push(...(r.invalid || []).map(x => x.row));
+          setProg('importProg', Math.min(1, (i + 500) / rows.length));
+        }
+        $('importLog').textContent += `\n\nდასრულდა: დაემატა ${ins} · დუბლიკატი ${dup} · გამოტოვებული ${bad}` + (badRows.length ? ` (სტრიქონები: ${badRows.slice(0, 20).join(', ')}${badRows.length > 20 ? '…' : ''})` : '');
+        S.importRows = null; $('importGo').hidden = true;
+        loadList();
+      } catch (e) { $('importLog').textContent += `\n\nშეწყდა: ${e.message} (დაემატა ${ins}). განმეორებით გაშვება უსაფრთხოა — დუბლიკატები გამოტოვდება.`; }
+      finally { $('importGo').disabled = false; }
+    }
+
+    document.addEventListener('input', (e) => e.target.classList?.remove('is-invalid'));
+  </script>
+</body>
+</html>

@@ -824,6 +824,7 @@
     </a>
     <nav class="nav-tabs" aria-label="განყოფილებები">
       <a class="nav-tab active" href="/" aria-current="page">ანგარიში</a>
+      <a class="nav-tab" href="/overtime" id="navOvertime" hidden>Overtime</a>
       <a class="nav-tab" href="/admin">ადმინ პანელი</a>
     </nav>
     <div class="topbar-status" id="netStatus" role="status">
@@ -1204,7 +1205,7 @@
     </section>
 
     <footer>
-      <span>Brigade-Ops v4.5</span><span>Engineered by <strong>Zaza Lomidze</strong></span>
+      <span>Brigade-Ops v4.6</span><span>Engineered by <strong>Zaza Lomidze</strong></span>
     </footer>
   </main>
 
@@ -1320,6 +1321,7 @@
     function setOperator(user) {
       currentOperator = user;
       $('userChip').hidden = !user;
+      $('navOvertime').hidden = !(user && user.ot_role && user.ot_role !== 'none');
       if (user) {
         const name = user.display_name || user.username;
         $('ucName').textContent = name;
@@ -1345,6 +1347,7 @@
           body: JSON.stringify({ username: $('loginUser').value.trim(), password: $('loginPass').value })
         });
         $('loginPass').value = '';
+        if (res.user && res.user.main_access === false) { location.replace('/overtime'); return; }
         $('loginScreen').hidden = true;
         setOperator(res.user);
         startApp();
@@ -1383,6 +1386,7 @@
       renderMemberList();
       try {
         const me = await jsonFetch('/api/me');
+        if (me.user && me.user.main_access === false) { location.replace('/overtime'); return; }
         setOperator(me.user);
         if (me.login_required && !me.user) {
           showLoginScreen(me.no_operators ? 'ოპერატორი ჯერ არ არის დამატებული — ადმინისტრატორმა უნდა დაამატოს ადმინ პანელის „ოპერატორების“ განყოფილებაში.' : '');
