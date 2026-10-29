@@ -1520,9 +1520,17 @@ def api_logout():
 def api_get_records():
     try:
         with db_cursor() as cur:
-            cur.execute("SELECT data FROM records ORDER BY created_at DESC, db_id DESC;")
+            cur.execute("SELECT db_id, data FROM records ORDER BY created_at DESC, db_id DESC;")
             rows = cur.fetchall()
-        return jsonify({"records": [r["data"] for r in rows]})
+        out = []
+        for r in rows:
+            rec = r["data"] if isinstance(r["data"], dict) else {}
+            # სვეტი db_id ავტორიტეტულია: ზოგ ძველ/იმპორტირებულ ჩანაწერში data-ში db_id არ არის ან განსხვავდება,
+            # რის გამოც წაშლა („ვერ მოიძებნა“) და რედაქტირება სწორ სტრიქონს ვერ პოულობდა
+            if rec.get("db_id") != r["db_id"]:
+                rec = dict(rec, db_id=r["db_id"])
+            out.append(rec)
+        return jsonify({"records": out})
     except Exception as e:
         return server_error(e)
 
@@ -1664,7 +1672,7 @@ def api_delete_record(record_id):
 
 
 # ჩანაწერებში გაცდენის მიზეზის მასობრივი ცვლილება (ერთი პიროვნება, რამდენიმე ჩანაწერი)
-ABSENCE_REASONS = ["შვებულება", "ბიულეტინი", "სავარაუდო ბიულეტინი", "უხელფასო შვებულება", "არასაპატიო", "საპატიო","ღამის სამუშაო"]
+ABSENCE_REASONS = ["შვებულება", "ბიულეტინი", "სავარაუდო ბიულეტინი", "უხელფასო შვებულება", "არასაპატიო", "საპატიო"]
 PRESENT_STATUS = "__present__"
 
 
