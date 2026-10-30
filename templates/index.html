@@ -1205,7 +1205,7 @@
     </section>
 
     <footer>
-      <span>Brigade-Ops v4.6.2</span><span>Engineered by <strong>Zaza Lomidze</strong></span>
+      <span>Brigade-Ops v4.6.3</span><span>Engineered by <strong>Zaza Lomidze</strong></span>
     </footer>
   </main>
 
@@ -1249,6 +1249,7 @@
   </div>
 
   <script>
+    const APP_VERSION = '4.6.3';
     let workCounter = 0;
     let savedRecords = [];
     let allMembersCache = [];
@@ -1386,6 +1387,7 @@
       renderMemberList();
       try {
         const me = await jsonFetch('/api/me');
+        if (me.version !== APP_VERSION) showStatus('სერვერის და გვერდის ვერსიები განსხვავდება — ატვირთეთ ვერსიის ყველა ფაილი (app.py, overtime.py, templates/).', 'error');
         if (me.user && me.user.main_access === false) { location.replace('/overtime'); return; }
         setOperator(me.user);
         if (me.login_required && !me.user) {
@@ -2183,7 +2185,12 @@
       const rec = savedRecords.find(r => String(r.db_id || r.id) === String(recordDbId));
       if (!confirm(`წავშალო ჩანაწერი${rec ? ` ID ${rec.id} (${rec.date || ''})` : ''}?\nეს მოქმედება შეუქცევადია.`)) return;
 
-      jsonFetch(`/api/records/delete/${encodeURIComponent(recordDbId)}`, { method: 'DELETE' })
+      // db_id goes in the request body, not the URL — ids like "@_1760…" were lost/mangled in the path
+      jsonFetch('/api/records/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ db_id: rec && rec.db_id ? rec.db_id : '', id: rec ? rec.id : recordDbId, date: rec ? rec.date : '', brigade: rec ? rec.brigade : '' })
+      })
         .then(() => {
           if (String(editingRecordId) === String(recordDbId)) {
             setEditMode(null);
