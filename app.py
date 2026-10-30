@@ -51,6 +51,7 @@ app.config.update(
 MIN_PASSWORD_LEN = 10
 
 CONFIG_VERSION = 4
+APP_VERSION = "4.6.3"   # index.html ადარებს — თუ განსხვავდება, app.py ატვირთული არ არის
 TBILISI = "თბილისი"
 LEADER_POSITIONS = {"ბრიგადირი", "სარემონტო ბრიგადის უფროსი"}
 DEFAULT_POSITIONS = ["მუშა", "ბრიგადირი", "სარემონტო ბრიგადის უფროსი"]
@@ -1467,6 +1468,7 @@ def api_me():
         # შესვლის ეკრანზე მინიშნებისთვის: ოპერატორი ჯერ არ დამატებულა
         "no_operators": bool(req and not g.get("users_error") and not has_active_operator()),
         "user": _session_user(u) if u else None,
+        "version": APP_VERSION,
     })
 
 
@@ -1645,16 +1647,45 @@ def api_save_record():
         return server_error(e, "ჩანაწერის შენახვა ვერ მოხერხდა. სცადეთ თავიდან.")
 
 
-@app.route("/api/records/delete/<path:record_id>", methods=["DELETE"])
-def api_delete_record(record_id):
+def _find_record_for_delete(cur, db_id, hint):
+    """წასაშლელი სტრიქონი: ჯერ db_id ზუსტად, მერე ზედმეტი ჰარების გარეშე, ბოლოს — ძველი ჩანაწერებისთვის,
+    რომელთა მონაცემებშიც db_id არ ეწერა — ID + თარიღი + ბრიგადა (მხოლოდ თუ ზუსტად ერთი ემთხვევა)."""
+    cols = "SELECT db_id, id, data, created_at FROM records"
+    if db_id:
+        cur.execute(f"{cols} WHERE db_id = %s;", (db_id,))
+        row = cur.fetchone()
+        if row:
+            return row, None
+        cur.execute(f"{cols} WHERE TRIM(db_id) = %s;", (db_id.strip(),))
+        rows = cur.fetchall()
+        if len(rows) == 1:
+            return rows[0], None
+        # უკვე წაშლილი ჩანაწერი → სარეზერვო ძიება არ გვინდა (სხვა, მსგავს ჩანაწერს არ წავშლით)
+        cur.execute("SELECT 1 AS x FROM records_trash WHERE db_id = %s;", (db_id,))
+        if cur.fetchone():
+            return None, "ჩანაწერი ვერ მოიძებნა"
+    rid, rdate, rbrig = (str(hint.get(k) or "").strip() for k in ("id", "date", "brigade"))
+    if rid and rdate:
+        cur.execute(f"{cols} WHERE id = %s AND data->>'date' = %s;", (rid, rdate))
+        rows = [r for r in cur.fetchall()
+                if not rbrig or str((r["data"] or {}).get("brigade") or "") == rbrig]
+        if len(rows) == 1:
+            return rows[0], None
+        if len(rows) > 1:
+            return None, "ამ ID-ით, თარიღითა და ბრიგადით რამდენიმე ჩანაწერია — წაშლა ადმინ პანელიდან ან ჩანაწერის რედაქტირების შემდეგ"
+    return None, "ჩანაწერი ვერ მოიძებნა"
+
+
+def _delete_record(record_id, hint=None):
     """ჩანაწერი გადადის „წაშლილებში“ (records_trash) — ადმინს შეუძლია აღდგენა."""
-    record_id = str(record_id)[:100]
+    record_id = str(record_id or "")[:100]
     try:
         with db_cursor(commit=True) as cur:
-            cur.execute("SELECT db_id, id, data, created_at FROM records WHERE db_id = %s FOR UPDATE;", (record_id,))
-            old = cur.fetchone()
+            old, why = _find_record_for_delete(cur, record_id, hint or {})
             if not old:
-                return jsonify({"error": "ჩანაწერი ვერ მოიძებნა"}), 404
+                print(f"record delete: not found (db_id length {len(record_id)}, hint id {'set' if (hint or {}).get('id') else 'empty'})")
+                return jsonify({"error": why}), 404 if why == "ჩანაწერი ვერ მოიძებნა" else 409
+            cur.execute("SELECT db_id FROM records WHERE db_id = %s FOR UPDATE;", (old["db_id"],))
             cur.execute("""
                 INSERT INTO records_trash (db_id, id, data, created_at, deleted_at, deleted_by, deleted_ip)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -1662,13 +1693,26 @@ def api_delete_record(record_id):
                     deleted_at = EXCLUDED.deleted_at, deleted_by = EXCLUDED.deleted_by, deleted_ip = EXCLUDED.deleted_ip;
             """, (old["db_id"], old["id"], Json(old["data"]), old["created_at"],
                   datetime.now(timezone.utc), actor_name()[:100], client_ip()))
-            cur.execute("DELETE FROM records WHERE db_id = %s;", (record_id,))
+            cur.execute("DELETE FROM records WHERE db_id = %s;", (old["db_id"],))
         old_data = old["data"] if isinstance(old.get("data"), dict) else {}
-        log_activity("record_delete", old.get("id") or "", record_id,
+        log_activity("record_delete", old.get("id") or "", old["db_id"],
                      (describe_record(old_data) if old_data else "") + " (აღდგენადია ადმინ პანელიდან)")
-        return jsonify({"success": True})
+        return jsonify({"success": True, "db_id": old["db_id"]})
     except Exception as e:
         return server_error(e, "წაშლა ვერ მოხერხდა")
+
+
+@app.route("/api/records/delete/<path:record_id>", methods=["DELETE"])
+def api_delete_record(record_id):
+    return _delete_record(record_id)
+
+
+@app.route("/api/records/delete", methods=["POST"])
+def api_delete_record_post():
+    """db_id იგზავნება მოთხოვნის სხეულში (არა URL-ში) — სპეციალური სიმბოლოები გზაში აღარ იკარგება."""
+    data = request.get_json(silent=True) or {}
+    hint = {k: data.get(k) for k in ("id", "date", "brigade")}
+    return _delete_record(data.get("db_id"), hint)
 
 
 # ჩანაწერებში გაცდენის მიზეზის მასობრივი ცვლილება (ერთი პიროვნება, რამდენიმე ჩანაწერი)
