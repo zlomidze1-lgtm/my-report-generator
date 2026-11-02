@@ -51,7 +51,7 @@ app.config.update(
 MIN_PASSWORD_LEN = 10
 
 CONFIG_VERSION = 4
-APP_VERSION = "4.6.4"   # index.html ადარებს — თუ განსხვავდება, app.py ატვირთული არ არის
+APP_VERSION = "4.7.0"   # index.html ადარებს — თუ განსხვავდება, app.py ატვირთული არ არის
 TBILISI = "თბილისი"
 LEADER_POSITIONS = {"ბრიგადირი", "სარემონტო ბრიგადის უფროსი"}
 DEFAULT_POSITIONS = ["მუშა", "ბრიგადირი", "სარემონტო ბრიგადის უფროსი"]
