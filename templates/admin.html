@@ -397,7 +397,43 @@
     .defaults-line .chip { justify-self: start; }
     .defaults-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
 
-    .member-search { max-width: 320px; margin-bottom: 12px; }
+    /* v4.7 — brigade / region / member picking */
+    .finder { position: relative; margin-bottom: 12px; }
+    .finder .i-lead { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--ink-3); pointer-events: none; }
+    .finder .input { padding-left: 34px; padding-right: 34px; }
+    .finder .clear-x { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border: 0; border-radius: 7px; background: transparent; color: var(--ink-3); cursor: pointer; display: grid; place-items: center; }
+    .finder .clear-x:hover { background: var(--mute-soft); color: var(--ink); }
+    .finder .clear-x .i { width: 14px; height: 14px; }
+    .finder-label { display: block; font-size: 12px; font-weight: 700; color: var(--ink-3); margin: 0 0 6px; }
+    .g-results { position: absolute; z-index: 60; top: calc(100% + 6px); left: 0; right: 0; max-height: 340px; overflow: auto; padding: 6px;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-float); }
+    .g-results[hidden] { display: none; }
+    .g-res { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; }
+    .g-res:hover, .g-res.active { background: var(--brand-soft); }
+    .g-res .who { flex: 1; min-width: 0; }
+    .g-res .who b { display: block; font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .g-res .who small { display: block; font-size: 11.5px; color: var(--ink-3); }
+    .g-res mark { background: #FFF1B8; color: inherit; border-radius: 3px; padding: 0 1px; }
+    .g-res .bnum { min-width: 30px; height: 26px; padding: 0 6px; border-radius: 8px; display: inline-grid; place-items: center; background: var(--nav); color: #fff; font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; }
+    .g-empty { padding: 12px; text-align: center; color: var(--ink-3); font-size: 13px; }
+    .brigade-btn[hidden] { display: none; }
+
+    .ed-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 12px; }
+    .ed-toolbar .finder { flex: 1 1 260px; max-width: 380px; margin: 0; }
+    .region-seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; }
+    .region-seg button { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .region-seg button:hover { background: var(--card); color: var(--ink); }
+    .region-seg button.on { background: var(--card); color: var(--brand-ink); box-shadow: 0 1px 2px rgba(20,26,46,.08), 0 0 0 1px var(--brand-line); }
+    .region-seg button.on.tb { color: var(--ok); box-shadow: 0 1px 2px rgba(20,26,46,.08), 0 0 0 1px #BFE6CD; }
+    .region-seg .n { min-width: 20px; height: 18px; padding: 0 5px; border-radius: 999px; display: inline-grid; place-items: center; background: var(--mute-soft); color: var(--ink-3); font-size: 11px; font-family: var(--font-mono); }
+    .region-seg button.on .n { background: var(--brand-soft); color: var(--brand-ink); }
+    .filter-note { font-size: 12.5px; color: var(--ink-3); }
+    .filter-note b { color: var(--ink); }
+    table.mtable tbody tr.hl td { background: #FFF8DB !important; }
+    table.mtable tbody tr.hl td:first-child { box-shadow: inset 3px 0 0 #F59E0B; }
+    table.mtable tbody tr.flash td { animation: rowflash 1.6s ease-out 1; }
+    @keyframes rowflash { 0%, 30% { background: #FFE58A; } 100% { background: #FFF8DB; } }
+    @media (prefers-reduced-motion: reduce) { table.mtable tbody tr.flash td { animation: none; } }
 
     /* Tables */
     .table-wrap { position: relative; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--card); }
@@ -556,6 +592,8 @@
       .brigade-list { max-height: none; flex-direction: row; overflow-x: auto; padding-bottom: 6px; }
       .brigade-btn { width: auto; flex-shrink: 0; }
       .brigade-btn .meta small { display: none; }
+      .ed-toolbar .finder { flex-basis: 100%; max-width: none; }
+      .region-seg { width: 100%; }
     }
     @media (max-width: 720px) {
       :root { --bar-h: 58px; }
@@ -690,6 +728,18 @@
           <div class="panel">
             <div class="panel-head">
               <h2>ბრიგადები</h2>
+            </div>
+            <label class="finder-label" for="globalMemberSearch">წევრის ძებნა ყველა ბრიგადაში</label>
+            <div class="finder" id="globalFinder">
+              <svg class="i i-lead" aria-hidden="true"><use href="#i-search"/></svg>
+              <input type="search" class="input" id="globalMemberSearch" placeholder="სახელი, გვარი ან პირადი #" autocomplete="off"
+                     role="combobox" aria-expanded="false" aria-controls="globalResults" aria-autocomplete="list" />
+              <button type="button" class="clear-x" id="globalClear" hidden aria-label="ძებნის გასუფთავება"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+              <div class="g-results" id="globalResults" role="listbox" hidden></div>
+            </div>
+            <div class="finder">
+              <svg class="i i-lead" aria-hidden="true"><use href="#i-search"/></svg>
+              <input type="search" class="input" id="brigadeFilter" placeholder="ბრიგადის № ან ქალაქი" autocomplete="off" aria-label="ბრიგადების გაფილტვრა" />
             </div>
             <div class="brigade-list" id="brigadeList"></div>
             <form class="add-brigade" onsubmit="event.preventDefault(); addBrigade();">
@@ -870,6 +920,8 @@
     let positions = [];
     let selectedBrigade = null;
     let memberFilter = '';
+    let regionFilter = '';      // '' = ყველა რეგიონი
+    let highlightIdx = null;    // ძებნით მონიშნული წევრის ინდექსი არჩეულ ბრიგადაში
 
     const brigadeSortKey = (a, b) => {
       const da = /^\d+$/.test(a), db = /^\d+$/.test(b);
@@ -1171,18 +1223,121 @@
         const members = cfg.brigades[k].members;
         const cities = [...new Set(members.map(m => m.city).filter(Boolean))].join(', ');
         return `
-          <button type="button" class="brigade-btn ${k === selectedBrigade ? 'active' : ''}" data-key="${esc(k)}">
+          <button type="button" class="brigade-btn ${k === selectedBrigade ? 'active' : ''}" data-key="${esc(k)}" data-hay="${esc((k + ' ' + cities).toLocaleLowerCase('ka-GE'))}">
             <span class="num">${esc(k)}</span>
             <span class="meta"><b>${members.length} წევრი</b><small>${esc(cities || 'ქალაქი არ არის')}</small></span>
           </button>`;
       }).join('');
+      applyBrigadeFilter();
     }
 
-    function selectBrigade(key) {
+    // ბრიგადების სიის ფილტრი: ნომერი ან ქალაქი. ყველა ბრიგადა მონაცემებიდან მოდის — რაოდენობაზე შეზღუდვა არ არის.
+    function applyBrigadeFilter() {
+      const q = ($('brigadeFilter').value || '').trim().toLocaleLowerCase('ka-GE');
+      let shown = 0;
+      $('brigadeList').querySelectorAll('.brigade-btn').forEach(b => {
+        const num = b.dataset.key.toLocaleLowerCase('ka-GE');
+        const hit = !q || (/^\d+$/.test(q) ? num === q || num.startsWith(q) : b.dataset.hay.includes(q));
+        b.hidden = !hit;
+        if (hit) shown++;
+      });
+      let empty = $('brigadeList').querySelector('.g-empty');
+      if (!shown && !empty) $('brigadeList').insertAdjacentHTML('beforeend', '<div class="g-empty">ბრიგადა ვერ მოიძებნა</div>');
+      if (shown && empty) empty.remove();
+    }
+
+    function selectBrigade(key, opts = {}) {
       selectedBrigade = key;
-      memberFilter = '';
+      memberFilter = opts.memberFilter || '';
+      highlightIdx = opts.highlight ?? null;
+      const cities = new Set(cfg.brigades[key].members.map(m => m.city).filter(Boolean));
+      regionFilter = opts.region && cities.has(opts.region) ? opts.region : '';
       renderBrigadeList();
       renderEditor();
+      $('brigadeList').querySelector('.brigade-btn.active')?.scrollIntoView({ block: 'nearest' });
+    }
+
+    /* ---------- Member search: name / surname / fragments in any order ---------- */
+    const norm = (v) => String(v ?? '').toLocaleLowerCase('ka-GE').replace(/\s+/g, ' ').trim();
+    function memberMatches(m, q) {
+      if (!q) return true;
+      const hay = norm(`${m.name} ${m.personal_id} ${m.position}`);
+      return q.split(' ').every(t => hay.includes(t));
+    }
+    function markHit(text, q) {
+      let out = esc(text);
+      q.split(' ').filter(t => t.length > 0).forEach(t => {
+        const re = new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        out = out.replace(re, (m) => `<mark>${m}</mark>`);
+      });
+      return out;
+    }
+
+    let gResults = [], gActive = -1;
+    function globalSearch() {
+      const q = norm($('globalMemberSearch').value);
+      const box = $('globalResults');
+      $('globalClear').hidden = !q;
+      if (q.length < 2) { box.hidden = true; $('globalMemberSearch').setAttribute('aria-expanded', 'false'); return; }
+      gResults = [];
+      brigadeKeys().forEach(b => cfg.brigades[b].members.forEach((m, i) => { if (memberMatches(m, q)) gResults.push({ b, i, m }); }));
+      gActive = gResults.length ? 0 : -1;
+      box.innerHTML = gResults.length
+        ? gResults.slice(0, 30).map((r, k) => `<button type="button" class="g-res${k === gActive ? ' active' : ''}" role="option" data-k="${k}">
+            <span class="bnum">${esc(r.b)}</span>
+            <span class="who"><b>${markHit(r.m.name || 'უსახელო', q)}</b><small>${esc(r.m.position || '—')} · ${esc(r.m.city || 'ქალაქი არ არის')}${r.m.personal_id ? ' · ' + markHit(r.m.personal_id, q) : ''}</small></span>
+          </button>`).join('') + (gResults.length > 30 ? `<div class="g-empty">და კიდევ ${gResults.length - 30} — დააზუსტეთ ძებნა</div>` : '')
+        : '<div class="g-empty">ვერ მოიძებნა</div>';
+      box.hidden = false;
+      $('globalMemberSearch').setAttribute('aria-expanded', 'true');
+    }
+    function pickGlobal(k) {
+      const r = gResults[k];
+      if (!r) return;
+      $('globalResults').hidden = true;
+      $('globalMemberSearch').setAttribute('aria-expanded', 'false');
+      $('brigadeFilter').value = '';
+      selectBrigade(r.b, { region: r.m.city, highlight: r.i });
+      const row = document.querySelector(`#membersBody tr[data-i="${r.i}"]`);
+      if (row) { row.scrollIntoView({ block: 'center', behavior: 'smooth' }); row.classList.add('flash'); }
+    }
+    function clearHighlight() { highlightIdx = null; document.querySelectorAll('#membersBody tr.hl').forEach(t => t.classList.remove('hl', 'flash')); updateFilterNote(); }
+
+    // member table filter — rows are hidden in place, so typing never loses focus
+    function applyMemberFilter() {
+      const q = norm(memberFilter);
+      const members = cfg.brigades[selectedBrigade]?.members || [];
+      let shown = 0;
+      document.querySelectorAll('#membersBody tr[data-i]').forEach(tr => {
+        const m = members[Number(tr.dataset.i)];
+        const hit = !!m && (!regionFilter || m.city === regionFilter) && memberMatches(m, q);
+        tr.hidden = !hit;
+        tr.classList.toggle('hl', Number(tr.dataset.i) === highlightIdx);
+        if (hit) shown++;
+      });
+      const none = $('membersNone');
+      if (none) none.hidden = shown > 0 || !members.length;
+      updateFilterNote(shown, members.length);
+    }
+    function updateFilterNote(shown, total) {
+      const el = $('filterNote');
+      if (!el) return;
+      const members = cfg.brigades[selectedBrigade]?.members || [];
+      if (shown === undefined) shown = document.querySelectorAll('#membersBody tr[data-i]:not([hidden])').length;
+      total = total ?? members.length;
+      const hl = highlightIdx !== null && members[highlightIdx]
+        ? ` · მონიშნული: <b>${esc(members[highlightIdx].name)}</b> <button type="button" class="btn btn-ghost btn-sm" onclick="clearHighlight()">მოხსნა</button>` : '';
+      el.innerHTML = (shown === total ? `${total} წევრი` : `ნაჩვენებია <b>${shown}</b> / ${total}`) + hl;
+    }
+    function setRegion(c) {
+      regionFilter = c;
+      document.querySelectorAll('.region-seg button').forEach(b => {
+        const on = b.dataset.region === c;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      if (c && $('nmCity')) $('nmCity').value = c;
+      applyMemberFilter();
     }
 
     function renderEditor() {
@@ -1195,10 +1350,11 @@
       const members = cfg.brigades[key].members;
       const cities = [...new Set(members.map(m => m.city).filter(Boolean))];
       const otherBrigades = brigadeKeys().filter(k => k !== key);
-      const q = memberFilter.trim().toLocaleLowerCase('ka-GE');
+      if (regionFilter && !cities.includes(regionFilter)) regionFilter = '';
+      const counts = {};
+      members.forEach(m => { if (m.city) counts[m.city] = (counts[m.city] || 0) + 1; });
 
       const rows = members.map((m, i) => ({ m, i }))
-        .filter(({ m }) => !q || [m.name, m.personal_id, m.city, m.position].join(' ').toLocaleLowerCase('ka-GE').includes(q))
         .map(({ m, i }) => `
           <tr data-i="${i}">
             <td class="idx">${LEADERS.has(m.position) ? '<span class="leader-dot" title="ხელმძღვანელი"></span>' : ''}${i + 1}</td>
@@ -1241,17 +1397,28 @@
             </div>`;
           }).join('')}
         </div>` : ''}
-        ${members.length > 6 ? `<input type="search" class="input member-search" id="memberSearch" placeholder="წევრის ძებნა" aria-label="წევრის ძებნა" value="${esc(memberFilter)}">` : ''}
+        <div class="ed-toolbar">
+          ${cities.length > 1 ? `<div class="region-seg" role="group" aria-label="რეგიონი">
+            <button type="button" data-region="" class="${regionFilter ? '' : 'on'}" aria-pressed="${regionFilter ? 'false' : 'true'}">ყველა <span class="n">${members.length}</span></button>
+            ${cities.map(c => `<button type="button" data-region="${esc(c)}" class="${c === TBILISI ? 'tb' : ''} ${c === regionFilter ? 'on' : ''}" aria-pressed="${c === regionFilter}">${esc(c)} <span class="n">${counts[c] || 0}</span></button>`).join('')}
+          </div>` : (cities.length === 1 ? `<span class="chip ${cities[0] === TBILISI ? 'tb' : ''}" title="ბრიგადის რეგიონი">${esc(cities[0])}</span>` : '')}
+          <div class="finder">
+            <svg class="i i-lead" aria-hidden="true"><use href="#i-search"/></svg>
+            <input type="search" class="input" id="memberSearch" placeholder="წევრის ძებნა: სახელი, გვარი, პირადი #" aria-label="წევრის ძებნა ამ ბრიგადაში" value="${esc(memberFilter)}" autocomplete="off">
+          </div>
+          <span class="filter-note" id="filterNote"></span>
+        </div>
         <div class="table-wrap">
           <table class="mtable">
             <thead><tr><th scope="col">№</th><th scope="col">სახელი გვარი</th><th scope="col">თანამდებობა</th><th scope="col">ქალაქი</th><th scope="col">პირადი ნომერი</th><th scope="col"><span class="sr-only">მოქმედება</span></th></tr></thead>
             <tbody id="membersBody">
-              ${rows || (members.length ? '<tr><td colspan="6" style="text-align:center; padding:16px; color:var(--ink-faint);">ვერ მოიძებნა</td></tr>' : '')}
+              ${rows}
+              <tr id="membersNone" hidden><td colspan="6" style="text-align:center; padding:16px; color:var(--ink-faint);">ამ ფილტრით წევრი ვერ მოიძებნა</td></tr>
               <tr class="new-row">
                 <td class="idx" aria-hidden="true">+</td>
                 <td><input class="input" id="nmName" placeholder="სახელი გვარი *"></td>
                 <td><input class="input" id="nmPosition" list="positionsList" placeholder="თანამდებობა *" value="მუშა"></td>
-                <td><input class="input" id="nmCity" list="citiesList" placeholder="ქალაქი *" value="${esc(cities[0] || '')}"></td>
+                <td><input class="input" id="nmCity" list="citiesList" placeholder="ქალაქი *" value="${esc(regionFilter || cities[0] || '')}"></td>
                 <td class="pid"><input class="input" id="nmPid" placeholder="პირადი #" inputmode="numeric"></td>
                 <td class="acts"><button type="button" class="btn btn-outline btn-sm" onclick="addMember()"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>დამატება</button></td>
               </tr>
@@ -1268,13 +1435,9 @@
         changed();
         renderList(sel.dataset.dfield === 'car' ? 'cars' : 'engineers');
       }));
-      if (search) search.addEventListener('input', (e) => {
-        memberFilter = e.target.value;
-        const pos = e.target.selectionStart;
-        renderEditor();
-        const s = $('memberSearch');
-        s.focus(); s.setSelectionRange(pos, pos);
-      });
+      search.addEventListener('input', (e) => { memberFilter = e.target.value; applyMemberFilter(); });
+      box.querySelectorAll('.region-seg button').forEach(b => b.addEventListener('click', () => setRegion(b.dataset.region)));
+      applyMemberFilter();
 
       box.querySelectorAll('#membersBody tr[data-i] .input').forEach(inp => {
         inp.addEventListener('input', () => {
@@ -1283,7 +1446,11 @@
           inp.classList.remove('is-invalid');
           changed();
         });
-        inp.addEventListener('change', () => { renderBrigadeList(); renderDatalists(); });
+        inp.addEventListener('change', () => {
+          if (inp.dataset.f === 'city' && !confirmCity(inp.value.trim(), inp, cfg.brigades[key].members[Number(inp.closest('tr').dataset.i)])) return;
+          renderBrigadeList(); renderDatalists();
+          if (inp.dataset.f === 'city') renderEditor();
+        });
       });
       box.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => deleteMember(Number(b.dataset.del))));
       box.querySelectorAll('[data-move]').forEach(s => s.addEventListener('change', () => {
@@ -1364,6 +1531,7 @@
         if (!v) { $(id).classList.add('is-invalid'); bad = true; }
       });
       if (bad) { toast('შეავსეთ სახელი, თანამდებობა და ქალაქი.', 'error'); return; }
+      if (!confirmCity(city, $('nmCity'))) return;
 
       if (pid) {
         const dup = findPersonalId(pid);
@@ -1378,10 +1546,22 @@
       setTimeout(() => $('nmName')?.focus(), 30);
     }
 
+    // ახალი რეგიონი მხოლოდ დადასტურებით — შეცდომით აკრეფილი ქალაქი არასწორ ბრიგადა/რეგიონის წყვილს ქმნის
+    function confirmCity(city, input, self = null) {
+      if (!city || city === TBILISI) return true;
+      const used = Object.values(cfg.brigades).flatMap(b => b.members).filter(m => m !== self && m.city.trim() === city).length;
+      if (used) return true;
+      const known = [...new Set([TBILISI, ...allCities()])].filter(c => c !== city);
+      const ok = confirm(`„${city}“ ახალი რეგიონია — სხვა წევრს არ აქვს.\n\nარსებული რეგიონები: ${known.join(', ')}\n\nდავამატო ახალი რეგიონი?`);
+      if (!ok && input) { input.classList.add('is-invalid'); input.focus(); }
+      return ok;
+    }
+
     function deleteMember(i) {
       const m = cfg.brigades[selectedBrigade].members[i];
       if (!confirm(`წავშალო „${m.name || 'უსახელო'}“ ბრიგადიდან ${selectedBrigade}?`)) return;
       cfg.brigades[selectedBrigade].members.splice(i, 1);
+      highlightIdx = null;
       changed();
       renderBrigadeList();
       renderEditor();
@@ -1391,6 +1571,7 @@
       const from = selectedBrigade;
       const [m] = cfg.brigades[from].members.splice(i, 1);
       cfg.brigades[target].members.push(m);
+      highlightIdx = null;
       changed();
       renderBrigadeList();
       renderEditor();
@@ -1562,6 +1743,28 @@
       const btn = e.target.closest('.brigade-btn');
       if (btn) selectBrigade(btn.dataset.key);
     });
+    $('brigadeFilter').addEventListener('input', applyBrigadeFilter);
+    $('brigadeFilter').addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const first = $('brigadeList').querySelector('.brigade-btn:not([hidden])');
+      if (first) selectBrigade(first.dataset.key);
+    });
+    $('globalMemberSearch').addEventListener('input', globalSearch);
+    $('globalMemberSearch').addEventListener('keydown', (e) => {
+      const items = [...$('globalResults').querySelectorAll('.g-res')];
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        if (!items.length) return;
+        e.preventDefault();
+        gActive = (gActive + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+        items.forEach((b, k) => b.classList.toggle('active', k === gActive));
+        items[gActive].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') { e.preventDefault(); pickGlobal(gActive); }
+      else if (e.key === 'Escape') { $('globalResults').hidden = true; }
+    });
+    $('globalResults').addEventListener('click', (e) => { const b = e.target.closest('.g-res'); if (b) pickGlobal(Number(b.dataset.k)); });
+    $('globalClear').addEventListener('click', () => { $('globalMemberSearch').value = ''; globalSearch(); clearHighlight(); $('globalMemberSearch').focus(); });
+    document.addEventListener('click', (e) => { if (!$('globalFinder').contains(e.target)) $('globalResults').hidden = true; });
     function switchTab(name) {
       document.querySelectorAll('.section-tab').forEach(t => {
         const on = t.dataset.tab === name;
