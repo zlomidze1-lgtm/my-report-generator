@@ -51,7 +51,7 @@ app.config.update(
 MIN_PASSWORD_LEN = 10
 
 CONFIG_VERSION = 4
-APP_VERSION = "4.6.3"   # index.html ადარებს — თუ განსხვავდება, app.py ატვირთული არ არის
+APP_VERSION = "4.6.4"   # index.html ადარებს — თუ განსხვავდება, app.py ატვირთული არ არის
 TBILISI = "თბილისი"
 LEADER_POSITIONS = {"ბრიგადირი", "სარემონტო ბრიგადის უფროსი"}
 DEFAULT_POSITIONS = ["მუშა", "ბრიგადირი", "სარემონტო ბრიგადის უფროსი"]
@@ -450,6 +450,13 @@ def tariff_map(cfg):
         }
         for w in cfg.get("work_types", []) if isinstance(w, dict) and w.get("name")
     }
+
+
+def has_tariff(t):
+    """შენახულ ჩანაწერში „გაყინული“ ტარიფი ნამდვილია მხოლოდ თუ ერთი მაინც ნულზე მეტია.
+    სულ ნულოვანი ნიშნავს, რომ ჩანაწერის შენახვისას ტარიფი ჯერ არ იყო გაწერილი (ახალი სამუშაოს ტიპი) —
+    ასეთ დროს გამოიყენება მიმდინარე ტარიფი."""
+    return isinstance(t, dict) and any(to_number(t.get(f)) for f in ("worker", "brigade", "engineer"))
 
 
 def check_admin():
@@ -1055,7 +1062,7 @@ def build_rows(records, cfg):
 
         for w in works:
             qty = _clean_qty(w.get("quantity"))
-            tariff = w.get("tariff") or current_tariffs.get(wt_key(w.get("work_type")), zero)
+            tariff = w.get("tariff") if has_tariff(w.get("tariff")) else current_tariffs.get(wt_key(w.get("work_type")), zero)
             mins = _duration_minutes(w.get("start"), w.get("end"))
             work_note = str(w.get("comment", "") or "").strip()
             note = "; ".join(x for x in (work_note, rec_note) if x) or None
@@ -1621,7 +1628,7 @@ def api_save_record():
         data["updated_at_ts"] = now_iso
         if old_data:
             for w in old_data.get("works", []) or []:
-                if isinstance(w, dict) and w.get("tariff"):
+                if isinstance(w, dict) and has_tariff(w.get("tariff")):
                     old_tariffs[wt_key(w.get("work_type"))] = w["tariff"]
         current = tariff_map(load_config())
         for w in data.get("works", []):
